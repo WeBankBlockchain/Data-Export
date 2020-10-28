@@ -69,3 +69,4 @@ build_chain.sh
 hs_err_pid*
 
 ### repo ###
+config/
