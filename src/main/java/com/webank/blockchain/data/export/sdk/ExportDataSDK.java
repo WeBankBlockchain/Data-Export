@@ -31,7 +31,7 @@ public class ExportDataSDK {
 
     public static Logger logger = LoggerFactory.getLogger(ExportDataSDK.class);
 
-    public static void main(String[] args) throws ConfigException, SQLException {
+    public static void main(String[] args) throws ConfigException, SQLException, InterruptedException {
         MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
                 .jdbcUrl("jdbc:mysql://106.12.193.68:3306/bee2")
                 .pass("qsdk@2040")
@@ -45,7 +45,8 @@ public class ExportDataSDK {
         DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
                 .nodeStr("106.12.193.68:20200").certPath("config").groupId(1).build(),new ExportConfig());
         DataExportService.start(exportExecutor);
-
+//        Thread.sleep(10000L);
+//        DataExportService.stop(exportExecutor);
         System.out.println();
     }
 

@@ -13,10 +13,8 @@
  */
 package com.webank.blockchain.data.export.service;
 
-import com.webank.blockchain.data.export.db.repository.RollbackInterface;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
 
 /**
  * RollBackService, rollback
@@ -34,8 +32,9 @@ public class RollBackService {
      * 
      * @param
      */
-    public static void rollback(long start, long end, List<RollbackInterface> rollbackOneInterfaceMap) {
-        rollbackOneInterfaceMap.forEach(v -> {
+    public static void rollback(long start, long end) {
+        DataExportExecutor.crawler.get().getRollbackOneInterfaceMap()
+                .forEach(v -> {
             v.rollback(start, end);
         });
     }

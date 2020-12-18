@@ -19,7 +19,7 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.Client;
 
@@ -39,8 +39,9 @@ import java.util.List;
 @Slf4j
 public class BlockPrepareService {
 
-    public static long getTaskPoolHeight(BlockTaskPoolRepository blockTaskPoolRepository) {
-        BlockTaskPool item = blockTaskPoolRepository.findTopByOrderByBlockHeightDesc();
+    public static long getTaskPoolHeight() {
+        BlockTaskPool item = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                .findTopByOrderByBlockHeightDesc();
         long height = 0;
         if (item == null){
             return height;
@@ -57,7 +58,7 @@ public class BlockPrepareService {
         return total;
     }
 
-    public static void prepareTask(long begin, long end, boolean certainty, BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static void prepareTask(long begin, long end, boolean certainty) {
         log.info("Begin to prepare sync blocks from {} to {}", begin, end);
         List<BlockTaskPool> list = Lists.newArrayList();
         for (long i = begin; i <= end; i++) {
@@ -74,7 +75,7 @@ public class BlockPrepareService {
             }
             list.add(pool);
         }
-        blockTaskPoolRepository.saveAll(list);
+        DataExportExecutor.crawler.get().getBlockTaskPoolRepository().saveAll(list);
         log.info("Sync blocks from {} to {} are prepared.", begin, end);
     }
 

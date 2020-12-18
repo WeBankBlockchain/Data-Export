@@ -20,12 +20,11 @@ import com.webank.blockchain.data.export.common.tools.ResponseUtils;
 import com.webank.blockchain.data.export.common.vo.CommonResponse;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.db.repository.RollbackInterface;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 
 /**
  * BlockDataResetService
@@ -39,9 +38,9 @@ import java.util.List;
 @Slf4j
 public class BlockDataResetService {
 
-    public static CommonResponse resetBlockDataByBlockId(long blockHeight, BlockTaskPoolRepository blockTaskPoolRepository,
-                                                  List<RollbackInterface> rollbackOneInterfaceMap) throws IOException {
-
+    public static CommonResponse resetBlockDataByBlockId(long blockHeight) throws IOException {
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
         BlockTaskPool blockTaskPool = blockTaskPoolRepository.findByBlockHeight(blockHeight);
         if (blockTaskPool == null) {
             return CommonResponse.NOBLOCK;
@@ -57,7 +56,7 @@ public class BlockDataResetService {
         log.info("begin to refetch block {}", blockHeight);
         blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.RESET.getStatus(), new Date(),
                 blockHeight);
-        RollBackService.rollback(blockHeight, blockHeight + 1,rollbackOneInterfaceMap);
+        RollBackService.rollback(blockHeight, blockHeight + 1);
         BlockCrawlService.parse(blockHeight);
         blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
                 blockHeight);

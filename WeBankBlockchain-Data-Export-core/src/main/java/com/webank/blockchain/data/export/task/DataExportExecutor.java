@@ -42,18 +42,22 @@ public class DataExportExecutor {
         this.context = context;
     }
 
+    public static final ThreadLocal<CrawlRunner> crawler = new ThreadLocal<>();
 
     private static final ThreadPoolExecutor pool = new ThreadPoolExecutor(
             1, 50, 100, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<>(2048));
 
     public void start() {
+        log.info("DataExportExecutor is starting ！！！");
         executor = new ExportExecutor();
-        crawlRunner = new CrawlRunner(context);
+        crawlRunner = CrawlRunner.create(context);
         future = pool.submit(executor);
     }
 
     public void stop() {
         future.cancel(true);
+        crawlRunner.getRunSwitch().getAndSet(false);
+        log.info("DataExportExecutor stop success ！！！");
     }
 
     class ExportExecutor implements Runnable {
@@ -62,11 +66,12 @@ public class DataExportExecutor {
         public void run() {
             createTable();
             threadLocal.set(context);
+            crawler.set(crawlRunner);
             daoThreadLocal.set(buildDaoMap());
             try {
                 crawlRunner.run(context);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                log.error("DataExportExecutor boot failed ", e);
             }
         }
 
@@ -107,7 +112,7 @@ public class DataExportExecutor {
                     db.execute(TableSQL.TX_RECEIPT_RAW_DATA);
                 } catch (SQLException e) {
                     log.error("export data table create failed, reason is : ", e);
-                    System.exit(0);
+                    Thread.currentThread().interrupt();
                 }
                 log.info("export data auto create table success !");
             }
