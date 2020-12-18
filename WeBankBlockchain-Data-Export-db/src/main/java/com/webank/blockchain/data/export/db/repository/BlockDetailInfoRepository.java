@@ -13,14 +13,21 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
-import javax.transaction.Transactional;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
+import cn.hutool.db.handler.NumberHandler;
+import cn.hutool.db.handler.RsHandler;
+import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import com.webank.blockchain.data.export.db.tools.BeanUtils;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * BlockDetailInfoRepository
@@ -30,25 +37,48 @@ import org.springframework.stereotype.Repository;
  * @data 2018-11-14 18:03:48
  *
  */
-@Repository
-public interface BlockDetailInfoRepository
-        extends JpaRepository<BlockDetailInfo, Long>, JpaSpecificationExecutor<BlockDetailInfo>, RollbackInterface,
-        CommonHeightFindInterface<BlockDetailInfo>, CommonHashFindInterface<BlockDetailInfo> {
+@Slf4j
+@AllArgsConstructor
+public class BlockDetailInfoRepository implements RollbackInterface {
+
+    private DaoTemplate blockDetailDao;
+
+    private final String tableName = ExportThreadLocal.BLOCK_DETAIL_INFO_TABLE;
+
 
     /**
      * Get one block detail info order by block height and desc from block_detail_info table.
      * 
      * @return BlockDetailInfo
      */
-    public BlockDetailInfo findTopByOrderByBlockHeightDesc();
+    public BlockDetailInfo findTopByOrderByBlockHeightDesc(){
+        List<Entity> entityList = null;
+        try {
+            entityList = blockDetailDao.findBySql("block_detail_info order by block_height desc limit 1");
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository findTopByOrderByBlockHeightDesc failed ", e);
+        }
+        if (CollectionUtil.isEmpty(entityList)){
+            return null;
+        }
+        Entity entity = entityList.get(0);
+        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+    }
 
     /**
      * Get records' count from block_detail_info table.
      * 
      * @return long
      */
-    @Query(value = "select count(tx_count) from block_detail_info", nativeQuery = true)
-    public long sumByTxCount();
+    public long sumByTxCount(){
+        try {
+            return Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).query(
+                    "select count(tx_count) from block_detail_info", NumberHandler.create()).intValue();
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository sumByTxCount failed ", e);
+        }
+        return 0;
+    }
 
     /**
      * Get records' count from block_detail_info table when block height >= beginIndex and <= endIndex.
@@ -57,22 +87,58 @@ public interface BlockDetailInfoRepository
      * @param endIndex
      * @return long
      */
-    @Query(value = "select sum(tx_count) from block_detail_info where block_height >= ?1 and block_height< ?2", nativeQuery = true)
-    public long sumByTxCountBetweens(long beginIndex, long endIndex);
+    public long sumByTxCountBetweens(long beginIndex, long endIndex){
+        try {
+            return Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).query(
+                    "select sum(tx_count) from block_detail_info where block_height >= ? and blockHeight< ?",
+                    (RsHandler<Long>) rs -> rs.getLong(0),beginIndex,endIndex);
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository sumByTxCountBetweens failed ", e);
+        }
+        return 0;
+
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1", nativeQuery = true)
-    public void rollback(long blockHeight);
+    public void rollback(long blockHeight) {
+        try {
+            blockDetailDao.del(Entity.create(tableName).set("block_height",">= " + blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository rollback failed ", e);
+        }
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long, long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1 and block_height< ?2", nativeQuery = true)
-    public void rollback(long startBlockHeight, long endBlockHeight);
+    public void rollback(long startBlockHeight, long endBlockHeight) {
+        try {
+            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+                    "delete from block_detail_info where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository rollback failed ", e);
+        }
+    }
+
+    public void save(BlockDetailInfo blockDetailInfo) {
+        try {
+            blockDetailDao.addForGeneratedKey(Entity.parse(blockDetailInfo,true,true));
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository save failed ", e);
+        }
+    }
+
+    public BlockDetailInfo findByBlockHeight(long blockHeight){
+        Entity entity = null;
+        try {
+            entity = blockDetailDao.get("block_height", blockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository findByBlockHeight failed ", e);
+        }
+        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+    }
+
+
 }

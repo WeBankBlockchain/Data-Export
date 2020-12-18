@@ -13,18 +13,20 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
+import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
+import com.webank.blockchain.data.export.db.tools.BeanUtils;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 /**
  * BlockTaskPoolRepository
@@ -34,64 +36,220 @@ import org.springframework.stereotype.Repository;
  * @data Jan 11, 2019 10:10:04 AM
  *
  */
-@Repository
-public interface BlockTaskPoolRepository
-        extends JpaRepository<BlockTaskPool, Long>, JpaSpecificationExecutor<BlockTaskPool> {
+@Slf4j
+@AllArgsConstructor
+public class BlockTaskPoolRepository implements RollbackInterface{
 
-    public Optional<BlockTaskPool> findTopByOrderByBlockHeightDesc();
+    private DaoTemplate blockTaskPoolDao;
 
-    public Optional<BlockTaskPool> findByBlockHeight(long blockHeight);
+    private final String tableName = ExportThreadLocal.BLOCK_TASK_POOL_TABLE;
 
-    public List<BlockTaskPool> findByCertainty(short certainty);
+    public BlockTaskPool findTopByOrderByBlockHeightDesc() {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql("block_task_pool order by block_height desc limit 1");
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findTopByOrderByBlockHeightDesc failed ", e);
+        }
+        if (CollectionUtil.isEmpty(entityList)){
+            return null;
+        }
+        Entity entity = entityList.get(0);
+        return BeanUtils.toBean(entity, BlockTaskPool.class);
+    }
 
-    @Query(value = "select * from #{#entityName} where block_height >= ?1 or block_height <= ?2 ", nativeQuery = true)
-    public List<BlockTaskPool> findByBlockHeightRange(long startNumber, long endNumber);
+    public  BlockTaskPool findByBlockHeight(long blockHeight) {
+        Entity entity = null;
+        try {
+            entity = blockTaskPoolDao.get("block_height", blockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findByBlockHeight failed ", e);
+        }
+        return BeanUtils.toBean(entity, BlockTaskPool.class);
+    }
 
-    public long countBySyncStatus(short syncStatus);
+    public List<BlockTaskPool> findByCertainty(short certainty) {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.find("certainty", certainty);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findByCertainty failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
 
-    @Query(value = "select count(pk_id) from #{#entityName} where block_height >= ?1 or block_height <= ?2 ", nativeQuery = true)
-    public long countByBlockHeightRange(long startNumber, long endNumber);
+    public List<BlockTaskPool> findByBlockHeightRange(long startNumber, long endNumber)  {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql(
+                    "block_task_pool where block_height >= ? or block_height <= ?", startNumber,endNumber);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findByBlockHeightRange failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
 
-    @Query(value = "select * from #{#entityName} where sync_status = 4 or sync_status = 3 ", nativeQuery = true)
-    public List<BlockTaskPool> findUnNormalRecords();
+    public long countByBlockHeightRange(long startNumber, long endNumber) {
+        try {
+            return blockTaskPoolDao.count(Entity.create(tableName).set("block_height",
+                    "between " + startNumber +" and " + endNumber));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository countByBlockHeightRange failed ", e);
+        }
+        return 0;
+    }
 
-    @Query(value = "select * from #{#entityName} where sync_status = ?1 order by block_height limit ?2", nativeQuery = true)
-    public List<BlockTaskPool> findBySyncStatusOrderByBlockHeightLimit(short syncStatus, int limit);
+    public List<BlockTaskPool> findUnNormalRecords() {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql(
+                    "block_task_pool where sync_status = 4 or sync_status = 3");
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findUnNormalRecords failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
 
-    @Query(value = "select * from #{#entityName} where block_height% ?1 = ?2 and sync_status = ?3 limit ?4", nativeQuery = true)
+    public List<BlockTaskPool> findBySyncStatusOrderByBlockHeightLimit(short syncStatus, int limit) {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql(
+                    "block_task_pool where sync_status = ? order by block_height limit ?",syncStatus,limit);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findBySyncStatusOrderByBlockHeightLimit failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
+
     public List<BlockTaskPool> findBySyncStatusModByBlockHeightLimit(int shardingCount, int shardingItem,
-            short syncStatus, int limit);
+            short syncStatus, int limit) {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql(
+                    "where block_height% ? = ? and sync_status = ? limit ?",
+                    shardingCount,shardingItem,syncStatus,limit);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findBySyncStatusModByBlockHeightLimit failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
 
-    public List<BlockTaskPool> findBySyncStatusAndDepotUpdatetimeLessThan(short syncStatus, Date time);
+    public List<BlockTaskPool> findBySyncStatusAndDepotUpdatetimeLessThan(short syncStatus, Date time) {
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTaskPoolDao.findBySql(
+                    "where sync_status = ? and depot_updatetime < ? ",
+                    syncStatus,time);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository findBySyncStatusAndDepotUpdatetimeLessThan failed ", e);
+        }
+        List<BlockTaskPool> result = new ArrayList<>();
+        if(CollectionUtil.isEmpty(result)) {
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
+        return result;
+    }
 
-    @Transactional
-    @Modifying
-    @Query(value = "update #{#entityName} set sync_status = ?1, depot_updatetime= ?2 where block_height = ?3", nativeQuery = true)
-    public void setSyncStatusByBlockHeight(short syncStatus, Date updateTime, long blockHeight);
+    public void setSyncStatusByBlockHeight(short syncStatus, Date updateTime, long blockHeight) {
+        try {
+            blockTaskPoolDao.update(Entity.create().set("sync_status",syncStatus).set("depot_updatetime",updateTime),
+                    Entity.create(tableName).set("block_height",blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository setSyncStatusByBlockHeight failed ", e);
+        }
+    }
 
-    @Transactional
-    @Modifying
-    @Query(value = "update #{#entityName} set certainty = ?1 where block_height = ?2", nativeQuery = true)
-    public void setCertaintyByBlockHeight(short certainty, long blockHeight);
+    public void setCertaintyByBlockHeight(short certainty, long blockHeight) {
+        try {
+            blockTaskPoolDao.update(Entity.create().set("certainty",certainty),
+                    Entity.create(tableName).set("block_height",blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository setCertaintyByBlockHeight failed ", e);
 
-    @Transactional
-    @Modifying
-    @Query(value = "update #{#entityName} set sync_status = ?1, certainty = ?2 where block_height = ?3", nativeQuery = true)
-    public void setSyncStatusAndCertaintyByBlockHeight(short syncStatus, short certainty, long blockHeight);
+        }
+    }
+
+    public void setSyncStatusAndCertaintyByBlockHeight(short syncStatus, short certainty, long blockHeight) {
+        try {
+            blockTaskPoolDao.update(Entity.create().set("sync_status",syncStatus).set("certainty",certainty),
+                    Entity.create(tableName).set("block_height",blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository setSyncStatusAndCertaintyByBlockHeight failed ", e);
+        }
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1", nativeQuery = true)
-    public void rollback(long blockHeight);
+    public void rollback(long blockHeight) {
+        try {
+            blockTaskPoolDao.del(Entity.create(tableName).set("block_height",">= " + blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository rollback failed ", e);
+        }
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long, long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1 and block_height< ?2", nativeQuery = true)
-    public void rollback(long startBlockHeight, long endBlockHeight);
+    public void rollback(long startBlockHeight, long endBlockHeight) {
+        try {
+            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+                    "delete from block_task_pool where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository rollback failed ", e);
+        }
+    }
+
+    public void saveAll(List<BlockTaskPool> list) {
+            list.forEach(this::save);
+    }
+
+    public void save(BlockTaskPool blockTaskPool) {
+        try {
+            blockTaskPoolDao.addForGeneratedKeys(Entity.parse(blockTaskPool,true,true));
+        } catch (SQLException e) {
+            log.error(" BlockTaskPoolRepository saveAll failed ", e);
+        }
+    }
+
+
 }

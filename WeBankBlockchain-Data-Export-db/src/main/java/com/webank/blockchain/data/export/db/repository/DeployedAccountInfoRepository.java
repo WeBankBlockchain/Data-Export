@@ -13,17 +13,34 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Entity;
+import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.stereotype.Repository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.sql.SQLException;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/10/26
  */
-@Repository
-public interface DeployedAccountInfoRepository extends JpaRepository<DeployedAccountInfo, Long>, JpaSpecificationExecutor<DeployedAccountInfo> {
+@Slf4j
+@AllArgsConstructor
+public class DeployedAccountInfoRepository {
 
+    private DaoTemplate deployedAccountInfoDao;
+
+    private final String tableName = ExportThreadLocal.DEPLOYED_ACCOUNT_INFO_TABLE;
+
+    public void save(DeployedAccountInfo deployedAccountInfo) {
+        try {
+            deployedAccountInfoDao.addForGeneratedKey(Entity.parse(deployedAccountInfo,true,true));
+        } catch (SQLException e) {
+            log.error(" DeployedAccountInfoRepository save failed ", e);
+        }
+
+    }
 }

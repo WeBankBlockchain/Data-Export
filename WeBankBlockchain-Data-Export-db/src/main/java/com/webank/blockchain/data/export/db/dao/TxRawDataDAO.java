@@ -17,8 +17,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.db.entity.TxRawData;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
 
 import java.util.List;
 
@@ -27,14 +26,14 @@ import java.util.List;
  * @Description:
  * @date 2020/10/26
  */
-@Component
+@AllArgsConstructor
 public class TxRawDataDAO implements SaveInterface<TxRawDataBO>{
 
-    @Autowired
     private TxRawDataRepository txRawDataRepository;
 
     public void save(TxRawData txRawData) {
-        BaseDAO.saveWithTimeLog(txRawDataRepository, txRawData);
+        txRawDataRepository.save(txRawData);
+
     }
 
     public void save(List<TxRawDataBO> txRawDataList) {

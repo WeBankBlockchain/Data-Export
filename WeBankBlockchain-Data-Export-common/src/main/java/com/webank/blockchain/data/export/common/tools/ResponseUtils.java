@@ -13,11 +13,10 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
+import com.webank.blockchain.data.export.common.constants.StatusCode;
 import com.webank.blockchain.data.export.common.vo.CommonDataResponse;
 import com.webank.blockchain.data.export.common.vo.CommonResponse;
 import com.webank.blockchain.data.export.common.vo.ValidErrorResponse;
-import com.webank.blockchain.data.export.common.constants.StatusCode;
-import org.springframework.validation.BindingResult;
 
 /**
  * ResponseUtils
@@ -113,15 +112,7 @@ public class ResponseUtils {
         return error(value);
     }
 
-    /**
-     * validate error
-     * 
-     * @param result
-     * @return
-     */
-    public static ValidErrorResponse validateError(BindingResult result) {
-        return new ValidErrorResponse(result);
-    }
+
 
     public static CommonResponse unlogin() {
         return CommonResponse.UNLOGIN;

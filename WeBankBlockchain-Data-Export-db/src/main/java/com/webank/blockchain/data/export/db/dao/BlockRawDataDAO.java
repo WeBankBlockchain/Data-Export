@@ -17,18 +17,16 @@ import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
 import com.webank.blockchain.data.export.db.entity.BlockRawData;
 import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/10/23
  */
-@Component
+@AllArgsConstructor
 public class BlockRawDataDAO implements SaveInterface<BlockRawDataBO>{
 
-    @Autowired
     private BlockRawDataRepository blockRawDataRepository;
 
     @Override
@@ -39,6 +37,6 @@ public class BlockRawDataDAO implements SaveInterface<BlockRawDataBO>{
     }
 
     public void save(BlockRawData blockRawData) {
-        BaseDAO.saveWithTimeLog(blockRawDataRepository, blockRawData);
+        blockRawDataRepository.save(blockRawData);
     }
 }

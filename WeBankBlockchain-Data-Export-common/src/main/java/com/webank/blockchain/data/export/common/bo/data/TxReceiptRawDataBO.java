@@ -3,11 +3,8 @@ package com.webank.blockchain.data.export.common.bo.data;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.fisco.bcos.sdk.model.MerkleProofUnit;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author wesleywang

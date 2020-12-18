@@ -13,14 +13,12 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
-
-import cn.hutool.core.bean.BeanUtil;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * BlockDetailInfoDAO
@@ -29,9 +27,10 @@ import cn.hutool.core.bean.BeanUtil;
  * @data Dec 12, 2018 2:45:13 PM
  *
  */
-@Component
+@Slf4j
+@AllArgsConstructor
 public class BlockDetailInfoDAO implements SaveInterface<BlockDetailInfo> {
-    @Autowired
+
     private BlockDetailInfoRepository blockDetailInfoRepository;
     
     public void save(BlockDetailInfoBO bo) {
@@ -41,22 +40,10 @@ public class BlockDetailInfoDAO implements SaveInterface<BlockDetailInfo> {
     }
 
     public void save(BlockDetailInfo blockDetailInfo) {
-        BaseDAO.saveWithTimeLog(blockDetailInfoRepository, blockDetailInfo);
+        blockDetailInfoRepository.save(blockDetailInfo);
     }
 
     public BlockDetailInfo getBlockDetailInfoByBlockHeight(long blockHeight) {
         return blockDetailInfoRepository.findByBlockHeight(blockHeight);
-    }
-
-    public BlockDetailInfo getBlockDetailInfoByBlockHash(String blockHash) {
-        return blockDetailInfoRepository.findByBlockHash(blockHash);
-    }
-
-    public long sumByTxCountBetweens(long beginIndex, long endIndex) {
-        return blockDetailInfoRepository.sumByTxCountBetweens(beginIndex, endIndex);
-    }
-    
-    public BlockDetailInfo getCurrentMaxBlock(){
-        return blockDetailInfoRepository.findTopByOrderByBlockHeightDesc();
     }
 }

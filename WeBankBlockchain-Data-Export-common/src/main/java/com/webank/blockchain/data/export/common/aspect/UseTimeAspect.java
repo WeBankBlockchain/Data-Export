@@ -13,12 +13,6 @@
  */
 package com.webank.blockchain.data.export.common.aspect;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,21 +23,18 @@ import lombok.extern.slf4j.Slf4j;
  * @data Jul 5, 2019 5:58:44 PM
  *
  */
-@Aspect
-@Component
 @Slf4j
 public class UseTimeAspect {
 
-    @Pointcut("@annotation(com.webank.blockchain.data.export.common.aspect.UseTime)")
-    public void logPointCut() {
-    }
-
-    @Around("logPointCut()")
-    public Object around(ProceedingJoinPoint point) throws Throwable {
-        long beginTime = System.currentTimeMillis();
-        Object result = point.proceed();
-        long time = System.currentTimeMillis() - beginTime;
-        log.info("{} use time {}", point.getTarget(), time);
-        return result;
-    }
+//    public void logPointCut() {
+//    }
+//
+//    @Around("logPointCut()")
+//    public Object around(ProceedingJoinPoint point) throws Throwable {
+//        long beginTime = System.currentTimeMillis();
+//        Object result = point.proceed();
+//        long time = System.currentTimeMillis() - beginTime;
+//        log.info("{} use time {}", point.getTarget(), time);
+//        return result;
+//    }
 }

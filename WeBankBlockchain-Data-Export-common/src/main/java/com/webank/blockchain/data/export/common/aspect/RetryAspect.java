@@ -13,16 +13,6 @@
  */
 package com.webank.blockchain.data.export.common.aspect;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,27 +23,25 @@ import lombok.extern.slf4j.Slf4j;
  * @data Aug 9, 2019 10:35:30 AM
  *
  */
-@Aspect
-@Component
 @Slf4j
 public class RetryAspect {
-    @Pointcut("@annotation(com.webank.blockchain.data.export.common.aspect.Retry)")
-    public void RetryPointCut() {
-    }
-
-    @Around("RetryPointCut()")
-    public Object around(ProceedingJoinPoint point) throws Throwable {
-        Method method = ((MethodSignature) point.getSignature()).getMethod();
-        Retry retry = method.getAnnotation(Retry.class);
-        for (int i = 0; i < retry.times(); i++) {
-            try {
-                log.debug("The {} times to retry {}", i + 1, method.getName());
-                return point.proceed();
-            } catch (IOException e) {
-                log.error("IOException: {}", e.getMessage());
-                Thread.sleep(retry.interval() * 1000);
-            }
-        }
-        throw new IOException();
-    }
+//    @Pointcut("@annotation(com.webank.blockchain.data.export.common.aspect.Retry)")
+//    public void RetryPointCut() {
+//    }
+//
+//    @Around("RetryPointCut()")
+//    public Object around(ProceedingJoinPoint point) throws Throwable {
+//        Method method = ((MethodSignature) point.getSignature()).getMethod();
+//        Retry retry = method.getAnnotation(Retry.class);
+//        for (int i = 0; i < retry.times(); i++) {
+//            try {
+//                log.debug("The {} times to retry {}", i + 1, method.getName());
+//                return point.proceed();
+//            } catch (IOException e) {
+//                log.error("IOException: {}", e.getMessage());
+//                Thread.sleep(retry.interval() * 1000);
+//            }
+//        }
+//        throw new IOException();
+//    }
 }

@@ -13,11 +13,11 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import lombok.extern.slf4j.Slf4j;
 
 
 /**

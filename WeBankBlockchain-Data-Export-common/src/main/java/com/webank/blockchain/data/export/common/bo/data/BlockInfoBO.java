@@ -13,10 +13,10 @@
  */
 package com.webank.blockchain.data.export.common.bo.data;
 
-import java.util.List;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * BlockInfoBO

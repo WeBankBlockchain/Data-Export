@@ -13,24 +13,18 @@
  */
 package com.webank.blockchain.data.export.extractor.ods;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Stopwatch;
+import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
 
-import com.google.common.base.Stopwatch;
-import com.webank.blockchain.data.export.common.aspect.Retry;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * EthClient
@@ -40,14 +34,15 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2018年11月13日 下午2:44:21
  * 
  */
-@Service
 @Slf4j
 public class EthClient {
-    @Autowired
+
     private Client client;
 
-    @Cacheable(cacheNames = { "block" })
-    @Retry
+    public EthClient(Client client) {
+        this.client = client;
+    }
+
     public Block getBlock(BigInteger blockHeightNumber) throws IOException {
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.debug("get block number: {}", blockHeightNumber);
@@ -59,17 +54,14 @@ public class EthClient {
     }
 
 
-    @Cacheable(cacheNames = { "transactionReceipt" })
     public BcosTransactionReceipt getTransactionReceipt(String hash) throws IOException {
         return client.getTransactionReceipt(hash);
     }
 
     public Optional<JsonTransactionResponse> getTransactionByHash(TransactionReceipt receipt) throws IOException {
         return client.getTransactionByHash(receipt.getTransactionHash()).getTransaction();
-
     }
 
-    @Cacheable(cacheNames = { "code" })
     public String getCodeByContractAddress(String contractAddress) throws IOException {
         return client.getCode(contractAddress).getCode();
     }

@@ -13,27 +13,22 @@
  */
 package com.webank.blockchain.data.export.parser.handler;
 
-import com.webank.blockchain.data.export.extractor.ods.EthClient;
-import com.webank.blockchain.data.export.parser.service.MethodCrawlService;
-import com.webank.blockchain.data.export.parser.service.TransactionService;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
+import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionObject;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionResult;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.utils.Numeric;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,18 +46,10 @@ import java.util.Optional;
  *
  */
 @Slf4j
-@Service
 public class MethodCrawlerHandler {
-    @Autowired
-    private EthClient ethClient;
-    @Autowired
-    private TransactionService transactionService;
-
-    @Autowired
-    private MethodCrawlService methodCrawlService;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public BlockMethodInfo crawl(Block block, Map<String, String> txHashContractAddressMapping) throws IOException {
+    public static BlockMethodInfo crawl(Block block, Map<String, String> txHashContractAddressMapping) throws IOException {
         BlockMethodInfo blockMethodInfo = new BlockMethodInfo();
         List<BlockTxDetailInfoBO> blockTxDetailInfoList = new ArrayList<>();
         List<TxRawDataBO> txRawDataBOList = new ArrayList<>();
@@ -74,21 +61,16 @@ public class MethodCrawlerHandler {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
             Optional<TransactionReceipt> opt =
-                    ethClient.getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
+                    ExportThreadLocal.threadLocal.get().getClient().getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
-                Optional<String> contractName =
-                        transactionService.getContractNameByTransaction(transaction, txHashContractAddressMapping);
-                if (!contractName.isPresent()) {
-                    continue;
-                }
-                MethodMetaInfo methodMetaInfo = transactionService.getMethodMetaInfo(transaction, contractName.get());
-                if (methodMetaInfo == null) {
-                    continue;
-                }
+//                MethodMetaInfo methodMetaInfo = TransactionService.getMethodMetaInfo(transaction, null);
+//                if (methodMetaInfo == null) {
+//                    continue;
+//                }
                 // get block tx detail info
                 BlockTxDetailInfoBO blockTxDetailInfo =
-                        getBlockTxDetailInfo(block, transaction, receipt, methodMetaInfo);
+                        getBlockTxDetailInfo(block, transaction, receipt, null);
                 TxRawDataBO txRawDataBO = getTxRawDataBO(block, transaction, receipt);
                 TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block,receipt);
                 blockTxDetailInfoList.add(blockTxDetailInfo);
@@ -96,24 +78,6 @@ public class MethodCrawlerHandler {
                 txReceiptRawDataBOList.add(txReceiptRawDataBO);
                 txHashContractNameMapping.putIfAbsent(blockTxDetailInfo.getTxHash(),
                         blockTxDetailInfo.getContractName());
-                if (!methodCrawlService
-                        .getMethodCrawler(StringUtils.uncapitalize(methodMetaInfo.getContractName()) +
-                                StringUtils.uncapitalize(methodMetaInfo.getMethodName()) + "MethodCrawlerImpl")
-                        .isPresent()) {
-                    log.info("The methodName {} doesn't exist or is constant, please check it !",
-                            methodMetaInfo.getMethodName());
-                    continue;
-                }
-                // get method bo
-                methodInfoList
-                        .add(methodCrawlService
-                                .getMethodCrawler(StringUtils.uncapitalize(methodMetaInfo.getContractName()) +
-                                        StringUtils.uncapitalize(methodMetaInfo.getMethodName()) + "MethodCrawlerImpl")
-                                .get()
-                                .transactionHandler(transaction, receipt, DateUtils.hexStrToDate(block.getTimestamp()),
-                                        methodMetaInfo.getMethodName())
-                                .setMethodStatus(receipt.getStatus()));
-
             }
         }
         blockMethodInfo.setBlockTxDetailInfoList(blockTxDetailInfoList)
@@ -125,17 +89,18 @@ public class MethodCrawlerHandler {
 
     }
 
-    public BlockTxDetailInfoBO getBlockTxDetailInfo(Block block, JsonTransactionResponse transaction,
+    public static BlockTxDetailInfoBO getBlockTxDetailInfo(Block block, JsonTransactionResponse transaction,
             TransactionReceipt receipt, MethodMetaInfo methodMetaInfo) {
         BlockTxDetailInfoBO blockTxDetailInfo = new BlockTxDetailInfoBO();
         blockTxDetailInfo.setBlockHash(receipt.getBlockHash()).setBlockHeight(receipt.getBlockNumber())
-                .setContractName(methodMetaInfo.getContractName()).setMethodName(methodMetaInfo.getMethodName())
+//                .setContractName(methodMetaInfo.getContractName())
+//                .setMethodName(methodMetaInfo.getMethodName())
                 .setTxFrom(transaction.getFrom()).setTxTo(transaction.getTo()).setTxHash(receipt.getTransactionHash())
                 .setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()));
         return blockTxDetailInfo;
     }
 
-    public TxRawDataBO getTxRawDataBO(Block block, JsonTransactionResponse transaction, TransactionReceipt receipt) {
+    public static TxRawDataBO getTxRawDataBO(Block block, JsonTransactionResponse transaction, TransactionReceipt receipt) {
         TxRawDataBO txRawDataBO = new TxRawDataBO();
         txRawDataBO.setBlockHash(receipt.getBlockHash())
                 .setBlockHeight(Numeric.decodeQuantity((receipt.getBlockNumber())).longValue())
@@ -152,7 +117,7 @@ public class MethodCrawlerHandler {
         return txRawDataBO;
     }
 
-    public TxReceiptRawDataBO getTxReceiptRawDataBO(Block block, TransactionReceipt receipt) {
+    public static TxReceiptRawDataBO getTxReceiptRawDataBO(Block block, TransactionReceipt receipt) {
         TxReceiptRawDataBO txReceiptRawDataBO = new TxReceiptRawDataBO();
         txReceiptRawDataBO.setBlockHash(receipt.getBlockHash())
                 .setBlockHeight(Numeric.decodeQuantity((receipt.getBlockNumber())).longValue())

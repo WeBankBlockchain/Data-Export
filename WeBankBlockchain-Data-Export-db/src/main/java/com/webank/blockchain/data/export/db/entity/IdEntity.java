@@ -13,16 +13,10 @@
  */
 package com.webank.blockchain.data.export.db.entity;
 
-import java.io.Serializable;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * IdEntity
@@ -33,14 +27,10 @@ import lombok.experimental.Accessors;
  *
  */
 @Data
-@MappedSuperclass
 @Accessors(chain = true)
 public abstract class IdEntity implements Serializable {
 
     private static final long serialVersionUID = 5903397383140175895L;
     /** @Fields pkId : primary key */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk_id")
     protected Long pkId;
 }

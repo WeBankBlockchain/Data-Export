@@ -13,12 +13,11 @@
  */
 package com.webank.blockchain.data.export.common.bo.contract;
 
-import java.util.List;
-
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
+
+import java.util.List;
 
 /**
  * MethodMetaInfo

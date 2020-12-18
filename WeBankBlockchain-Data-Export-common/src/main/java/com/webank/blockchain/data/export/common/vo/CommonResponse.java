@@ -13,15 +13,14 @@
  */
 package com.webank.blockchain.data.export.common.vo;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.webank.blockchain.data.export.common.constants.StatusCode;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.util.Map;
 
 /**
  * CommonResponse

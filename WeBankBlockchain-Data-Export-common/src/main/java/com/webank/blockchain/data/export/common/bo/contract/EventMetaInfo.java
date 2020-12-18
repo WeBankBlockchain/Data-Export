@@ -13,13 +13,11 @@
  */
 package com.webank.blockchain.data.export.common.bo.contract;
 
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * EventMetaInfo
@@ -32,7 +30,6 @@ import lombok.experimental.Accessors;
  */
 @Data
 @NoArgsConstructor
-@Component
 @Accessors(chain = true)
 public class EventMetaInfo {
     

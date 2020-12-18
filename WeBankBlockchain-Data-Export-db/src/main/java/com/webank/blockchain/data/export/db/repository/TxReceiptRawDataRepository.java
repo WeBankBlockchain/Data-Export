@@ -13,36 +13,60 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
+import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
 import com.webank.blockchain.data.export.db.entity.TxReceiptRawData;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.transaction.Transactional;
+import java.sql.SQLException;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/10/23
  */
-@Repository
-public interface TxReceiptRawDataRepository extends JpaRepository<TxReceiptRawData, Long>, RollbackInterface, JpaSpecificationExecutor<TxReceiptRawData> {
+@Slf4j
+@AllArgsConstructor
+public class TxReceiptRawDataRepository implements RollbackInterface{
+
+    private DaoTemplate txReceiptRawDataDao;
+
+    private final String tableName = ExportThreadLocal.TX_RECEIPT_RAW_DATA_TABLE;
+
+    
+    /*
+     * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
+     */
+    @Override
+    public void rollback(long blockHeight){
+        try {
+            txReceiptRawDataDao.del(Entity.create(tableName).set("block_height",">= " + blockHeight));
+        } catch (SQLException e) {
+            log.error(" TxRawDataRepository rollback failed ", e);
+        }
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1", nativeQuery = true)
-    public void rollback(long blockHeight);
+    @Override
+    public void rollback(long startBlockHeight, long endBlockHeight){
+        try {
+            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+                    "delete from block_raw_data where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+        } catch (SQLException e) {
+            log.error(" TxRawDataRepository rollback failed ", e);
+        }
+    }
 
-    /*
-     * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
-     */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1 and block_height< ?2", nativeQuery = true)
-    public void rollback(long startBlockHeight, long endBlockHeight);
+    public void save(TxReceiptRawData txReceiptRawData) {
+        try {
+            txReceiptRawDataDao.addForGeneratedKey(Entity.parse(txReceiptRawData,true,true));
+        } catch (SQLException e) {
+            log.error(" TxRawDataRepository save failed ", e);
+        }
+    }
 }
