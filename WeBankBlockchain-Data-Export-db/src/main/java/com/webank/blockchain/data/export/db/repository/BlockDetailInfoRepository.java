@@ -19,7 +19,7 @@ import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.db.handler.NumberHandler;
 import cn.hutool.db.handler.RsHandler;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;
@@ -43,7 +43,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
 
     private DaoTemplate blockDetailDao;
 
-    private final String tableName = ExportThreadLocal.BLOCK_DETAIL_INFO_TABLE;
+    private final String tableName = ExportConstant.BLOCK_DETAIL_INFO_TABLE;
 
 
     /**
@@ -72,7 +72,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public long sumByTxCount(){
         try {
-            return Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).query(
+            return Db.use(ExportConstant.threadLocal.get().getDataSource()).query(
                     "select count(tx_count) from block_detail_info", NumberHandler.create()).intValue();
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository sumByTxCount failed ", e);
@@ -89,7 +89,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public long sumByTxCountBetweens(long beginIndex, long endIndex){
         try {
-            return Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).query(
+            return Db.use(ExportConstant.threadLocal.get().getDataSource()).query(
                     "select sum(tx_count) from block_detail_info where block_height >= ? and blockHeight< ?",
                     (RsHandler<Long>) rs -> rs.getLong(0),beginIndex,endIndex);
         } catch (SQLException e) {
@@ -115,7 +115,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public void rollback(long startBlockHeight, long endBlockHeight) {
         try {
-            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
                     "delete from block_detail_info where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository rollback failed ", e);

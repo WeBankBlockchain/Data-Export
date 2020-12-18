@@ -14,7 +14,7 @@
 package com.webank.blockchain.data.export.service;
 
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
@@ -54,7 +54,7 @@ public class BlockDepotService {
             BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
             Block block;
             try {
-                EthClient client = new EthClient(ExportThreadLocal.threadLocal.get().getClient());
+                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
                 block = client.getBlock(bigBlockHeight);
                 result.add(block);
                 pools.add(task);

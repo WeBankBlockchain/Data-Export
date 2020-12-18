@@ -46,6 +46,6 @@ public class DeployedAccountInfo extends IdEntity {
     private String abiHash;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime  = new Date();
 }
 

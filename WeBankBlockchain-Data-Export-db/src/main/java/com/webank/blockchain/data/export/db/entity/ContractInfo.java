@@ -42,5 +42,5 @@ public class ContractInfo extends IdEntity {
     private String contractName;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 }

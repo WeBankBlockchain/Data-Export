@@ -15,7 +15,7 @@ package com.webank.blockchain.data.export.service;
 
 import com.google.common.collect.Lists;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
@@ -25,6 +25,7 @@ import org.fisco.bcos.sdk.client.Client;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,12 +42,15 @@ public class BlockPrepareService {
     public static long getTaskPoolHeight(BlockTaskPoolRepository blockTaskPoolRepository) {
         BlockTaskPool item = blockTaskPoolRepository.findTopByOrderByBlockHeightDesc();
         long height = 0;
+        if (item == null){
+            return height;
+        }
         height = item.getBlockHeight() + 1;
         return height;
     }
 
     public static long getCurrentBlockHeight() throws IOException {
-        Client client = ExportThreadLocal.threadLocal.get().getClient();
+        Client client = ExportConstant.threadLocal.get().getClient();
         BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
         long total = blockNumber.longValue();
         log.debug("Current chain block number is:{}", blockNumber);
@@ -58,7 +62,7 @@ public class BlockPrepareService {
         List<BlockTaskPool> list = Lists.newArrayList();
         for (long i = begin; i <= end; i++) {
             BlockTaskPool pool =
-                    new BlockTaskPool().setBlockHeight(i).setSyncStatus((short) TxInfoStatusEnum.INIT.getStatus());
+                    new BlockTaskPool().setBlockHeight(i).setSyncStatus((short) TxInfoStatusEnum.INIT.getStatus()).setDepotUpdatetime(new Date());
             if (certainty) {
                 pool.setCertainty((short) BlockCertaintyEnum.FIXED.getCertainty());
             } else {

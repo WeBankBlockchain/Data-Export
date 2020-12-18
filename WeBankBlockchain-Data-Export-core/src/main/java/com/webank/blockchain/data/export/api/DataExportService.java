@@ -20,31 +20,32 @@ import javax.sql.DataSource;
 public class DataExportService {
 
 
-    public DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
+    public static DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
         return new DataExportExecutor(buildContext(dataSource,chainInfo,config));
     }
 
-    public void start(DataExportExecutor exportExecutor){
+    public static void start(DataExportExecutor exportExecutor){
         exportExecutor.start();
     }
 
-    public void stop(DataExportExecutor exportExecutor){
+    public static void stop(DataExportExecutor exportExecutor){
         exportExecutor.stop();
     }
 
-    private DataExportContext buildContext(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
+    private static DataExportContext buildContext(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
         DataExportContext context = new DataExportContext();
         context.setClient(ClientUtil.getClient(chainInfo));
         context.setChainInfo(chainInfo);
         context.setConfig(config);
         context.setDataSource(buildDataSource(dataSource.getMysqlDataSource()));
         context.setEsConfig(dataSource.getEsDataSource());
+        context.setAutoCreateTable(dataSource.getMysqlDataSource().isAutoCreateTable());
         return context;
     }
 
-    private DataSource buildDataSource(MysqlDataSource mysqlDataSource){
+    private static DataSource buildDataSource(MysqlDataSource mysqlDataSource){
         return DataSourceUtils.createDataSource(mysqlDataSource.getJdbcUrl(),
-                mysqlDataSource.getDriver(),
+                null,
                 mysqlDataSource.getUser(),
                 mysqlDataSource.getPass());
     }

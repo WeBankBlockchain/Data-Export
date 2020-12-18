@@ -67,6 +67,6 @@ public class BlockRawData extends IdEntity {
     private String transactionList;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 
 }

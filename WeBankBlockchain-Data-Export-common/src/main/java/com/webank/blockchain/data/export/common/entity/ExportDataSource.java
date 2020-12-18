@@ -1,5 +1,6 @@
 package com.webank.blockchain.data.export.common.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @date 2020/12/16
  */
 @Data
+@Builder
 public class ExportDataSource {
 
     private MysqlDataSource mysqlDataSource;

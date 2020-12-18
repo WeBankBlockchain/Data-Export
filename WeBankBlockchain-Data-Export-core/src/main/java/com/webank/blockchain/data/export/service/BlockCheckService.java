@@ -17,7 +17,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
@@ -84,7 +84,7 @@ public class BlockCheckService {
                             pool.getBlockHeight());
                     continue;
                 }
-                EthClient client = new EthClient(ExportThreadLocal.threadLocal.get().getClient());
+                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
                 Block block = client.getBlock(BigInteger.valueOf(pool.getBlockHeight()));
                 String newHash = block.getHash();
                 if (!newHash.equals(
@@ -124,7 +124,7 @@ public class BlockCheckService {
 
     public static void checkTaskCount(long startBlockNumber, long currentMaxTaskPoolNumber,BlockTaskPoolRepository blockTaskPoolRepository) {
         log.info("Check task count from {} to {}", startBlockNumber, currentMaxTaskPoolNumber);
-        ExportConfig config = ExportThreadLocal.threadLocal.get().getConfig();
+        ExportConfig config = ExportConstant.threadLocal.get().getConfig();
         if (isComplete(startBlockNumber, currentMaxTaskPoolNumber,blockTaskPoolRepository)) {
             return;
         }

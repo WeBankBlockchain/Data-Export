@@ -17,7 +17,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
@@ -42,7 +42,7 @@ public class BlockTxDetailInfoRepository implements RollbackInterface {
 
     private DaoTemplate blockTxDetailInfoDao;
 
-    private final String tableName = ExportThreadLocal.BLOCK_TX_DETAIL_INFO_TABLE;
+    private final String tableName = ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
 
     /**
      * Get block transaction info according to block height, return BlockTxDetailInfo object list.
@@ -103,7 +103,7 @@ public class BlockTxDetailInfoRepository implements RollbackInterface {
      */
     public void rollback(long startBlockHeight, long endBlockHeight){
         try {
-            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
                     "delete from block_raw_data where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockTxDetailInfoRepository rollback failed ", e);

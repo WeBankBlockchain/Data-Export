@@ -2,10 +2,14 @@ package com.webank.blockchain.data.export.task;
 
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
+import cn.hutool.db.DbUtil;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.entity.TableSQL;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -19,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2020/12/16
  */
 @Data
+@Slf4j
 public class DataExportExecutor {
 
     private DataExportContext context;
@@ -29,9 +34,9 @@ public class DataExportExecutor {
 
     private CrawlRunner crawlRunner;
 
-    public ThreadLocal<DataExportContext> threadLocal = ExportThreadLocal.threadLocal;
+    public ThreadLocal<DataExportContext> threadLocal = ExportConstant.threadLocal;
 
-    public ThreadLocal<Map<String, DaoTemplate>> daoThreadLocal = ExportThreadLocal.daoThreadLocal;
+    public ThreadLocal<Map<String, DaoTemplate>> daoThreadLocal = ExportConstant.daoThreadLocal;
 
     public DataExportExecutor(DataExportContext context) {
         this.context = context;
@@ -55,6 +60,7 @@ public class DataExportExecutor {
 
         @Override
         public void run() {
+            createTable();
             threadLocal.set(context);
             daoThreadLocal.set(buildDaoMap());
             try {
@@ -67,23 +73,46 @@ public class DataExportExecutor {
         public Map<String,DaoTemplate> buildDaoMap(){
             Db db = Db.use(context.getDataSource());
             Map<String,DaoTemplate> daoTemplateMap = new ConcurrentHashMap<>();
-            DaoTemplate blockDetailInfoDao = new DaoTemplate(ExportThreadLocal.BLOCK_DETAIL_INFO_TABLE,"pk_id", db);
-            DaoTemplate blockTaskPoolDao = new DaoTemplate(ExportThreadLocal.BLOCK_TASK_POOL_TABLE,"pk_id", db);
-            DaoTemplate blockRawDataDao = new DaoTemplate(ExportThreadLocal.BLOCK_RAW_DATA_TABLE,"pk_id", db);
-            DaoTemplate blockTxDetailInfoDao = new DaoTemplate(ExportThreadLocal.BLOCK_TX_DETAIL_INFO_TABLE,"pk_id", db);
-            DaoTemplate txRawDataDao = new DaoTemplate(ExportThreadLocal.TX_RAW_DATA_TABLE,"pk_id", db);
-            DaoTemplate txReceiptRawDataDao = new DaoTemplate(ExportThreadLocal.TX_RECEIPT_RAW_DATA_TABLE,"pk_id", db);
-            DaoTemplate deployedAccountInfoDao = new DaoTemplate(ExportThreadLocal.DEPLOYED_ACCOUNT_INFO_TABLE,"pk_id", db);
+            DaoTemplate blockDetailInfoDao = new DaoTemplate(ExportConstant.BLOCK_DETAIL_INFO_TABLE,"pk_id", db);
+            DaoTemplate blockTaskPoolDao = new DaoTemplate(ExportConstant.BLOCK_TASK_POOL_TABLE,"pk_id", db);
+            DaoTemplate blockRawDataDao = new DaoTemplate(ExportConstant.BLOCK_RAW_DATA_TABLE,"pk_id", db);
+            DaoTemplate blockTxDetailInfoDao = new DaoTemplate(ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE,"pk_id", db);
+            DaoTemplate txRawDataDao = new DaoTemplate(ExportConstant.TX_RAW_DATA_TABLE,"pk_id", db);
+            DaoTemplate txReceiptRawDataDao = new DaoTemplate(ExportConstant.TX_RECEIPT_RAW_DATA_TABLE,"pk_id", db);
+            DaoTemplate deployedAccountInfoDao = new DaoTemplate(ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE,"pk_id", db);
 
-            daoTemplateMap.put(ExportThreadLocal.BLOCK_DETAIL_DAO, blockDetailInfoDao);
-            daoTemplateMap.put(ExportThreadLocal.BLOCK_TASK_POOL_DAO, blockTaskPoolDao);
-            daoTemplateMap.put(ExportThreadLocal.BLOCK_RAW_DAO, blockRawDataDao);
-            daoTemplateMap.put(ExportThreadLocal.BLOCK_TX_DETAIL_DAO, blockTxDetailInfoDao);
-            daoTemplateMap.put(ExportThreadLocal.TX_RAW_DAO, txRawDataDao);
-            daoTemplateMap.put(ExportThreadLocal.TX_RECEIPT_RAW_DAO, txReceiptRawDataDao);
-            daoTemplateMap.put(ExportThreadLocal.DEPLOYED_ACCOUNT_DAO, deployedAccountInfoDao);
+            daoTemplateMap.put(ExportConstant.BLOCK_DETAIL_DAO, blockDetailInfoDao);
+            daoTemplateMap.put(ExportConstant.BLOCK_TASK_POOL_DAO, blockTaskPoolDao);
+            daoTemplateMap.put(ExportConstant.BLOCK_RAW_DAO, blockRawDataDao);
+            daoTemplateMap.put(ExportConstant.BLOCK_TX_DETAIL_DAO, blockTxDetailInfoDao);
+            daoTemplateMap.put(ExportConstant.TX_RAW_DAO, txRawDataDao);
+            daoTemplateMap.put(ExportConstant.TX_RECEIPT_RAW_DAO, txReceiptRawDataDao);
+            daoTemplateMap.put(ExportConstant.DEPLOYED_ACCOUNT_DAO, deployedAccountInfoDao);
+
             return daoTemplateMap;
         }
+
+
+        private void createTable() {
+            if (context.isAutoCreateTable()){
+                log.info("export data auto create table begin....");
+                try {
+                    Db db = Db.use(context.getDataSource());
+                    db.execute(TableSQL.BLOCK_DETAIL_INFO);
+                    db.execute(TableSQL.BLOCK_RAW_DATA);
+                    db.execute(TableSQL.BLOCK_TASK_POOL);
+                    db.execute(TableSQL.BLOCK_TX_DETAIL_INFO);
+                    db.execute(TableSQL.DEPLOYED_ACCOUNT_INFO);
+                    db.execute(TableSQL.TX_RAW_DATA);
+                    db.execute(TableSQL.TX_RECEIPT_RAW_DATA);
+                } catch (SQLException e) {
+                    log.error("export data table create failed, reason is : ", e);
+                    System.exit(0);
+                }
+                log.info("export data auto create table success !");
+            }
+        }
+
 
     }
 

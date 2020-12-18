@@ -62,5 +62,5 @@ public class BlockTxDetailInfo extends IdEntity {
     private Date blockTimeStamp;
     
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 }

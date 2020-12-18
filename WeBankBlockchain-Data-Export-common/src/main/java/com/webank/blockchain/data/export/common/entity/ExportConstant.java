@@ -2,6 +2,8 @@ package com.webank.blockchain.data.export.common.entity;
 
 
 import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.DbUtil;
+import cn.hutool.log.level.Level;
 
 import java.util.Map;
 
@@ -10,7 +12,11 @@ import java.util.Map;
  * @Description:
  * @date 2020/12/16
  */
-public class ExportThreadLocal {
+public class ExportConstant {
+
+    static {
+        DbUtil.setShowSqlGlobal(true,false,true, Level.INFO);
+    }
 
     public static final ThreadLocal<DataExportContext> threadLocal = new ThreadLocal<>();
 

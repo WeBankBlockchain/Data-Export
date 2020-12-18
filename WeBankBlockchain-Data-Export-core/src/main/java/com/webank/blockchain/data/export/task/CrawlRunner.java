@@ -16,7 +16,7 @@ package com.webank.blockchain.data.export.task;
 import cn.hutool.db.DaoTemplate;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.service.BlockAsyncService;
 import com.webank.blockchain.data.export.service.BlockCheckService;
 import com.webank.blockchain.data.export.service.BlockDepotService;
@@ -49,10 +49,9 @@ import java.util.Map;
 /**
  * GenerateCodeApplicationRunner
  *
- * @Description: GenerateCodeApplicationRunner
  * @author maojiayu
+ * @Description: GenerateCodeApplicationRunner
  * @date 2018年11月29日 下午4:37:38
- * 
  */
 
 @Slf4j
@@ -69,11 +68,10 @@ public class CrawlRunner {
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
     private TxRawDataRepository txRawDataRepository;
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
+    private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
-
     private List<RollbackInterface> rollbackOneInterfaceMap = new ArrayList<>();
-
 
 
     public CrawlRunner(DataExportContext context) {
@@ -97,9 +95,8 @@ public class CrawlRunner {
     /**
      * The key driving entrance of single instance depot: 1. check timeout txs and process errors; 2. produce tasks; 3.
      * consume tasks; 4. check the fork status; 5. rollback; 6. continue and circle;
-     * 
+     *
      * @throws InterruptedException
-     * 
      */
     public void handle() throws InterruptedException {
         try {
@@ -120,7 +117,7 @@ public class CrawlRunner {
                 boolean certainty = toHeight + 1 < currentChainHeight - BlockConstants.MAX_FORK_CERTAINTY_BLOCK_NUMBER;
                 if (fromHeight <= toHeight) {
                     log.info("Try to sync block number {} to {} of {}", fromHeight, toHeight, currentChainHeight);
-                    BlockPrepareService.prepareTask(fromHeight, toHeight, certainty,blockTaskPoolRepository);
+                    BlockPrepareService.prepareTask(fromHeight, toHeight, certainty, blockTaskPoolRepository);
                 } else {
                     // single circle sleep time is read from the application.properties
                     log.info("No sync block tasks to prepare, begin to sleep {} s",
@@ -128,17 +125,17 @@ public class CrawlRunner {
                     Thread.sleep(context.getConfig().getFrequency() * 1000);
                 }
                 log.info("Begin to fetch at most {} tasks", context.getConfig().getCrawlBatchUnit());
-                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit(),blockTaskPoolRepository);
+                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit(), blockTaskPoolRepository);
                 for (Block b : taskList) {
-                    BlockAsyncService.handleSingleBlock(b, currentChainHeight,blockTaskPoolRepository,dataStoreServiceList);
+                    BlockAsyncService.handleSingleBlock(b, currentChainHeight, blockTaskPoolRepository, dataStoreServiceList);
                 }
                 if (!certainty) {
-                    BlockCheckService.checkForks(currentChainHeight,blockTaskPoolRepository,
-                             blockDetailInfoRepository, rollbackOneInterfaceMap);
-                    BlockCheckService.checkTaskCount(startBlockNumber, currentChainHeight,blockTaskPoolRepository);
+                    BlockCheckService.checkForks(currentChainHeight, blockTaskPoolRepository,
+                            blockDetailInfoRepository, rollbackOneInterfaceMap);
+                    BlockCheckService.checkTaskCount(startBlockNumber, currentChainHeight, blockTaskPoolRepository);
                 }
                 BlockCheckService.checkTimeOut(blockTaskPoolRepository);
-                BlockCheckService.processErrors(blockTaskPoolRepository,rollbackOneInterfaceMap);
+                BlockCheckService.processErrors(blockTaskPoolRepository, rollbackOneInterfaceMap);
             } catch (Exception e) {
                 log.error("{}", e);
                 Thread.sleep(60 * 1000L);
@@ -147,23 +144,23 @@ public class CrawlRunner {
 
     }
 
-    public void buildDataStore(){
-        Map<String, DaoTemplate> daoTemplateMap = ExportThreadLocal.daoThreadLocal.get();
+    public void buildDataStore() {
+        Map<String, DaoTemplate> daoTemplateMap = ExportConstant.daoThreadLocal.get();
 
-        BlockTaskPoolRepository blockTaskPoolRepository = new BlockTaskPoolRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_TASK_POOL_DAO));
-        BlockDetailInfoRepository blockDetailInfoRepository = new BlockDetailInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_DETAIL_DAO));
-        BlockRawDataRepository blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
-                ExportThreadLocal.BLOCK_RAW_DAO));
-        BlockTxDetailInfoRepository blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_TX_DETAIL_DAO));
-        TxRawDataRepository txRawDataRepository = new TxRawDataRepository(
-                daoTemplateMap.get(ExportThreadLocal.TX_RAW_DAO));
-        TxReceiptRawDataRepository txReceiptRawDataRepository = new TxReceiptRawDataRepository(
-                daoTemplateMap.get(ExportThreadLocal.TX_RECEIPT_RAW_DAO));
-        DeployedAccountInfoRepository deployedAccountInfoRepository = new DeployedAccountInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.DEPLOYED_ACCOUNT_INFO_TABLE));
+        blockTaskPoolRepository = new BlockTaskPoolRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_TASK_POOL_DAO));
+        blockDetailInfoRepository = new BlockDetailInfoRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_DETAIL_DAO));
+        blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
+                ExportConstant.BLOCK_RAW_DAO));
+        blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_TX_DETAIL_DAO));
+        txRawDataRepository = new TxRawDataRepository(
+                daoTemplateMap.get(ExportConstant.TX_RAW_DAO));
+        txReceiptRawDataRepository = new TxReceiptRawDataRepository(
+                daoTemplateMap.get(ExportConstant.TX_RECEIPT_RAW_DAO));
+        deployedAccountInfoRepository = new DeployedAccountInfoRepository(
+                daoTemplateMap.get(ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE));
 
         rollbackOneInterfaceMap.add(blockTaskPoolRepository);
         rollbackOneInterfaceMap.add(blockDetailInfoRepository);
