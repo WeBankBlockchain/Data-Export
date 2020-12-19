@@ -3,6 +3,8 @@ package com.webank.blockchain.data.export.common.entity;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author wesleywang
  * @Description:
@@ -12,7 +14,11 @@ import lombok.Data;
 @Builder
 public class ExportDataSource {
 
-    private MysqlDataSource mysqlDataSource;
+    private boolean autoCreateTable;
+
+    private boolean sharding;
+
+    private List<MysqlDataSource> mysqlDataSources;
 
     private ESDataSource esDataSource;
 }

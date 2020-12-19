@@ -2,7 +2,6 @@ package com.webank.blockchain.data.export.task;
 
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
-import cn.hutool.db.DbUtil;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.TableSQL;

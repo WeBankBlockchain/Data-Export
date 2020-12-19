@@ -15,5 +15,4 @@ public class MysqlDataSource {
     private String jdbcUrl;
     private String user;
     private String pass;
-    private boolean autoCreateTable;
 }
