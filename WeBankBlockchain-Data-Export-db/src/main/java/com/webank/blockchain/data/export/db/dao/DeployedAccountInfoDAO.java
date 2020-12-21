@@ -13,14 +13,10 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
-import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
 
 import java.util.List;
 
@@ -29,16 +25,13 @@ import java.util.List;
  * @Description:
  * @date 2020/10/26
  */
-@Component
+@AllArgsConstructor
 public class DeployedAccountInfoDAO implements SaveInterface<DeployedAccountInfoBO>{
 
-    @Autowired
     private DeployedAccountInfoRepository deployedAccountInfoRepository;
-    @Autowired
-    private ContractMapsInfo contractMapsInfo;
 
     public void save(DeployedAccountInfo deployedAccountInfo) {
-        BaseDAO.saveWithTimeLog(deployedAccountInfoRepository, deployedAccountInfo);
+        deployedAccountInfoRepository.save(deployedAccountInfo);
     }
 
     public void save(List<DeployedAccountInfoBO> deployedAccountInfoBOS) {
@@ -47,10 +40,10 @@ public class DeployedAccountInfoDAO implements SaveInterface<DeployedAccountInfo
 
     @Override
     public void save(DeployedAccountInfoBO deployedAccountInfoBO) {
-        DeployedAccountInfo deployedAccountInfo = new DeployedAccountInfo();
-        BeanUtil.copyProperties(deployedAccountInfoBO, deployedAccountInfo, true);
-        ContractDetail contractMethodInfo = contractMapsInfo.getContractBinaryMap().get(deployedAccountInfoBO.getBinary());
-        deployedAccountInfo.setAbiHash(contractMethodInfo.getContractInfoBO().getAbiHash());
-        save(deployedAccountInfo);
+//        DeployedAccountInfo deployedAccountInfo = new DeployedAccountInfo();
+//        BeanUtil.copyProperties(deployedAccountInfoBO, deployedAccountInfo, true);
+//        ContractDetail contractMethodInfo = contractMapsInfo.getContractBinaryMap().get(deployedAccountInfoBO.getBinary());
+//        deployedAccountInfo.setAbiHash(contractMethodInfo.getContractInfoBO().getAbiHash());
+//        save(deployedAccountInfo);
     }
 }

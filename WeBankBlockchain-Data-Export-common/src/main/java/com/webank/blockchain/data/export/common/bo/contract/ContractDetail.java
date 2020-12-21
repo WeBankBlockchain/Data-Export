@@ -13,12 +13,11 @@
  */
 package com.webank.blockchain.data.export.common.bo.contract;
 
-import java.util.List;
-
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.List;
 
 /**
  * ContractMethodInfo

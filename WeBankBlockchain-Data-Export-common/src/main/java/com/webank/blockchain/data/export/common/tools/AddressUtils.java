@@ -13,13 +13,12 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
-import java.math.BigInteger;
-import java.util.List;
-
+import cn.hutool.core.convert.Convert;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
 
-import cn.hutool.core.convert.Convert;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * AddressUtils

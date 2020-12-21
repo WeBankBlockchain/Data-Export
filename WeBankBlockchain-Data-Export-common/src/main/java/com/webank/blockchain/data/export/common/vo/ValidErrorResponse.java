@@ -13,18 +13,12 @@
  */
 package com.webank.blockchain.data.export.common.vo;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.webank.blockchain.data.export.common.constants.StatusCode;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-
-import com.google.common.collect.Maps;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.HashMap;
 
 /**
  * ValidErrorResponse， wrap the basic valid error usage of MVC.
@@ -42,16 +36,4 @@ public class ValidErrorResponse extends CommonResponse {
         msg = new Msg().setGlobal("").setFields(new HashMap<>());
     }
 
-    public ValidErrorResponse(BindingResult result) {
-        this.status = StatusCode.PARAMETER_ERROR;
-        Map<String, String> fields = Maps.newHashMap();
-
-        result.getAllErrors().forEach(e -> {
-            if (e instanceof FieldError) {
-                FieldError fe = (FieldError) e;
-                fields.put(fe.getField(), fe.getDefaultMessage());
-            }
-        });
-        msg = new Msg().setGlobal("").setFields(fields);
-    }
 }

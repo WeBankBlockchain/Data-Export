@@ -13,23 +13,20 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
+import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
+import lombok.AllArgsConstructor;
+import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.utils.Numeric;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.util.List;
-
-import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
-import com.webank.blockchain.data.export.extractor.ods.EthClient;
-import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.utils.Numeric;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
-
-import cn.hutool.core.bean.BeanUtil;
 
 /**
  * BlockTxDetailInfoDAO
@@ -39,13 +36,10 @@ import cn.hutool.core.bean.BeanUtil;
  * @data 2018-12-20 15:01:27
  *
  */
-@Component
+@AllArgsConstructor
 public class BlockTxDetailInfoDAO {
-    @Autowired
-    private EthClient ethClient;
 
     /** @Fields blockTxDetailInfoRepository : block transaction detail info repository */
-    @Autowired
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
 
     /**
@@ -65,7 +59,8 @@ public class BlockTxDetailInfoDAO {
         blockTxDetailInfo.setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue());
         blockTxDetailInfo.setContractName(contractName);
         blockTxDetailInfo.setMethodName(methodName.substring(contractName.length()));
-        JsonTransactionResponse transaction = ethClient.getTransactionByHash(receipt).get();
+        JsonTransactionResponse transaction = ExportConstant.threadLocal.get().getClient().
+                getTransactionByHash(receipt.getTransactionHash()).getTransaction().get();
         blockTxDetailInfo.setTxFrom(transaction.getFrom());
         blockTxDetailInfo.setTxTo(transaction.getTo());
         blockTxDetailInfo.setTxHash(receipt.getTransactionHash());

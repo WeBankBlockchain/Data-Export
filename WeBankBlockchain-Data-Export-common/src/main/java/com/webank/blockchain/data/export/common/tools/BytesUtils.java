@@ -13,13 +13,7 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.datatypes.Bytes;
 import org.fisco.bcos.sdk.abi.datatypes.BytesType;
@@ -34,7 +28,12 @@ import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Int8;
 import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
 
-import cn.hutool.core.util.StrUtil;
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * BytesUtils

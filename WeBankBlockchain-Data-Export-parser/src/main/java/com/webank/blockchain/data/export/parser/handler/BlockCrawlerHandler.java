@@ -19,7 +19,6 @@ import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
-import org.springframework.stereotype.Service;
 
 /**
  * BlockCrawlerHandler is responsible for crawling block info.
@@ -30,7 +29,6 @@ import org.springframework.stereotype.Service;
  * @data 2018-12-20 14:32:58
  *
  */
-@Service
 public class BlockCrawlerHandler {
 
     /**
@@ -41,7 +39,7 @@ public class BlockCrawlerHandler {
      * @param blockHeight
      * @return boolean
      */
-    public BlockDetailInfoBO handleBlockDetail(Block block) {
+    public static BlockDetailInfoBO handleBlockDetail(Block block) {
         BlockDetailInfoBO blockDetailInfo = new BlockDetailInfoBO();
         blockDetailInfo.setBlockHeight(block.getNumber().longValue());
         blockDetailInfo.setTxCount(block.getTransactions().size());
@@ -51,7 +49,7 @@ public class BlockCrawlerHandler {
         return blockDetailInfo;
     }
 
-    public BlockRawDataBO handleBlockRawData(Block block) {
+    public static BlockRawDataBO handleBlockRawData(Block block) {
         BlockRawDataBO blockRawDataBO = new BlockRawDataBO();
         blockRawDataBO.setBlockHeight(block.getNumber().longValue());
         blockRawDataBO.setBlockHash(block.getHash());

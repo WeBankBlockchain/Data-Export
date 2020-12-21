@@ -13,16 +13,20 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
-import java.util.List;
-
-import javax.transaction.Transactional;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
+import cn.hutool.db.Entity;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import com.webank.blockchain.data.export.db.tools.BeanUtils;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BlockTxDetailInfoRepository
@@ -32,9 +36,13 @@ import org.springframework.stereotype.Repository;
  * @data 2018-12-20 14:52:22
  *
  */
-@Repository
-public interface BlockTxDetailInfoRepository
-        extends JpaRepository<BlockTxDetailInfo, Long>, JpaSpecificationExecutor<BlockTxDetailInfo>, RollbackInterface {
+@Slf4j
+@AllArgsConstructor
+public class BlockTxDetailInfoRepository implements RollbackInterface {
+
+    private DaoTemplate blockTxDetailInfoDao;
+
+    private final String tableName = ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
 
     /**
      * Get block transaction info according to block height, return BlockTxDetailInfo object list.
@@ -42,30 +50,71 @@ public interface BlockTxDetailInfoRepository
      * @param blockHeight: block height
      * @return List<BlockTxDetailInfo>
      */
-    public List<BlockTxDetailInfo> findByBlockHeight(long blockHeight);
+    public List<BlockTxDetailInfo> findByBlockHeight(long blockHeight){
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTxDetailInfoDao.find("block_height", blockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockTxDetailInfoRepository findByBlockHeight failed ", e);
+        }
+        List<BlockTxDetailInfo> result = new ArrayList<>();
+        entityList.forEach(e -> {
+            result.add(e.toBean(BlockTxDetailInfo.class));
+        });
+        return result;
+    }
 
     /**
      * Get block transaction info according to transaction sender, return BlockTxDetailInfo object list.
-     * 
+     *
      * @param txFrom: transaction sender
      * @return List<BlockTxDetailInfo>
      */
-    public List<BlockTxDetailInfo> findByTxFrom(String txFrom);
+    public List<BlockTxDetailInfo> findByTxFrom(String txFrom){
+        List<Entity> entityList = null;
+        try {
+            entityList = blockTxDetailInfoDao.find("tx_from", txFrom);
+        } catch (SQLException e) {
+            log.error(" BlockTxDetailInfoRepository findByTxFrom failed ", e);
+        }
+        List<BlockTxDetailInfo> result = new ArrayList<>();
+        if (CollectionUtil.isEmpty(entityList)){
+            return result;
+        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTxDetailInfo.class));
+        });
+        return result;
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1", nativeQuery = true)
-    public void rollback(long blockHeight);
+    public void rollback(long blockHeight){
+        try {
+            blockTxDetailInfoDao.del(Entity.create(tableName).set("block_height",">= " + blockHeight));
+        } catch (SQLException e) {
+            log.error(" BlockTxDetailInfoRepository rollback failed ", e);
+        }
+    }
 
     /*
      * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    @Transactional
-    @Modifying
-    @Query(value = "delete from  #{#entityName} where block_height >= ?1 and block_height< ?2", nativeQuery = true)
-    public void rollback(long startBlockHeight, long endBlockHeight);
+    public void rollback(long startBlockHeight, long endBlockHeight){
+        try {
+            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
+                    "delete from block_raw_data where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+        } catch (SQLException e) {
+            log.error(" BlockTxDetailInfoRepository rollback failed ", e);
+        }
+    }
 
+    public void save(BlockTxDetailInfo blockTxDetailInfo) {
+        try {
+            blockTxDetailInfoDao.addForGeneratedKey(Entity.parse(blockTxDetailInfo,true,true));
+        } catch (SQLException e) {
+            log.error(" BlockDetailInfoRepository save failed ", e);
+        }
+    }
 }

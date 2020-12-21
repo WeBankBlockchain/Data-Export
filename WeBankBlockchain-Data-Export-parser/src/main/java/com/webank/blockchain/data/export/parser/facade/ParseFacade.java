@@ -13,23 +13,18 @@
  */
 package com.webank.blockchain.data.export.parser.facade;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
-import com.webank.blockchain.data.export.common.bo.data.BlockContractInfoBO;
-import com.webank.blockchain.data.export.parser.handler.MethodCrawlerHandler;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.google.common.base.Stopwatch;
+import com.webank.blockchain.data.export.common.bo.data.BlockContractInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
 import com.webank.blockchain.data.export.parser.handler.BlockCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.ContractCrawlerHandler;
-import com.webank.blockchain.data.export.parser.handler.EventCrawlerHandler;
-
+import com.webank.blockchain.data.export.parser.handler.MethodCrawlerHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ParseFacade
@@ -39,40 +34,31 @@ import lombok.extern.slf4j.Slf4j;
  * @data Jul 3, 2019 11:04:14 AM
  *
  */
-@Service
 @Slf4j
-public class ParseFacade implements ParseInterface {
-    @Autowired
-    private ContractCrawlerHandler contractCrawlerHandler;
-    @Autowired
-    private BlockCrawlerHandler blockCrawlerHandler;
-    @Autowired
-    private EventCrawlerHandler eventCrawlHandler;
-    @Autowired
-    private MethodCrawlerHandler methodCrawlerHandler;
+public class ParseFacade {
 
     /*
      * dependency: P1) getAccounts-> Accounts. P2) depend on 1, txHashContractAddress(in order to get method address) ->
      * methods. P3) depend on 2, txHashContractName.
      */
-    @Override
-    public BlockInfoBO parse(Block block) throws IOException {
+    public static BlockInfoBO parse(Block block) throws IOException {
         BlockInfoBO blockInfo = new BlockInfoBO();
         Stopwatch st = Stopwatch.createStarted();
-        BlockContractInfoBO contractInfoBO = contractCrawlerHandler.crawl(block);
+        BlockContractInfoBO contractInfoBO = ContractCrawlerHandler.crawl(block);
         log.debug("Block {} , Account crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         st.start();
         BlockMethodInfo blockMethodInfo =
-                methodCrawlerHandler.crawl(block, contractInfoBO.getTxHashContractAddressMapping());
+                MethodCrawlerHandler.crawl(block, contractInfoBO.getTxHashContractAddressMapping());
         log.debug("Block {} , method crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         st.start();
-        blockInfo.setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS())
-                .setBlockDetailInfo(blockCrawlerHandler.handleBlockDetail(block))
-                .setBlockRawDataBO(blockCrawlerHandler.handleBlockRawData(block))
-                .setEventInfoList(eventCrawlHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()))
-                .setMethodInfoList(blockMethodInfo.getMethodInfoList())
+        blockInfo
+                .setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS())
+                .setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block))
+                .setBlockRawDataBO(BlockCrawlerHandler.handleBlockRawData(block))
+//                .setEventInfoList(eventCrawlHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()))
+//                .setMethodInfoList(blockMethodInfo.getMethodInfoList())
                 .setBlockTxDetailInfoList(blockMethodInfo.getBlockTxDetailInfoList())
                 .setTxRawDataBOList(blockMethodInfo.getTxRawDataBOList())
                 .setTxReceiptRawDataBOList(blockMethodInfo.getTxReceiptRawDataBOList());

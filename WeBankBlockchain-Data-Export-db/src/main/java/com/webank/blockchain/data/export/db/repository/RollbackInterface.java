@@ -13,8 +13,6 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
-import org.springframework.data.repository.NoRepositoryBean;
-
 /**
  * RollbackOneInterface
  *
@@ -23,14 +21,11 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @data Dec 13, 2018 10:53:39 AM
  *
  */
-@NoRepositoryBean
 public interface RollbackInterface {
-    /**
-     * rollback from blockHeight, including blockHeight.
-     * 
-     * @param blockHeight
+    /*
+     * @see com.webank.blockchain.data.export.sys.db.repository.RollbackInterface#rollback(long)
      */
-    public void rollback(long blockHeight);
+     void rollback(long blockHeight);
 
     /**
      * rollback from startBlockHeight to endBlockHeight, including startBlockHeight, but not including endBlockHeight.
@@ -38,6 +33,6 @@ public interface RollbackInterface {
      * @param startBlockHeight
      * @param endBlockHeight
      */
-    public void rollback(long startBlockHeight, long endBlockHeight);
+     void rollback(long startBlockHeight, long endBlockHeight);
 
 }

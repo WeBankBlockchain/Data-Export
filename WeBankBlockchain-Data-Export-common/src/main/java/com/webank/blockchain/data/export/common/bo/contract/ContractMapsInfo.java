@@ -13,10 +13,10 @@
  */
 package com.webank.blockchain.data.export.common.bo.contract;
 
-import java.util.Map;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.util.Map;
 
 /**
  * ContractMapsInfo

@@ -13,15 +13,14 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.abi.TypeReference;
 import org.fisco.bcos.sdk.abi.datatypes.Type;
 import org.fisco.bcos.sdk.utils.Numeric;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * FunctionInputDecode

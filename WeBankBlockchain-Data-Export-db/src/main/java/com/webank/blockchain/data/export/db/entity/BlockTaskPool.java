@@ -13,22 +13,12 @@
  */
 package com.webank.blockchain.data.export.db.entity;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import org.hibernate.annotations.UpdateTimestamp;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.util.Date;
 
 /**
  * BlockTaskPool
@@ -40,33 +30,22 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@Table(name = "block_task_pool", indexes = { @Index(name = "sync_status", columnList = "sync_status"),
-        @Index(name = "certainty", columnList = "certainty"),
-        @Index(name = "depot_updatetime", columnList = "depot_updatetime") })
-@Entity(name = "block_task_pool")
 @EqualsAndHashCode(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BlockTaskPool extends IdEntity {
 
     private static final long serialVersionUID = 5987912520917085396L;
 
-    @Column(name = "block_height", unique = true)
     private long blockHeight;
 
     /** @Fields syncStatus : sync status of transactions */
-    @Column(name = "sync_status")
     private short syncStatus;
 
     /** @Fields certainty : certainty of fork check */
-    @Column(name = "certainty")
     private short certainty;
 
-    @Column(name = "handle_item")
     private short handleItem = 0;
 
     /** @Fields updatetime : update time */
-    @UpdateTimestamp
-    @Column(name = "depot_updatetime")
-    @Temporal(TemporalType.TIMESTAMP)
     protected Date depotUpdatetime;
 }

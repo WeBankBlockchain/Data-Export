@@ -2,10 +2,8 @@ package com.webank.blockchain.data.export.common.bo.data;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlockHeader;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author wesleywang
