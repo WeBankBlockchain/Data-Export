@@ -108,7 +108,7 @@ public void shardingTest() throws ConfigException, InterruptedException {
                         .user("username")
                         .build();
         MysqlDataSource mysqlDataSourc1 = MysqlDataSource.builder()
-                        .jdbcUrl("jdbc:mysql://[ip]:3306/[database]")
+                        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
                         .pass("password")
                         .user("username")
                         .build();
