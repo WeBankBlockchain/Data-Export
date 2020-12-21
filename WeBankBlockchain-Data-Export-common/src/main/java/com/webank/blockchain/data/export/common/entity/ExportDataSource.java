@@ -18,6 +18,8 @@ public class ExportDataSource {
 
     private boolean sharding;
 
+    private int shardingNumberPerDatasource;
+
     private List<MysqlDataSource> mysqlDataSources;
 
     private ESDataSource esDataSource;

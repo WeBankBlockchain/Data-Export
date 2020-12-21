@@ -4,7 +4,9 @@ package com.webank.blockchain.data.export.common.entity;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.DbUtil;
 import cn.hutool.log.level.Level;
+import com.google.common.collect.Lists;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,21 +22,19 @@ public class ExportConstant {
 
     public static final ThreadLocal<DataExportContext> threadLocal = new ThreadLocal<>();
 
-    public static final ThreadLocal<Map<String, DaoTemplate>> daoThreadLocal = new ThreadLocal<>();
+    public static final String BLOCK_TASK_POOL_DAO = "block_task_pool_dao";
 
-    public static final String BLOCK_TASK_POOL_DAO = "blockTaskPoolDao";
+    public static final String BLOCK_DETAIL_DAO = "block_detail_info_dao";
 
-    public static final String BLOCK_DETAIL_DAO = "blockDetailInfoDao";
+    public static final String BLOCK_RAW_DAO = "block_raw_data_dao";
 
-    public static final String BLOCK_RAW_DAO = "blockRawDataDao";
+    public static final String BLOCK_TX_DETAIL_DAO = "block_tx_detail_info_dao";
 
-    public static final String BLOCK_TX_DETAIL_DAO = "blockTxDetailInfoDao";
+    public static final String TX_RAW_DAO = "tx_raw_data_dao";
 
-    public static final String TX_RAW_DAO = "txRawDataDao";
+    public static final String TX_RECEIPT_RAW_DAO = "tx_receipt_raw_data_dao";
 
-    public static final String TX_RECEIPT_RAW_DAO = "txReceiptRawDataDao";
-
-    public static final String DEPLOYED_ACCOUNT_DAO = "deployedAccountInfoDao";
+    public static final String DEPLOYED_ACCOUNT_DAO = "deployed_account_info_dao";
 
     public static final String BLOCK_DETAIL_INFO_TABLE = "block_detail_info";
 
@@ -50,7 +50,12 @@ public class ExportConstant {
 
     public static final String TX_RECEIPT_RAW_DATA_TABLE = "tx_receipt_raw_data";
 
-
-
-
+    public static final List<String> tables = Lists.newArrayList(
+            BLOCK_DETAIL_INFO_TABLE,
+            BLOCK_TASK_POOL_TABLE,
+            BLOCK_RAW_DATA_TABLE,
+            BLOCK_TX_DETAIL_INFO_TABLE,
+            DEPLOYED_ACCOUNT_INFO_TABLE,
+            TX_RAW_DATA_TABLE,
+            TX_RECEIPT_RAW_DATA_TABLE);
 }

@@ -47,7 +47,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
     public BlockTaskPool findTopByOrderByBlockHeightDesc() {
         List<Entity> entityList = null;
         try {
-            entityList = blockTaskPoolDao.findBySql("block_task_pool order by block_height desc limit 1");
+            entityList = blockTaskPoolDao.findBySql("order by block_height desc limit 1");
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findTopByOrderByBlockHeightDesc failed ", e);
         }
@@ -245,6 +245,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
 
     public void save(BlockTaskPool blockTaskPool) {
         try {
+            if (blockTaskPool.getPkId() != null && blockTaskPool.getPkId() > 0){
+                blockTaskPoolDao.update(Entity.parse(blockTaskPool, true, true),
+                        Entity.create(tableName).set("block_height", blockTaskPool.getBlockHeight())
+                                .set("pk_id",blockTaskPool.getPkId()));
+                return;
+            }
             blockTaskPoolDao.addOrUpdate(Entity.parse(blockTaskPool, true, true));
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository saveAll failed ", e);

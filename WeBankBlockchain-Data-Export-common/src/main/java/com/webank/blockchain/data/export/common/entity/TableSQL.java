@@ -1,5 +1,8 @@
 package com.webank.blockchain.data.export.common.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author wesleywang
  * @Description:
@@ -7,7 +10,9 @@ package com.webank.blockchain.data.export.common.entity;
  */
 public class TableSQL {
 
-    public static final String BLOCK_DETAIL_INFO = "CREATE TABLE `block_detail_info` (\n" +
+    public static Map<String,String> tableSqlMap;
+
+    public static String BLOCK_DETAIL_INFO = "CREATE TABLE `block_detail_info` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
             "  `block_hash` varchar(255) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
@@ -132,4 +137,16 @@ public class TableSQL {
             "  KEY `block_hash` (`block_hash`),\n" +
             "  KEY `block_timestamp` (`block_time_stamp`)\n" +
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+
+
+    static {
+        tableSqlMap = new HashMap<>();
+        tableSqlMap.put("block_detail_info", BLOCK_DETAIL_INFO);
+        tableSqlMap.put("block_raw_data", BLOCK_RAW_DATA);
+        tableSqlMap.put("block_task_pool", BLOCK_TASK_POOL);
+        tableSqlMap.put("block_tx_detail_info", BLOCK_TX_DETAIL_INFO);
+        tableSqlMap.put("deployed_account_info", DEPLOYED_ACCOUNT_INFO);
+        tableSqlMap.put("tx_receipt_raw_data", TX_RECEIPT_RAW_DATA);
+        tableSqlMap.put("tx_raw_data", TX_RAW_DATA);
+    }
 }

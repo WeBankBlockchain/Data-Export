@@ -22,6 +22,7 @@ dependencies {
     compile project(':WeBankBlockchain-Data-Export-common')
     compile project(':WeBankBlockchain-Data-Export-db')
     compile project(':WeBankBlockchain-Data-Export-extractor')
+    testCompile ("junit:junit:4.12")
 }
 
 jar {
@@ -78,6 +79,7 @@ subprojects {
         compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
         compile('org.fisco-bcos.java-sdk:java-sdk:2.6.1')
         compile 'commons-codec:commons-codec:1.4'
+        compile group: "org.apache.shardingsphere", name: "shardingsphere-jdbc-core", version: '5.0.0-alpha'
         compile group: "org.slf4j", name: "slf4j-log4j12", version: '1.7.21'
         compile('ch.qos.logback:logback-core:1.2.3')
         compile('ch.qos.logback:logback-classic:1.2.3')
@@ -85,6 +87,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.10'
         compile (group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1')
         compile("com.fasterxml.jackson.core:jackson-databind:2.11.0")
+        testCompile ("junit:junit:4.12")
     }
     jar {
         destinationDir file("dist/apps")

@@ -14,6 +14,7 @@
 package com.webank.blockchain.data.export.task;
 
 import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -45,6 +46,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -158,7 +160,7 @@ public class CrawlRunner {
     }
 
     public void buildDataStore() {
-        Map<String, DaoTemplate> daoTemplateMap = ExportConstant.daoThreadLocal.get();
+        Map<String, DaoTemplate> daoTemplateMap = buildDaoMap(context);
 
         blockTaskPoolRepository = new BlockTaskPoolRepository(
                 daoTemplateMap.get(ExportConstant.BLOCK_TASK_POOL_DAO));
@@ -199,6 +201,16 @@ public class CrawlRunner {
 
         dataStoreServiceList.add(mysqlStoreService);
 
+    }
+
+    private Map<String, DaoTemplate> buildDaoMap(DataExportContext context) {
+        Db db = Db.use(context.getDataSource());
+        Map<String, DaoTemplate> daoTemplateMap = new ConcurrentHashMap<>();
+        ExportConstant.tables.forEach(table -> {
+            DaoTemplate daoTemplate = new DaoTemplate(table, "pk_id", db);
+            daoTemplateMap.put(table + "_dao", daoTemplate);
+        });
+        return daoTemplateMap;
     }
 
 }
