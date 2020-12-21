@@ -14,6 +14,10 @@ import org.fisco.bcos.sdk.config.exceptions.ConfigException;
  */
 public class ExportDataSDK {
 
+    public static DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo) throws ConfigException {
+        return DataExportService.create(dataSource,chainInfo, new ExportConfig());
+    }
+
     public static DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
         return DataExportService.create(dataSource,chainInfo,config);
     }
