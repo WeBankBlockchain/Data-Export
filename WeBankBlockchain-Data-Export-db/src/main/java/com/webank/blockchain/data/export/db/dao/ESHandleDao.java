@@ -23,7 +23,7 @@
 //import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 //import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
 //import com.webank.blockchain.data.export.common.entity.ESDataSource;
-//import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+//import com.webank.blockchain.data.export.common.entity.ExportConstant;
 //import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 //import com.webank.blockchain.data.export.db.service.ESService;
 //import lombok.SneakyThrows;
@@ -64,7 +64,7 @@
 //
 //    @SneakyThrows
 //    public void init() {
-//        ESDataSource esConfig = ExportThreadLocal.threadLocal.get().getEsConfig();
+//        ESDataSource esConfig = ExportConstant.threadLocal.get().getEsConfig();
 //        System.setProperty("es.set.netty.runtime.available.processors","false");
 //        Settings settings = Settings.builder()
 //                .put("cluster.name", esConfig.getClusterName())

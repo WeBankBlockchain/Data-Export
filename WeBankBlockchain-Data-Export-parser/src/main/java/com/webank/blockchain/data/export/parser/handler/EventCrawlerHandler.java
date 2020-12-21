@@ -15,7 +15,7 @@ package com.webank.blockchain.data.export.parser.handler;
 
 import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
@@ -49,7 +49,7 @@ public class EventCrawlerHandler {
         for (TransactionResult result : transactionResults) {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
-            BcosTransactionReceipt bcosTransactionReceipt = ExportThreadLocal.threadLocal.get().getClient().getTransactionReceipt(transaction.getHash());
+            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.threadLocal.get().getClient().getTransactionReceipt(transaction.getHash());
             Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
             if (opt.isPresent()) {
                 TransactionReceipt tr = opt.get();

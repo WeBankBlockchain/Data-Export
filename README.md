@@ -18,26 +18,8 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 
 **此版本只支持**[FISCO BCOS 2.0](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/)及以上版本。
 
+**此版本为数据导出SDK版本，无spring等框架依赖，使用更加轻便灵活** 
 
-## 关键特性
-
-- 自动生成数据导出组件
-
-- 支持自定义导出数据内容
-
-- 内置Restful API，提供常用的查询功能
-
-- 支持多数据源，支持读写分离和分库分表
-
-- 支持ES存储
-
-- 支持多活部署，多节点自动导出
-
-- 支持区块重置导出
-
-- 支持可视化的监控页面
-
-- 提供可视化的互动API控制台
 
 ## 环境要求
 
@@ -50,14 +32,105 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 | Java | JDK[1.8] ||
 | Git | 下载的安装包使用Git | |
 | MySQL | >= mysql-community-server[5.7] | 理论上来说支持主流数据库，但未测试|
-| zookeeper | >= zookeeper[3.4] | 只有在进行集群部署的时候需要安装|
-| docker    | >= docker[18.0.0] | 只有需要可视化监控页面的时候才需要安装|
-| ElasticSearch | >= elasticsearch [7.0] | 只有在需要ES存储时安装 |
+
+##使用教程
+
+### 1.引入数据导出SDK依赖 
+
+项目打包后，将打包后的SDK-jar包放到项目lib下，建立依赖
+
+### 2.SDK接口介绍
+
+```
+//创建数据导出执行器DataExportExecutor
+DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo);
+//数据导出启动
+start(DataExportExecutor exportExecutor)
+//数据导出关闭
+stop(DataExportExecutor exportExecutor)
+```
+其中参数ExportDataSource为数据源配置，结构如下：
+```
+    //是否自动建表
+    private boolean autoCreateTable;
+    //是否多数据源，采用分库分表
+    private boolean sharding;
+    //单库表分片数，用于路由和建表
+    private int shardingNumberPerDatasource;
+    //mysql数据源配置
+    private List<MysqlDataSource> mysqlDataSources;
+    //es数据源配置
+    private ESDataSource esDataSource;
+
+```
+
+其中参数ChainInfo为链参数配置，结构如下：
+```
+    //节点ip和端口port，格式为：[ip]:[port]
+    private String nodeStr;
+    //分组id
+    private int groupId;
+    //链节点连接所需证书路径
+    private String certPath;
+
+```
+
+单库使用方式如下：
+```
+        MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
+                .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
+                .pass("password")
+                .user("username")
+                .build();
+        List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
+        mysqlDataSourceList.add(mysqlDataSourc);
+        ExportDataSource dataSource = ExportDataSource.builder()
+                .mysqlDataSources(mysqlDataSourceList)
+                .autoCreateTable(true)
+                .build();
+        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
+                .nodeStr("[ip]:[port]")
+                .certPath("config")
+                .groupId(1).build());
+        ExportDataSDK.start(exportExecutor);
+        //Thread.sleep(60 *1000L);
+        //ExportDataSDK.stop(exportExecutor);
+```
 
 
-## 文档
-- [**中文**](https://data-doc.readthedocs.io/zh_CN/latest/docs/WeBankBlockchain-Data-Export/index.html)
-- [**快速安装**](https://data-doc.readthedocs.io/zh_CN/latest/docs/WeBankBlockchain-Data-Export/install.html)
+分库分表使用方式例子如下：
+```
+
+public void shardingTest() throws ConfigException, InterruptedException {
+        MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
+                        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
+                        .pass("password")
+                        .user("username")
+                        .build();
+        MysqlDataSource mysqlDataSourc1 = MysqlDataSource.builder()
+                        .jdbcUrl("jdbc:mysql://[ip]:3306/[database]")
+                        .pass("password")
+                        .user("username")
+                        .build();
+        List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
+        mysqlDataSourceList.add(mysqlDataSourc);
+        mysqlDataSourceList.add(mysqlDataSourc1);
+        ExportDataSource dataSource = ExportDataSource.builder()
+                .mysqlDataSources(mysqlDataSourceList)
+                .autoCreateTable(true)
+                .sharding(true)
+                .shardingNumberPerDatasource(2)
+                .build();
+        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
+                .nodeStr("[ip]:[port]")
+                .certPath("config")
+                .groupId(1).build());
+        ExportDataSDK.start(exportExecutor);
+        //Thread.sleep(60 *1000L);
+        //ExportDataSDK.stop(exportExecutor);
+    }
+
+```
 
 
 ## 贡献代码

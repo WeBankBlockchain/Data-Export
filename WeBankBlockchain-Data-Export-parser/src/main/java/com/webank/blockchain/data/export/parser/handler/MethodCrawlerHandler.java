@@ -19,7 +19,7 @@ import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +61,7 @@ public class MethodCrawlerHandler {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
             Optional<TransactionReceipt> opt =
-                    ExportThreadLocal.threadLocal.get().getClient().getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
+                    ExportConstant.threadLocal.get().getClient().getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
 //                MethodMetaInfo methodMetaInfo = TransactionService.getMethodMetaInfo(transaction, null);

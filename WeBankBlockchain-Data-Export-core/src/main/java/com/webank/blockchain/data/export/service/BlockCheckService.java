@@ -17,17 +17,15 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.db.repository.RollbackInterface;
 import com.webank.blockchain.data.export.extractor.ods.EthClient;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.StringUtils;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
@@ -50,8 +48,10 @@ import java.util.stream.Collectors;
 @Data
 public class BlockCheckService {
 
-    public static void processErrors(BlockTaskPoolRepository blockTaskPoolRepository, List<RollbackInterface> rollbackOneInterfaceMap) {
+    public static void processErrors() {
         log.info("Begin to check error records");
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
         List<BlockTaskPool> unnormalRecords = blockTaskPoolRepository.findUnNormalRecords();
         if (CollectionUtil.isEmpty(unnormalRecords)) {
             return;
@@ -59,17 +59,17 @@ public class BlockCheckService {
             log.info("sync block detect {} error transactions.", unnormalRecords.size());
             unnormalRecords.parallelStream().map(b -> b.getBlockHeight()).forEach(e -> {
                 log.error("Block {} sync error, and begin to rollback.", e);
-                RollBackService.rollback(e, e + 1,rollbackOneInterfaceMap);
+                RollBackService.rollback(e, e + 1);
                 blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.INIT.getStatus(),
                         new Date(), e);
             });
         }
     }
 
-    public static void checkForks(long currentBlockHeight,BlockTaskPoolRepository blockTaskPoolRepository,
-                                  BlockDetailInfoRepository blockDetailInfoRepository,
-                                  List<RollbackInterface> rollbackOneInterfaceMap) throws IOException {
+    public static void checkForks(long currentBlockHeight) throws IOException {
         log.info("current block height is {}, and begin to check forks", currentBlockHeight);
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
         List<BlockTaskPool> uncertainBlocks =
                 blockTaskPoolRepository.findByCertainty((short) BlockCertaintyEnum.UNCERTAIN.getCertainty());
         for (BlockTaskPool pool : uncertainBlocks) {
@@ -84,13 +84,14 @@ public class BlockCheckService {
                             pool.getBlockHeight());
                     continue;
                 }
-                EthClient client = new EthClient(ExportThreadLocal.threadLocal.get().getClient());
+                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
                 Block block = client.getBlock(BigInteger.valueOf(pool.getBlockHeight()));
                 String newHash = block.getHash();
                 if (!newHash.equals(
-                        blockDetailInfoRepository.findByBlockHeight(pool.getBlockHeight()).getBlockHash())) {
+                        DataExportExecutor.crawler.get().getBlockDetailInfoRepository()
+                                .findByBlockHeight(pool.getBlockHeight()).getBlockHash())) {
                     log.info("Block {} is forked!!! ready to resync", pool.getBlockHeight());
-                    RollBackService.rollback(pool.getBlockHeight(), pool.getBlockHeight() + 1,rollbackOneInterfaceMap);
+                    RollBackService.rollback(pool.getBlockHeight(), pool.getBlockHeight() + 1);
                     blockTaskPoolRepository.setSyncStatusAndCertaintyByBlockHeight(
                             (short) TxInfoStatusEnum.INIT.getStatus(), (short) BlockCertaintyEnum.FIXED.getCertainty(),
                             pool.getBlockHeight());
@@ -105,7 +106,9 @@ public class BlockCheckService {
 
     }
 
-    public static void checkTimeOut(BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static void checkTimeOut() {
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
         Date offsetDate = DateUtil.offsetSecond(DateUtil.date(), 0 - BlockConstants.DEPOT_TIME_OUT);
         log.info("Begin to check timeout transactions which is ealier than {}", offsetDate);
         List<BlockTaskPool> list = blockTaskPoolRepository
@@ -122,10 +125,12 @@ public class BlockCheckService {
 
     }
 
-    public static void checkTaskCount(long startBlockNumber, long currentMaxTaskPoolNumber,BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static void checkTaskCount(long startBlockNumber, long currentMaxTaskPoolNumber) {
         log.info("Check task count from {} to {}", startBlockNumber, currentMaxTaskPoolNumber);
-        ExportConfig config = ExportThreadLocal.threadLocal.get().getConfig();
-        if (isComplete(startBlockNumber, currentMaxTaskPoolNumber,blockTaskPoolRepository)) {
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+        ExportConfig config = ExportConstant.threadLocal.get().getConfig();
+        if (isComplete(startBlockNumber, currentMaxTaskPoolNumber)) {
             return;
         }
         List<BlockTaskPool> supplements = new ArrayList<>();
@@ -133,43 +138,43 @@ public class BlockCheckService {
         for (long i = startBlockNumber; i <= currentMaxTaskPoolNumber
                 - config.getCrawlBatchUnit(); i += config.getCrawlBatchUnit()) {
             long j = i + config.getCrawlBatchUnit() - 1;
-            Optional<List<BlockTaskPool>> optional = findMissingPoolRecords(i, j,blockTaskPoolRepository);
-            if (optional.isPresent()) {
-                supplements.addAll(optional.get());
-            }
+            Optional<List<BlockTaskPool>> optional = findMissingPoolRecords(i, j);
+            optional.ifPresent(supplements::addAll);
             t = j + 1;
         }
-        Optional<List<BlockTaskPool>> optional = findMissingPoolRecords(t, currentMaxTaskPoolNumber,blockTaskPoolRepository);
-        if (optional.isPresent()) {
-            supplements.addAll(optional.get());
-        }
+        Optional<List<BlockTaskPool>> optional = findMissingPoolRecords(t, currentMaxTaskPoolNumber);
+        optional.ifPresent(supplements::addAll);
         log.info("Find {} missing pool numbers", supplements.size());
         blockTaskPoolRepository.saveAll(supplements);
     }
 
-    public static Optional<List<BlockTaskPool>> findMissingPoolRecords(long startIndex, long endIndex, BlockTaskPoolRepository blockTaskPoolRepository) {
-        if (isComplete(startIndex, endIndex,blockTaskPoolRepository)) {
+    public static Optional<List<BlockTaskPool>> findMissingPoolRecords(long startIndex, long endIndex) {
+        BlockTaskPoolRepository blockTaskPoolRepository =
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+        if (isComplete(startIndex, endIndex)) {
             return Optional.empty();
         }
         List<BlockTaskPool> list = blockTaskPoolRepository.findByBlockHeightRange(startIndex, endIndex);
-        List<Long> ids = list.stream().map(p -> p.getBlockHeight()).collect(Collectors.toList());
+        List<Long> ids = list.stream().map(BlockTaskPool::getBlockHeight).collect(Collectors.toList());
         List<BlockTaskPool> supplements = new ArrayList<>();
         for (long tmpIndex = startIndex; tmpIndex <= endIndex; tmpIndex++) {
-            if (ids.indexOf(tmpIndex) >= 0) {
+            if (ids.contains(tmpIndex)) {
                 continue;
             }
             log.info("Successfully detect block {} is missing. Try to sync block again.", tmpIndex);
             BlockTaskPool pool = new BlockTaskPool().setBlockHeight(tmpIndex)
                     .setSyncStatus((short) TxInfoStatusEnum.ERROR.getStatus())
-                    .setCertainty((short) BlockCertaintyEnum.UNCERTAIN.getCertainty());
+                    .setCertainty((short) BlockCertaintyEnum.UNCERTAIN.getCertainty())
+                    .setDepotUpdatetime(new Date());
             supplements.add(pool);
         }
         return Optional.of(supplements);
     }
 
-    public static boolean isComplete(long startBlockNumber, long currentMaxTaskPoolNumber,BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static boolean isComplete(long startBlockNumber, long currentMaxTaskPoolNumber) {
         long deserveCount = currentMaxTaskPoolNumber - startBlockNumber + 1;
-        long actualCount = blockTaskPoolRepository.countByBlockHeightRange(startBlockNumber, currentMaxTaskPoolNumber);
+        long actualCount = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                .countByBlockHeightRange(startBlockNumber, currentMaxTaskPoolNumber);
         log.info("Check task count from block {} to {}, deserve count is {}, and actual count is {}", startBlockNumber,
                 currentMaxTaskPoolNumber, deserveCount, actualCount);
         if (deserveCount == actualCount) {

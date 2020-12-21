@@ -60,7 +60,7 @@ public class TxRawData extends IdEntity{
     private String gasPrice;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 
 
 

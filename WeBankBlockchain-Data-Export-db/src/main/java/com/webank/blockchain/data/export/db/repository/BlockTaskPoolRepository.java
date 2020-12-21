@@ -17,7 +17,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;
@@ -42,12 +42,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
 
     private DaoTemplate blockTaskPoolDao;
 
-    private final String tableName = ExportThreadLocal.BLOCK_TASK_POOL_TABLE;
+    private final String tableName = ExportConstant.BLOCK_TASK_POOL_TABLE;
 
     public BlockTaskPool findTopByOrderByBlockHeightDesc() {
         List<Entity> entityList = null;
         try {
-            entityList = blockTaskPoolDao.findBySql("block_task_pool order by block_height desc limit 1");
+            entityList = blockTaskPoolDao.findBySql("order by block_height desc limit 1");
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findTopByOrderByBlockHeightDesc failed ", e);
         }
@@ -135,12 +135,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(
-                    "block_task_pool where sync_status = ? order by block_height limit ?",syncStatus,limit);
+                    "where sync_status = ? order by block_height limit ?",syncStatus,limit);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findBySyncStatusOrderByBlockHeightLimit failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
         entityList.forEach(e -> {
@@ -232,7 +232,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
      */
     public void rollback(long startBlockHeight, long endBlockHeight) {
         try {
-            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
                     "delete from block_task_pool where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository rollback failed ", e);
@@ -245,7 +245,13 @@ public class BlockTaskPoolRepository implements RollbackInterface{
 
     public void save(BlockTaskPool blockTaskPool) {
         try {
-            blockTaskPoolDao.addForGeneratedKeys(Entity.parse(blockTaskPool,true,true));
+            if (blockTaskPool.getPkId() != null && blockTaskPool.getPkId() > 0){
+                blockTaskPoolDao.update(Entity.parse(blockTaskPool, true, true),
+                        Entity.create(tableName).set("block_height", blockTaskPool.getBlockHeight())
+                                .set("pk_id",blockTaskPool.getPkId()));
+                return;
+            }
+            blockTaskPoolDao.addOrUpdate(Entity.parse(blockTaskPool, true, true));
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository saveAll failed ", e);
         }

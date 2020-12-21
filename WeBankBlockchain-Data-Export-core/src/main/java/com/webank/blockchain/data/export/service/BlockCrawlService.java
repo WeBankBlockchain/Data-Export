@@ -15,7 +15,7 @@ package com.webank.blockchain.data.export.service;
 
 import com.google.common.base.Stopwatch;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.extractor.ods.EthClient;
 import com.webank.blockchain.data.export.parser.facade.ParseFacade;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class BlockCrawlService {
      */
     public static BlockInfoBO parse(long blockHeight) throws IOException {
         BigInteger bigBlockHeight = new BigInteger(Long.toString(blockHeight));
-        EthClient ethClient = new EthClient(ExportThreadLocal.threadLocal.get().getClient());
+        EthClient ethClient = new EthClient(ExportConstant.threadLocal.get().getClient());
         Block block = ethClient.getBlock(bigBlockHeight);
         return parse(block);
     }

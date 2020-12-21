@@ -15,7 +15,7 @@ package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
 import lombok.AllArgsConstructor;
@@ -59,7 +59,7 @@ public class BlockTxDetailInfoDAO {
         blockTxDetailInfo.setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue());
         blockTxDetailInfo.setContractName(contractName);
         blockTxDetailInfo.setMethodName(methodName.substring(contractName.length()));
-        JsonTransactionResponse transaction = ExportThreadLocal.threadLocal.get().getClient().
+        JsonTransactionResponse transaction = ExportConstant.threadLocal.get().getClient().
                 getTransactionByHash(receipt.getTransactionHash()).getTransaction().get();
         blockTxDetailInfo.setTxFrom(transaction.getFrom());
         blockTxDetailInfo.setTxTo(transaction.getTo());

@@ -15,16 +15,17 @@ package com.webank.blockchain.data.export.service;
 
 import com.google.common.collect.Lists;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.Client;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,27 +39,31 @@ import java.util.List;
 @Slf4j
 public class BlockPrepareService {
 
-    public static long getTaskPoolHeight(BlockTaskPoolRepository blockTaskPoolRepository) {
-        BlockTaskPool item = blockTaskPoolRepository.findTopByOrderByBlockHeightDesc();
+    public static long getTaskPoolHeight() {
+        BlockTaskPool item = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                .findTopByOrderByBlockHeightDesc();
         long height = 0;
+        if (item == null){
+            return height;
+        }
         height = item.getBlockHeight() + 1;
         return height;
     }
 
     public static long getCurrentBlockHeight() throws IOException {
-        Client client = ExportThreadLocal.threadLocal.get().getClient();
+        Client client = ExportConstant.threadLocal.get().getClient();
         BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
         long total = blockNumber.longValue();
         log.debug("Current chain block number is:{}", blockNumber);
         return total;
     }
 
-    public static void prepareTask(long begin, long end, boolean certainty, BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static void prepareTask(long begin, long end, boolean certainty) {
         log.info("Begin to prepare sync blocks from {} to {}", begin, end);
         List<BlockTaskPool> list = Lists.newArrayList();
         for (long i = begin; i <= end; i++) {
             BlockTaskPool pool =
-                    new BlockTaskPool().setBlockHeight(i).setSyncStatus((short) TxInfoStatusEnum.INIT.getStatus());
+                    new BlockTaskPool().setBlockHeight(i).setSyncStatus((short) TxInfoStatusEnum.INIT.getStatus()).setDepotUpdatetime(new Date());
             if (certainty) {
                 pool.setCertainty((short) BlockCertaintyEnum.FIXED.getCertainty());
             } else {
@@ -70,7 +75,7 @@ public class BlockPrepareService {
             }
             list.add(pool);
         }
-        blockTaskPoolRepository.saveAll(list);
+        DataExportExecutor.crawler.get().getBlockTaskPoolRepository().saveAll(list);
         log.info("Sync blocks from {} to {} are prepared.", begin, end);
     }
 

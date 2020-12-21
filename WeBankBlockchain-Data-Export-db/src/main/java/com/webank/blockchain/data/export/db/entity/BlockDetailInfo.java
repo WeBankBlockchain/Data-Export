@@ -51,7 +51,7 @@ public class BlockDetailInfo extends IdEntity {
     private short status;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 
     public enum Status {
         TODO, COMPLETED

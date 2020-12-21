@@ -13,11 +13,7 @@
  */
 package com.webank.blockchain.data.export.service;
 
-import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.db.service.DataStoreService;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
-
-import java.util.List;
 
 /**
  * BlockAsyncService
@@ -29,7 +25,7 @@ import java.util.List;
  */
 public class BlockAsyncService {
 
-    public static void handleSingleBlock(Block b, long total, BlockTaskPoolRepository blockTaskPoolRepository, List<DataStoreService> dataStoreServiceList) {
-        BlockDepotService.process(b, total,blockTaskPoolRepository,dataStoreServiceList);
+    public static void handleSingleBlock(Block b, long total) {
+        BlockDepotService.process(b, total);
     }
 }

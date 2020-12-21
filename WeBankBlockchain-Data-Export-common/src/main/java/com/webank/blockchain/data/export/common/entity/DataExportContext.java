@@ -23,5 +23,7 @@ public class DataExportContext {
 
     private Client client;
 
+    private boolean autoCreateTable;
+
 
 }

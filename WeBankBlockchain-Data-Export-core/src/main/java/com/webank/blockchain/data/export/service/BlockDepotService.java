@@ -14,12 +14,11 @@
 package com.webank.blockchain.data.export.service;
 
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.extractor.ods.EthClient;
+import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
@@ -40,13 +39,13 @@ import java.util.List;
 @Slf4j
 public class BlockDepotService {
 
-    public static List<Block> fetchData(int count, BlockTaskPoolRepository blockTaskPoolRepository) {
-        List<BlockTaskPool> tasks = blockTaskPoolRepository
+    public static List<Block> fetchData(int count) {
+        List<BlockTaskPool> tasks = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
                 .findBySyncStatusOrderByBlockHeightLimit((short) TxInfoStatusEnum.INIT.getStatus(), count);
-        return getTasks(tasks,blockTaskPoolRepository);
+        return getTasks(tasks);
     }
 
-    public static List<Block> getTasks(List<BlockTaskPool> tasks, BlockTaskPoolRepository blockTaskPoolRepository) {
+    public static List<Block> getTasks(List<BlockTaskPool> tasks) {
         List<Block> result = new ArrayList<>();
         List<BlockTaskPool> pools = new ArrayList<>();
         for (BlockTaskPool task : tasks) {
@@ -54,37 +53,40 @@ public class BlockDepotService {
             BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
             Block block;
             try {
-                EthClient client = new EthClient(ExportThreadLocal.threadLocal.get().getClient());
+                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
                 block = client.getBlock(bigBlockHeight);
                 result.add(block);
                 pools.add(task);
             } catch (IOException e) {
                 log.error("Block {},  exception occur in job processing: {}", task.getBlockHeight(), e.getMessage());
-                blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(),
+                DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                        .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(),
                         new Date(), task.getBlockHeight());
             }
         }
-        blockTaskPoolRepository.saveAll(pools);
+        DataExportExecutor.crawler.get().getBlockTaskPoolRepository().saveAll(pools);
         log.info("Successful fetch {} Blocks.", result.size());
         return result;
     }
 
-    public static void processDataSequence(List<Block> data, long total, BlockTaskPoolRepository blockTaskPoolRepository,List<DataStoreService> dataStoreServiceList) {
+    public static void processDataSequence(List<Block> data, long total) {
         for (Block b : data) {
-            process(b, total,blockTaskPoolRepository,dataStoreServiceList);
+            process(b, total);
         }
     }
 
-    public static void process(Block b, long total, BlockTaskPoolRepository blockTaskPoolRepository, List<DataStoreService> dataStoreServiceList) {
+    public static void process(Block b, long total) {
         try {
             BlockInfoBO blockInfo = BlockCrawlService.parse(b);
-            BlockStoreService.store(blockInfo,dataStoreServiceList);
-            blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
+            BlockStoreService.store(blockInfo);
+            DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                    .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
                     b.getNumber().longValue());
             log.info("Block {} of {} sync block succeed.", b.getNumber().longValue(), total);
         } catch (IOException e) {
             log.error("block {}, exception occur in job processing: {}", b.getNumber().longValue(), e.getMessage());
-            blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(), new Date(),
+            DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                    .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(), new Date(),
                     b.getNumber().longValue());
         }
     }

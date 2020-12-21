@@ -72,6 +72,6 @@ public class TxReceiptRawData extends IdEntity{
     private String message;
 
     /** @Fields updatetime : depot update time */
-    protected Date depotUpdatetime;
+    protected Date depotUpdatetime = new Date();
 
 }

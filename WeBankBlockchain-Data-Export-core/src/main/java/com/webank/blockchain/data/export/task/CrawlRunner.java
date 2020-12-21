@@ -14,14 +14,10 @@
 package com.webank.blockchain.data.export.task;
 
 import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
-import com.webank.blockchain.data.export.service.BlockAsyncService;
-import com.webank.blockchain.data.export.service.BlockCheckService;
-import com.webank.blockchain.data.export.service.BlockDepotService;
-import com.webank.blockchain.data.export.service.BlockIndexService;
-import com.webank.blockchain.data.export.service.BlockPrepareService;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
@@ -38,6 +34,11 @@ import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.TxReceiptRawDataRepository;
 import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
+import com.webank.blockchain.data.export.service.BlockAsyncService;
+import com.webank.blockchain.data.export.service.BlockCheckService;
+import com.webank.blockchain.data.export.service.BlockDepotService;
+import com.webank.blockchain.data.export.service.BlockIndexService;
+import com.webank.blockchain.data.export.service.BlockPrepareService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
@@ -45,14 +46,15 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * GenerateCodeApplicationRunner
  *
- * @Description: GenerateCodeApplicationRunner
  * @author maojiayu
+ * @Description: GenerateCodeApplicationRunner
  * @date 2018年11月29日 下午4:37:38
- * 
  */
 
 @Slf4j
@@ -69,14 +71,18 @@ public class CrawlRunner {
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
     private TxRawDataRepository txRawDataRepository;
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
+    private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
-
     private List<RollbackInterface> rollbackOneInterfaceMap = new ArrayList<>();
 
+    private AtomicBoolean runSwitch = new AtomicBoolean(false);
 
+    public static CrawlRunner create(DataExportContext context){
+        return new CrawlRunner(context);
+    }
 
-    public CrawlRunner(DataExportContext context) {
+    private CrawlRunner(DataExportContext context) {
         this.context = context;
     }
 
@@ -86,6 +92,7 @@ public class CrawlRunner {
             log.error("The batch unit threshold can't be less than 1!!");
             System.exit(1);
         }
+        runSwitch.getAndSet(true);
         buildDataStore();
         handle();
     }
@@ -97,21 +104,19 @@ public class CrawlRunner {
     /**
      * The key driving entrance of single instance depot: 1. check timeout txs and process errors; 2. produce tasks; 3.
      * consume tasks; 4. check the fork status; 5. rollback; 6. continue and circle;
-     * 
-     * @throws InterruptedException
-     * 
+     *
      */
-    public void handle() throws InterruptedException {
+    public void handle() {
         try {
             startBlockNumber = BlockIndexService.getStartBlockIndex();
             log.info("Start succeed, and the block number is {}", startBlockNumber);
         } catch (Exception e) {
             log.error("depot Error, {}", e.getMessage());
         }
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && runSwitch.get()) {
             try {
                 long currentChainHeight = BlockPrepareService.getCurrentBlockHeight();
-                long fromHeight = getHeight(BlockPrepareService.getTaskPoolHeight(blockTaskPoolRepository));
+                long fromHeight = getHeight(BlockPrepareService.getTaskPoolHeight());
                 // control the batch unit number
                 long end = fromHeight + context.getConfig().getCrawlBatchUnit() - 1;
                 long toHeight = Math.min(currentChainHeight, end);
@@ -120,50 +125,57 @@ public class CrawlRunner {
                 boolean certainty = toHeight + 1 < currentChainHeight - BlockConstants.MAX_FORK_CERTAINTY_BLOCK_NUMBER;
                 if (fromHeight <= toHeight) {
                     log.info("Try to sync block number {} to {} of {}", fromHeight, toHeight, currentChainHeight);
-                    BlockPrepareService.prepareTask(fromHeight, toHeight, certainty,blockTaskPoolRepository);
+                    BlockPrepareService.prepareTask(fromHeight, toHeight, certainty);
                 } else {
                     // single circle sleep time is read from the application.properties
                     log.info("No sync block tasks to prepare, begin to sleep {} s",
                             context.getConfig().getFrequency());
-                    Thread.sleep(context.getConfig().getFrequency() * 1000);
+                    try {
+                        Thread.sleep(context.getConfig().getFrequency() * 1000);
+                    }catch (InterruptedException e){
+                        Thread.currentThread().interrupt();
+                    }
                 }
                 log.info("Begin to fetch at most {} tasks", context.getConfig().getCrawlBatchUnit());
-                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit(),blockTaskPoolRepository);
+                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit());
                 for (Block b : taskList) {
-                    BlockAsyncService.handleSingleBlock(b, currentChainHeight,blockTaskPoolRepository,dataStoreServiceList);
+                    BlockAsyncService.handleSingleBlock(b, currentChainHeight);
                 }
                 if (!certainty) {
-                    BlockCheckService.checkForks(currentChainHeight,blockTaskPoolRepository,
-                             blockDetailInfoRepository, rollbackOneInterfaceMap);
-                    BlockCheckService.checkTaskCount(startBlockNumber, currentChainHeight,blockTaskPoolRepository);
+                    BlockCheckService.checkForks(currentChainHeight);
+                    BlockCheckService.checkTaskCount(startBlockNumber, currentChainHeight);
                 }
-                BlockCheckService.checkTimeOut(blockTaskPoolRepository);
-                BlockCheckService.processErrors(blockTaskPoolRepository,rollbackOneInterfaceMap);
+                BlockCheckService.checkTimeOut();
+                BlockCheckService.processErrors();
             } catch (Exception e) {
-                log.error("{}", e);
-                Thread.sleep(60 * 1000L);
+                log.error("CrawlRunner run failed ", e);
+                try {
+                    Thread.sleep(60 * 1000L);
+                } catch (InterruptedException interruptedException) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
-
+        log.info("DataExportExecutor already ended ！！！");
     }
 
-    public void buildDataStore(){
-        Map<String, DaoTemplate> daoTemplateMap = ExportThreadLocal.daoThreadLocal.get();
+    public void buildDataStore() {
+        Map<String, DaoTemplate> daoTemplateMap = buildDaoMap(context);
 
-        BlockTaskPoolRepository blockTaskPoolRepository = new BlockTaskPoolRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_TASK_POOL_DAO));
-        BlockDetailInfoRepository blockDetailInfoRepository = new BlockDetailInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_DETAIL_DAO));
-        BlockRawDataRepository blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
-                ExportThreadLocal.BLOCK_RAW_DAO));
-        BlockTxDetailInfoRepository blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.BLOCK_TX_DETAIL_DAO));
-        TxRawDataRepository txRawDataRepository = new TxRawDataRepository(
-                daoTemplateMap.get(ExportThreadLocal.TX_RAW_DAO));
-        TxReceiptRawDataRepository txReceiptRawDataRepository = new TxReceiptRawDataRepository(
-                daoTemplateMap.get(ExportThreadLocal.TX_RECEIPT_RAW_DAO));
-        DeployedAccountInfoRepository deployedAccountInfoRepository = new DeployedAccountInfoRepository(
-                daoTemplateMap.get(ExportThreadLocal.DEPLOYED_ACCOUNT_INFO_TABLE));
+        blockTaskPoolRepository = new BlockTaskPoolRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_TASK_POOL_DAO));
+        blockDetailInfoRepository = new BlockDetailInfoRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_DETAIL_DAO));
+        blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
+                ExportConstant.BLOCK_RAW_DAO));
+        blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_TX_DETAIL_DAO));
+        txRawDataRepository = new TxRawDataRepository(
+                daoTemplateMap.get(ExportConstant.TX_RAW_DAO));
+        txReceiptRawDataRepository = new TxReceiptRawDataRepository(
+                daoTemplateMap.get(ExportConstant.TX_RECEIPT_RAW_DAO));
+        deployedAccountInfoRepository = new DeployedAccountInfoRepository(
+                daoTemplateMap.get(ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE));
 
         rollbackOneInterfaceMap.add(blockTaskPoolRepository);
         rollbackOneInterfaceMap.add(blockDetailInfoRepository);
@@ -189,6 +201,16 @@ public class CrawlRunner {
 
         dataStoreServiceList.add(mysqlStoreService);
 
+    }
+
+    private Map<String, DaoTemplate> buildDaoMap(DataExportContext context) {
+        Db db = Db.use(context.getDataSource());
+        Map<String, DaoTemplate> daoTemplateMap = new ConcurrentHashMap<>();
+        ExportConstant.tables.forEach(table -> {
+            DaoTemplate daoTemplate = new DaoTemplate(table, "pk_id", db);
+            daoTemplateMap.put(table + "_dao", daoTemplate);
+        });
+        return daoTemplateMap;
     }
 
 }

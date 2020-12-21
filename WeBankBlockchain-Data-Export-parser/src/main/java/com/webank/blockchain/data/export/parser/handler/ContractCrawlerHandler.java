@@ -16,7 +16,7 @@ package com.webank.blockchain.data.export.parser.handler;
 import com.webank.blockchain.data.export.common.bo.data.BlockContractInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
@@ -49,7 +49,7 @@ public class ContractCrawlerHandler {
         for (BcosBlock.TransactionResult result : transactionResults) {
             BcosBlock.TransactionObject to = (BcosBlock.TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
-            BcosTransactionReceipt bcosTransactionReceipt = ExportThreadLocal.threadLocal.get().getClient()
+            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.threadLocal.get().getClient()
                     .getTransactionReceipt(transaction.getHash());
             Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
             if (opt.isPresent()) {
@@ -66,14 +66,14 @@ public class ContractCrawlerHandler {
     }
 
     public static Optional<DeployedAccountInfoBO> handle(TransactionReceipt receipt, Date blockTimeStamp) throws IOException {
-        Optional<JsonTransactionResponse> optt = ExportThreadLocal.threadLocal.get().getClient().getTransactionByHash
+        Optional<JsonTransactionResponse> optt = ExportConstant.threadLocal.get().getClient().getTransactionByHash
                 (receipt.getTransactionHash()).getTransaction();
         if (optt.isPresent()) {
             JsonTransactionResponse transaction = optt.get();
             // get constructor function transaction by judging if transaction's param named to is null
             if (transaction.getTo() == null || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
                 String contractAddress = receipt.getContractAddress();
-                String input = ExportThreadLocal.threadLocal.get().getClient().getCode(contractAddress).getCode();
+                String input = ExportConstant.threadLocal.get().getClient().getCode(contractAddress).getCode();
                 log.debug("blockNumber: {}, input: {}", receipt.getBlockNumber(), input);
 
                 DeployedAccountInfoBO deployedAccountInfoBO = new DeployedAccountInfoBO();

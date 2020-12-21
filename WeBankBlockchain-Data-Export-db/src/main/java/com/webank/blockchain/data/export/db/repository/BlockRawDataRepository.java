@@ -16,7 +16,7 @@ package com.webank.blockchain.data.export.db.repository;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportThreadLocal;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockRawData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class BlockRawDataRepository implements RollbackInterface {
 
     private DaoTemplate blockRawDataDao;
 
-    private final String tableName = ExportThreadLocal.BLOCK_RAW_DATA_TABLE;
+    private final String tableName = ExportConstant.BLOCK_RAW_DATA_TABLE;
 
 
     public void rollback(long blockHeight){
@@ -47,7 +47,7 @@ public class BlockRawDataRepository implements RollbackInterface {
 
     public void rollback(long startBlockHeight, long endBlockHeight){
         try {
-            Db.use(ExportThreadLocal.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
                     "delete from block_raw_data where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockRawDataRepository rollback failed ", e);
