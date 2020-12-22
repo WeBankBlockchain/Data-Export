@@ -76,7 +76,7 @@ public class DataExportExecutor {
             crawler.set(crawlRunner);
             try {
                 crawlRunner.run(context);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 log.error("DataExportExecutor boot failed ", e);
             }
         }

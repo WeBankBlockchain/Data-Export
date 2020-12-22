@@ -76,7 +76,7 @@ public class CrawlRunner {
     private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
-    private List<RollbackInterface> rollbackOneInterfaceMap = new ArrayList<>();
+    private List<RollbackInterface> rollbackOneInterfaceList = new ArrayList<>();
 
     private AtomicBoolean runSwitch = new AtomicBoolean(false);
 
@@ -89,7 +89,7 @@ public class CrawlRunner {
     }
 
 
-    public void run(DataExportContext context) throws InterruptedException {
+    public void run(DataExportContext context) {
         if (context.getConfig().getCrawlBatchUnit() < 1) {
             log.error("The batch unit threshold can't be less than 1!!");
             System.exit(1);
@@ -162,6 +162,40 @@ public class CrawlRunner {
     }
 
     public void buildDataStore() {
+        buildRepository();
+        buildDao();
+        buildESStore();
+    }
+
+    private void buildESStore(){
+        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
+            ESHandleDao esHandleDao = new ESHandleDao();
+            esHandleDao.init();
+            ESStoreService esStoreService = new ESStoreService();
+            esStoreService.setEsHandleDao(esHandleDao);
+            dataStoreServiceList.add(esStoreService);
+        }
+    }
+
+    private void buildDao(){
+        BlockDetailInfoDAO blockDetailInfoDao = new BlockDetailInfoDAO(blockDetailInfoRepository);
+        BlockTxDetailInfoDAO blockTxDetailInfoDao = new BlockTxDetailInfoDAO(blockTxDetailInfoRepository);
+        BlockRawDataDAO blockRawDataDao = new BlockRawDataDAO(blockRawDataRepository);
+        TxRawDataDAO txRawDataDao = new TxRawDataDAO(txRawDataRepository);
+        TxReceiptRawDataDAO txReceiptRawDataDao = new TxReceiptRawDataDAO(txReceiptRawDataRepository);
+        DeployedAccountInfoDAO deployedAccountInfoDao = new DeployedAccountInfoDAO(deployedAccountInfoRepository);
+        MysqlStoreService mysqlStoreService = new MysqlStoreService();
+        mysqlStoreService.setBlockDetailInfoDao(blockDetailInfoDao);
+        mysqlStoreService.setBlockRawDataDao(blockRawDataDao);
+        mysqlStoreService.setBlockTxDetailInfoDao(blockTxDetailInfoDao);
+        mysqlStoreService.setDeployedAccountInfoDao(deployedAccountInfoDao);
+        mysqlStoreService.setTxReceiptRawDataDao(txReceiptRawDataDao);
+        mysqlStoreService.setTxRawDataDao(txRawDataDao);
+
+        dataStoreServiceList.add(mysqlStoreService);
+    }
+
+    private void buildRepository(){
         Map<String, DaoTemplate> daoTemplateMap = buildDaoMap(context);
 
         blockTaskPoolRepository = new BlockTaskPoolRepository(
@@ -179,38 +213,12 @@ public class CrawlRunner {
         deployedAccountInfoRepository = new DeployedAccountInfoRepository(
                 daoTemplateMap.get(ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE));
 
-        rollbackOneInterfaceMap.add(blockTaskPoolRepository);
-        rollbackOneInterfaceMap.add(blockDetailInfoRepository);
-        rollbackOneInterfaceMap.add(blockRawDataRepository);
-        rollbackOneInterfaceMap.add(txRawDataRepository);
-        rollbackOneInterfaceMap.add(txReceiptRawDataRepository);
-        rollbackOneInterfaceMap.add(blockTxDetailInfoRepository);
-
-
-        BlockDetailInfoDAO blockDetailInfoDao = new BlockDetailInfoDAO(blockDetailInfoRepository);
-        BlockTxDetailInfoDAO blockTxDetailInfoDao = new BlockTxDetailInfoDAO(blockTxDetailInfoRepository);
-        BlockRawDataDAO blockRawDataDao = new BlockRawDataDAO(blockRawDataRepository);
-        TxRawDataDAO txRawDataDao = new TxRawDataDAO(txRawDataRepository);
-        TxReceiptRawDataDAO txReceiptRawDataDao = new TxReceiptRawDataDAO(txReceiptRawDataRepository);
-        DeployedAccountInfoDAO deployedAccountInfoDao = new DeployedAccountInfoDAO(deployedAccountInfoRepository);
-        MysqlStoreService mysqlStoreService = new MysqlStoreService();
-        mysqlStoreService.setBlockDetailInfoDao(blockDetailInfoDao);
-        mysqlStoreService.setBlockRawDataDao(blockRawDataDao);
-        mysqlStoreService.setBlockTxDetailInfoDao(blockTxDetailInfoDao);
-        mysqlStoreService.setDeployedAccountInfoDao(deployedAccountInfoDao);
-        mysqlStoreService.setTxReceiptRawDataDao(txReceiptRawDataDao);
-        mysqlStoreService.setTxRawDataDao(txRawDataDao);
-
-        dataStoreServiceList.add(mysqlStoreService);
-
-        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
-            ESHandleDao esHandleDao = new ESHandleDao();
-            esHandleDao.init();
-            ESStoreService esStoreService = new ESStoreService();
-            esStoreService.setEsHandleDao(esHandleDao);
-            dataStoreServiceList.add(esStoreService);
-        }
-
+        rollbackOneInterfaceList.add(blockTaskPoolRepository);
+        rollbackOneInterfaceList.add(blockDetailInfoRepository);
+        rollbackOneInterfaceList.add(blockRawDataRepository);
+        rollbackOneInterfaceList.add(txRawDataRepository);
+        rollbackOneInterfaceList.add(txReceiptRawDataRepository);
+        rollbackOneInterfaceList.add(blockTxDetailInfoRepository);
     }
 
     private Map<String, DaoTemplate> buildDaoMap(DataExportContext context) {
