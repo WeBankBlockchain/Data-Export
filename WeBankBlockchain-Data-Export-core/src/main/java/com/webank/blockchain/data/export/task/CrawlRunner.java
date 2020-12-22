@@ -22,6 +22,7 @@ import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
+import com.webank.blockchain.data.export.db.dao.ESHandleDao;
 import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.TxReceiptRawDataDAO;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
@@ -33,6 +34,7 @@ import com.webank.blockchain.data.export.db.repository.RollbackInterface;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.TxReceiptRawDataRepository;
 import com.webank.blockchain.data.export.db.service.DataStoreService;
+import com.webank.blockchain.data.export.db.service.ESStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
 import com.webank.blockchain.data.export.service.BlockAsyncService;
 import com.webank.blockchain.data.export.service.BlockCheckService;
@@ -200,6 +202,14 @@ public class CrawlRunner {
         mysqlStoreService.setTxRawDataDao(txRawDataDao);
 
         dataStoreServiceList.add(mysqlStoreService);
+
+        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
+            ESHandleDao esHandleDao = new ESHandleDao();
+            esHandleDao.init();
+            ESStoreService esStoreService = new ESStoreService();
+            esStoreService.setEsHandleDao(esHandleDao);
+            dataStoreServiceList.add(esStoreService);
+        }
 
     }
 

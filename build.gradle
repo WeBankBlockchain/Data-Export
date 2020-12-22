@@ -87,6 +87,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.10'
         compile (group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1')
         compile("com.fasterxml.jackson.core:jackson-databind:2.11.0")
+        compile(group:'org.elasticsearch.client', name: 'transport',version:'6.4.1')
         testCompile ("junit:junit:4.12")
     }
     jar {
