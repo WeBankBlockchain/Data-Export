@@ -42,10 +42,10 @@ public class ExportDataTest {
                 .sharding(true)
                 .shardingNumberPerDatasource(2)
                 .build();
-        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
+        DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                 .nodeStr("[ip]:[port]")
                 .certPath("config")
-                .groupId(1).build(),  new ExportConfig());
+                .groupId(1).build());
         ExportDataSDK.start(exportExecutor);
         Thread.sleep(60 *1000L);
         ExportDataSDK.stop(exportExecutor);
@@ -64,10 +64,10 @@ public class ExportDataTest {
                 .mysqlDataSources(mysqlDataSourceList)
                 .autoCreateTable(true)
                 .build();
-        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
+        DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                 .nodeStr("[ip]:[port]")
                 .certPath("config")
-                .groupId(1).build(),  new ExportConfig());
+                .groupId(1).build());
         ExportDataSDK.start(exportExecutor);
         Thread.sleep(60 *1000L);
         ExportDataSDK.stop(exportExecutor);
