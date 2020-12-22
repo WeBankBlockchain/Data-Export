@@ -3,22 +3,13 @@
 
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-> 穿花度柳飞如箭，
-> 粘絮寻香似落星。
-> 小小微躯能负重，
-> 器器薄翅会乘风。
-> -- 吴承恩
-
 
 WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISCO-BCOS/FISCO-BCOS)平台的数据导出工具。
 
-数据导出组件WeBankBlockchain-Data-Export的目的在于降低获取区块链数据的开发门槛，提升研发效率。研发人员几乎不需要编写任何代码，只需要进行简单配置，就可以把数据导出到Mysql数据库。
-
-WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前块高、交易总量等。如果正确配置了FISCO-BCOS上运行的所有合约，WeBankBlockchain-Data-Export可以导出区块链上这些合约的业务数据，包括event、构造函数、合约地址、执行函数的信息等。
+**此版本为数据导出SDK版本，无spring等框架依赖，使用更加轻便灵活** 
 
 **此版本只支持**[FISCO BCOS 2.0](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/)及以上版本。
 
-**此版本为数据导出SDK版本，无spring等框架依赖，使用更加轻便灵活** 
 
 
 ## 环境要求
@@ -28,10 +19,12 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 | 依赖软件 | 说明 |备注|
 | --- | --- | --- |
 | FISCO-BCOS | >= 2.0， 1.x版本请参考V0.5版本 dev分支 |
-| Bash | 需支持Bash（理论上来说支持所有ksh、zsh等其他unix shell，但未测试）|
 | Java | JDK[1.8] ||
 | Git | 下载的安装包使用Git | |
 | MySQL | >= mysql-community-server[5.7] | 理论上来说支持主流数据库，但未测试|
+| ElasticSearch | >= elasticsearch [7.0] | 只有在需要ES存储时安装 |
+| zookeeper | >= zookeeper[3.4] | 只有在进行集群部署的时候需要安装|
+
 
 ##使用教程
 
@@ -41,96 +34,124 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 
 ### 2.SDK接口介绍
 
+SDK提供一下接口
+
 ```
-//创建数据导出执行器DataExportExecutor
+//创建数据导出执行器DataExportExecutor，导出配置采用默认配置
 DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo);
+DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config)
 //数据导出启动
 start(DataExportExecutor exportExecutor)
 //数据导出关闭
 stop(DataExportExecutor exportExecutor)
 ```
-其中参数ExportDataSource为数据源配置，结构如下：
-```
-    //是否自动建表
-    private boolean autoCreateTable;
-    //是否多数据源，采用分库分表
-    private boolean sharding;
-    //单库表分片数，用于路由和建表
-    private int shardingNumberPerDatasource;
-    //mysql数据源配置
-    private List<MysqlDataSource> mysqlDataSources;
-    //es数据源配置
-    private ESDataSource esDataSource;
+参数ExportDataSource为数据源配置，参数如下：
 
-```
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | ---|
+| autoCreateTable | 是否自动建表 | boolean |false |
+| sharding | 是否多数据源，采用分库分表 | boolean |false |
+| shardingNumberPerDatasource | 单库表分片数，用于路由和建表 | int | 0 |
+| mysqlDataSources | mysql数据源配置，支持多数据源 | List<MysqlDataSource> | null |
+| esDataSource | es数据源配置 | ESDataSource | null |
 
-其中参数ChainInfo为链参数配置，结构如下：
-```
-    //节点ip和端口port，格式为：[ip]:[port]
-    private String nodeStr;
-    //分组id
-    private int groupId;
-    //链节点连接所需证书路径
-    private String certPath;
+其中数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：
 
-```
+MysqlDataSource
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | ---|
+| jdbcUrl | jdbc连接配置，格式：jdbc:mysql://[ip]:[port]/[database] | string | null |
+| user | 用户名 | string | null |
+| pass | 密码 | string | null |
 
-单库使用方式如下：
-```
-        MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
-                .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
-                .pass("password")
-                .user("username")
-                .build();
-        List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
-        mysqlDataSourceList.add(mysqlDataSourc);
-        ExportDataSource dataSource = ExportDataSource.builder()
-                .mysqlDataSources(mysqlDataSourceList)
-                .autoCreateTable(true)
-                .build();
-        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
-                .nodeStr("[ip]:[port]")
-                .certPath("config")
-                .groupId(1).build());
-        ExportDataSDK.start(exportExecutor);
-        //Thread.sleep(60 *1000L);
-        //ExportDataSDK.stop(exportExecutor);
-```
+ESDataSource
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | ---|
+| enable | es存储开关 | boolean | false |
+| clusterName | 集群名称 | string | null |
+| ip | IP地址 | string | null |
+| port | 端口号 | int | null |
 
 
-分库分表使用方式例子如下：
+参数ChainInfo为链参数配置，参数如下：
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | ---|
+| nodeStr | 节点ip和端口port，格式为：[ip]:[port] | string | null |
+| groupId | 分组id | int | null |
+| certPath | 链节点连接所需证书路径 | string | null |
+
+
+参数ExportConfig为数据导出任务配置，参数如下：
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | ---|
+| crawlBatchUnit | 链上导出任务每批次数目 | int | 1000 |
+| frequency | 任务间隔时间 | int | 5s |
+| startBlockHeight | 开始区块高度 | int | 0 |
+| startDate | 开始时间 | Date | null |
+| multiLiving | 是否开启多活job | boolean |false |
+| zookeeperServiceLists | zk服务节点列表(,分隔),格式：[IP]:[port],[IP]:[port] | string | null |
+| zookeeperNamespace | zk命名空间(,分隔) | string | null |
+| prepareTaskJobCron | 任务准备job定时配置 | string | "0/"+ frequency + " * * * * ?" |
+| dataFlowJobCron | 任务分片执行job定时配置 | string |"0/"+ frequency + " * * * * ?" |
+| dataFlowJobItemParameters | 任务分片执行job参数 | string | 如 "0=A,1=B,2=C,3=D,4=E,5=F,6=G,7=H" |
+| dataFlowJobShardingTotalCount | 任务分片数目 | int | 8 |
+
+单库使用方式例子如下（默认导出配置）：
+```
+MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
+        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
+        .pass("password")
+        .user("username")
+        .build();
+List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
+mysqlDataSourceList.add(mysqlDataSourc);
+ExportDataSource dataSource = ExportDataSource.builder()
+        .mysqlDataSources(mysqlDataSourceList)
+        .autoCreateTable(true)
+        .build();
+DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+         .nodeStr("[ip]:[port]")
+        .certPath("config")
+        .groupId(1).build());
+ExportDataSDK.start(exportExecutor);
+//Thread.sleep(60 *1000L);
+//ExportDataSDK.stop(exportExecutor);
 ```
 
-public void shardingTest() throws ConfigException, InterruptedException {
-        MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
-                        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
-                        .pass("password")
-                        .user("username")
-                        .build();
-        MysqlDataSource mysqlDataSourc1 = MysqlDataSource.builder()
-                        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
-                        .pass("password")
-                        .user("username")
-                        .build();
-        List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
-        mysqlDataSourceList.add(mysqlDataSourc);
-        mysqlDataSourceList.add(mysqlDataSourc1);
-        ExportDataSource dataSource = ExportDataSource.builder()
-                .mysqlDataSources(mysqlDataSourceList)
-                .autoCreateTable(true)
-                .sharding(true)
-                .shardingNumberPerDatasource(2)
-                .build();
-        DataExportExecutor exportExecutor = DataExportService.create(dataSource, ChainInfo.builder()
-                .nodeStr("[ip]:[port]")
-                .certPath("config")
-                .groupId(1).build());
-        ExportDataSDK.start(exportExecutor);
-        //Thread.sleep(60 *1000L);
-        //ExportDataSDK.stop(exportExecutor);
-    }
 
+分库分表使用方式例子如下（默认导出配置）：
 ```
+MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
+        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
+        .pass("password")
+        .user("username")
+        .build();
+MysqlDataSource mysqlDataSourc1 = MysqlDataSource.builder()
+        .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
+        .pass("password")
+        .user("username")
+        .build();
+List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
+mysqlDataSourceList.add(mysqlDataSourc);
+mysqlDataSourceList.add(mysqlDataSourc1);
+ExportDataSource dataSource = ExportDataSource.builder()
+        .mysqlDataSources(mysqlDataSourceList)
+        .autoCreateTable(true)
+        .sharding(true)
+        .shardingNumberPerDatasource(2)
+        .build();
+DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+        .nodeStr("[ip]:[port]")
+        .certPath("config")
+        .groupId(1).build());
+ExportDataSDK.start(exportExecutor);
+//Thread.sleep(60 *1000L);
+//ExportDataSDK.stop(exportExecutor);
+```
+
+更多使用方式见ExportDataTest.class中测试例子
 
 
 ## 贡献代码

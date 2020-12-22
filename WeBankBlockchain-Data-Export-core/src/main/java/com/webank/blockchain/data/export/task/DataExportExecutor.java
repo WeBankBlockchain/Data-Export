@@ -1,19 +1,15 @@
 package com.webank.blockchain.data.export.task;
 
-import cn.hutool.db.DaoTemplate;
-import cn.hutool.db.Db;
-import cn.hutool.db.DbUtil;
-import cn.hutool.db.meta.MetaUtil;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
+import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.common.entity.TableSQL;
+import com.webank.blockchain.data.export.tools.ElasticJobUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.ScheduleJobBootstrap;
+import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
+import org.apache.shardingsphere.elasticjob.reg.zookeeper.ZookeeperRegistryCenter;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,6 +45,18 @@ public class DataExportExecutor {
 
     public void start() {
         log.info("DataExportExecutor is starting ！！！");
+        if (context.getConfig().isMultiLiving()){
+            ExportConfig config = context.getConfig();
+            CoordinatorRegistryCenter registryCenter = ElasticJobUtil.createRegistryCenter(
+                    config.getZookeeperServiceLists(), config.getZookeeperNamespace());
+            new ScheduleJobBootstrap(registryCenter, new PrepareTaskJob(),
+                    ElasticJobUtil.createJobConfiguration("PrepareTaskJob",config.getPrepareTaskJobCron(),
+                            1, "0=A")).schedule();
+            new ScheduleJobBootstrap(registryCenter, new DepotJob(),
+                    ElasticJobUtil.createJobConfiguration("DataFlowJob",config.getDataFlowJobCron(),
+                    config.getDataFlowJobShardingTotalCount(), config.getDataFlowJobItemParameters())).schedule();
+            return;
+        }
         executor = new ExportExecutor();
         crawlRunner = CrawlRunner.create(context);
         future = pool.submit(executor);

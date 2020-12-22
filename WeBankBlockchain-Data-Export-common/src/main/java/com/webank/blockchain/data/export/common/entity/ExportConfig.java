@@ -12,14 +12,15 @@ public class ExportConfig {
 
     private int crawlBatchUnit = 1000;
     private long frequency = 5;
-    private boolean multiLiving;
 
     private long startBlockHeight = 0;
     private String startDate;
 
-    //    private String zookeeperServiceLists;
-//    private String zookeeperNamespace;
-//    private String elasticJobName;
-//    private String elasticJobcron;
-//    private int elasticJobshardingTotalCount;
+    private boolean multiLiving;
+    private String zookeeperServiceLists;
+    private String zookeeperNamespace;
+    private String prepareTaskJobCron = "0/"+ frequency + " * * * * ?";
+    private String dataFlowJobCron = "0/"+ frequency + " * * * * ?";
+    private String dataFlowJobItemParameters = "0=A,1=B,2=C,3=D,4=E,5=F,6=G,7=H";
+    private int dataFlowJobShardingTotalCount = 8;
 }

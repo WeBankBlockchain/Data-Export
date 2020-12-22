@@ -79,9 +79,11 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         if(CollectionUtil.isEmpty(result)) {
             return result;
         }
-        entityList.forEach(e -> {
-            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-        });
+        if (entityList != null) {
+            entityList.forEach(e -> {
+                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+            });
+        }
         return result;
     }
 
@@ -89,7 +91,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(
-                    "block_task_pool where block_height >= ? or block_height <= ?", startNumber,endNumber);
+                    "where block_height >= ? or block_height <= ?", startNumber,endNumber);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findByBlockHeightRange failed ", e);
         }
@@ -97,9 +99,11 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         if(CollectionUtil.isEmpty(result)) {
             return result;
         }
-        entityList.forEach(e -> {
-            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-        });
+        if (entityList != null) {
+            entityList.forEach(e -> {
+                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+            });
+        }
         return result;
     }
 
@@ -117,7 +121,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(
-                    "block_task_pool where sync_status = 4 or sync_status = 3");
+                    "where sync_status = 4 or sync_status = 3");
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findUnNormalRecords failed ", e);
         }
@@ -125,9 +129,11 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         if(CollectionUtil.isEmpty(result)) {
             return result;
         }
-        entityList.forEach(e -> {
-            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-        });
+        if (entityList != null) {
+            entityList.forEach(e -> {
+                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+            });
+        }
         return result;
     }
 
@@ -163,9 +169,11 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         if(CollectionUtil.isEmpty(result)) {
             return result;
         }
-        entityList.forEach(e -> {
-            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-        });
+        if (entityList != null) {
+            entityList.forEach(e -> {
+                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+            });
+        }
         return result;
     }
 
@@ -182,9 +190,11 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         if(CollectionUtil.isEmpty(result)) {
             return result;
         }
-        entityList.forEach(e -> {
-            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-        });
+        if (entityList != null) {
+            entityList.forEach(e -> {
+                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+            });
+        }
         return result;
     }
 
@@ -245,12 +255,6 @@ public class BlockTaskPoolRepository implements RollbackInterface{
 
     public void save(BlockTaskPool blockTaskPool) {
         try {
-            if (blockTaskPool.getPkId() != null && blockTaskPool.getPkId() > 0){
-                blockTaskPoolDao.update(Entity.parse(blockTaskPool, true, true),
-                        Entity.create(tableName).set("block_height", blockTaskPool.getBlockHeight())
-                                .set("pk_id",blockTaskPool.getPkId()));
-                return;
-            }
             blockTaskPoolDao.addOrUpdate(Entity.parse(blockTaskPool, true, true));
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository saveAll failed ", e);
