@@ -90,6 +90,7 @@ stop(DataExportExecutor exportExecutor)
 | frequency | 任务间隔时间 | int | 5s |
 | startBlockHeight | 开始区块高度 | int | 0 |
 | startDate | 开始时间 | Date | null |
+| dataTypeBlackList | 导出数据表黑名单，默认全部导出，可根据DataType枚举设置 | List<DataType> | null |
 | multiLiving | 是否开启多活job | boolean |false |
 | zookeeperServiceLists | zk服务节点列表(,分隔),格式：[IP]:[port],[IP]:[port] | string | null |
 | zookeeperNamespace | zk命名空间(,分隔) | string | null |
