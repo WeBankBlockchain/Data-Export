@@ -19,9 +19,12 @@ import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
+import com.webank.blockchain.data.export.db.dao.SaveInterface;
 import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.TxReceiptRawDataDAO;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author wesleywang
@@ -31,22 +34,13 @@ import lombok.Data;
 @Data
 public class MysqlStoreService implements DataStoreService{
 
-    private BlockDetailInfoDAO blockDetailInfoDao;
-    private BlockTxDetailInfoDAO blockTxDetailInfoDao;
-    private BlockRawDataDAO blockRawDataDao;
-    private TxRawDataDAO txRawDataDao;
-    private TxReceiptRawDataDAO txReceiptRawDataDao;
-    private DeployedAccountInfoDAO deployedAccountInfoDao;
-
+    private List<SaveInterface<BlockInfoBO>> saveInterfaceList;
 
     @Override
     public void storeBlockInfoBO(BlockInfoBO blockInfo) {
-        blockDetailInfoDao.save(blockInfo.getBlockDetailInfo());
-        blockRawDataDao.save(blockInfo.getBlockRawDataBO());
-        txRawDataDao.save(blockInfo.getTxRawDataBOList());
-        deployedAccountInfoDao.save(blockInfo.getDeployedAccountInfoBOS());
-        txReceiptRawDataDao.save(blockInfo.getTxReceiptRawDataBOList());
-        blockTxDetailInfoDao.save(blockInfo.getBlockTxDetailInfoList());
+        saveInterfaceList.forEach(saveInterface -> {
+            saveInterface.save(blockInfo);
+        });
     }
 
     @Override

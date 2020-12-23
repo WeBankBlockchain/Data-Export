@@ -1,6 +1,10 @@
 package com.webank.blockchain.data.export.common.entity;
 
+import cn.hutool.core.collection.ListUtil;
+import lombok.Builder;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author wesleywang
@@ -15,6 +19,8 @@ public class ExportConfig {
 
     private long startBlockHeight = 0;
     private String startDate;
+
+    private List<DataType> dataTypeBlackList = DataType.getDefault();
 
     private boolean multiLiving;
     private String zookeeperServiceLists;

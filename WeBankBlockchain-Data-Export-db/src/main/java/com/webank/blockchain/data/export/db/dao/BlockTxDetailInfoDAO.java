@@ -14,6 +14,7 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
@@ -37,7 +38,7 @@ import java.util.List;
  *
  */
 @AllArgsConstructor
-public class BlockTxDetailInfoDAO {
+public class BlockTxDetailInfoDAO implements SaveInterface<BlockInfoBO>{
 
     /** @Fields blockTxDetailInfoRepository : block transaction detail info repository */
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
@@ -78,4 +79,8 @@ public class BlockTxDetailInfoDAO {
         list.forEach(this::save);
     }
 
+    @Override
+    public void save(BlockInfoBO blockInfoBO) {
+        save(blockInfoBO.getBlockTxDetailInfoList());
+    }
 }

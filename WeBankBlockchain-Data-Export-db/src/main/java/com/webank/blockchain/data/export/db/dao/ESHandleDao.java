@@ -61,10 +61,9 @@ public class ESHandleDao {
 
     public static final String EVENT = "event";
 
-    private TransportClient client;
-
     @SneakyThrows
-    public void init() {
+    public static TransportClient create() {
+        TransportClient client;
         ESDataSource esConfig = ExportConstant.threadLocal.get().getEsConfig();
         System.setProperty("es.set.netty.runtime.available.processors","false");
         Settings settings = Settings.builder()
@@ -86,37 +85,18 @@ public class ESHandleDao {
         if (!ESService.indexExists(client,TX_RAW_DATA)){
             ESService.createIndex(client,TX_RAW_DATA);
         }
-        if (!ESService.indexExists(client,DEPLOY_ACCOUNT)){
-            ESService.createIndex(client,DEPLOY_ACCOUNT);
-        }
-        if (!ESService.indexExists(client,CONTRACT_INFO)){
-            ESService.createIndex(client,CONTRACT_INFO);
-        }
         if (!ESService.indexExists(client,TX_RECEIPT_RAW_DATA)){
             ESService.createIndex(client,TX_RECEIPT_RAW_DATA);
         }
         if (!ESService.indexExists(client,BLOCK_TX_DETAIL)){
             ESService.createIndex(client,BLOCK_TX_DETAIL);
         }
-//        for(ContractDetail contractDetail : contractDetails) {
-//            for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {
-//                String index = (contractDetail.getContractInfoBO().getContractName() + methodMetaInfo.getMethodName() +
-//                        METHOD).toLowerCase();
-//                if (!ESService.indexExists(client,index)) {
-//                    ESService.createIndex(client, index);
-//                }
-//            }
-//            for (EventMetaInfo eventMetaInfo : contractDetail.getEventMetaInfos()) {
-//                String index = (contractDetail.getContractInfoBO().getContractName() + eventMetaInfo.getEventName() +
-//                        EVENT).toLowerCase();
-//                if (!ESService.indexExists(client,index)) {
-//                    ESService.createIndex(client, index);
-//                }
-//            }
-//        }
+        return client;
     }
 
-    public void saveBlockInfo(BlockInfoBO blockInfoBO) {
+    public static void saveBlockInfo(BlockInfoBO blockInfoBO) {
+        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
+
         ESService.createDocument(client,
                 BLOCK_DETAIL, "_doc", String.valueOf(blockInfoBO.getBlockDetailInfo().getBlockHeight()),
                 blockInfoBO.getBlockDetailInfo());
@@ -129,15 +109,6 @@ public class ESHandleDao {
             ESService.createDocument(client,
                     TX_RAW_DATA,"_doc",
                     txRawDataBO.getTxHash(), txRawDataBO);
-        }
-
-        for (DeployedAccountInfoBO deployedAccountInfoBO : blockInfoBO.getDeployedAccountInfoBOS()) {
-            DeployedAccountInfo deployedAccountInfo = new DeployedAccountInfo();
-            BeanUtil.copyProperties(deployedAccountInfoBO, deployedAccountInfo, true);
-            ESService.createDocument(client,
-                    DEPLOY_ACCOUNT,"_doc",
-                    deployedAccountInfoBO.getContractAddress(),
-                    deployedAccountInfo);
         }
 
         for (TxReceiptRawDataBO txReceiptRawDataBO : blockInfoBO.getTxReceiptRawDataBOList()) {
@@ -153,21 +124,10 @@ public class ESHandleDao {
                     blockTxDetailInfoBO.getTxHash(),
                     blockTxDetailInfoBO);
         }
-
-//        for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
-//            ESService.createDocument(client,
-//                    eventBO.getIdentifier().toLowerCase() + EVENT,
-//                    "_doc", eventBO.getTxHash(), eventBO);
-//        }
-//
-//        for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
-//            ESService.createDocument(client,
-//                     methodBO.getIdentifier().toLowerCase() + METHOD,
-//                    "_doc", methodBO.getTxHash(), methodBO);
-//        }
     }
 
-    public void saveContractInfo(ContractInfoBO contractInfoBO) {
+    public static void saveContractInfo(ContractInfoBO contractInfoBO) {
+        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
         ESService.createDocument(client,
                 CONTRACT_INFO, "_doc",contractInfoBO);
     }

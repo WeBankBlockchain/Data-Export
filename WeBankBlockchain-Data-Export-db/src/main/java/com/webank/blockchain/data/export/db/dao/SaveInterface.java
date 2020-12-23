@@ -22,6 +22,6 @@ package com.webank.blockchain.data.export.db.dao;
  */
 public interface SaveInterface<T> {
 
-    public void save(T t);
+    void save(T t);
 
 }
