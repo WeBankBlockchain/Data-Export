@@ -15,10 +15,13 @@ package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.transport.TransportClient;
 
 /**
  * BlockDetailInfoDAO
@@ -29,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @AllArgsConstructor
-public class BlockDetailInfoDAO implements SaveInterface<BlockDetailInfo> {
+public class BlockDetailInfoDAO implements SaveInterface<BlockInfoBO> {
 
-    private BlockDetailInfoRepository blockDetailInfoRepository;
+    private final BlockDetailInfoRepository blockDetailInfoRepository;
     
     public void save(BlockDetailInfoBO bo) {
         BlockDetailInfo blockDetailInfo = new BlockDetailInfo();
@@ -43,7 +46,9 @@ public class BlockDetailInfoDAO implements SaveInterface<BlockDetailInfo> {
         blockDetailInfoRepository.save(blockDetailInfo);
     }
 
-    public BlockDetailInfo getBlockDetailInfoByBlockHeight(long blockHeight) {
-        return blockDetailInfoRepository.findByBlockHeight(blockHeight);
+    @Override
+    public void save(BlockInfoBO t) {
+        save(t.getBlockDetailInfo());
+        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
     }
 }

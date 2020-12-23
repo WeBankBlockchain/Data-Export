@@ -14,6 +14,7 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
 import com.webank.blockchain.data.export.db.entity.BlockRawData;
 import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
@@ -25,11 +26,10 @@ import lombok.AllArgsConstructor;
  * @date 2020/10/23
  */
 @AllArgsConstructor
-public class BlockRawDataDAO implements SaveInterface<BlockRawDataBO>{
+public class BlockRawDataDAO implements SaveInterface<BlockInfoBO>{
 
     private BlockRawDataRepository blockRawDataRepository;
 
-    @Override
     public void save(BlockRawDataBO blockRawDataBO) {
         BlockRawData blockRawData = new BlockRawData();
         BeanUtil.copyProperties(blockRawDataBO, blockRawData, true);
@@ -38,5 +38,10 @@ public class BlockRawDataDAO implements SaveInterface<BlockRawDataBO>{
 
     public void save(BlockRawData blockRawData) {
         blockRawDataRepository.save(blockRawData);
+    }
+
+    @Override
+    public void save(BlockInfoBO blockInfoBO) {
+        save(blockInfoBO.getBlockRawDataBO());
     }
 }

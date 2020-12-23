@@ -15,21 +15,22 @@ package com.webank.blockchain.data.export.task;
 
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
+import com.webank.blockchain.data.export.common.entity.DataType;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
-import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
 import com.webank.blockchain.data.export.db.dao.ESHandleDao;
+import com.webank.blockchain.data.export.db.dao.SaveInterface;
 import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.TxReceiptRawDataDAO;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
 import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
-import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
 import com.webank.blockchain.data.export.db.repository.RollbackInterface;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.TxReceiptRawDataRepository;
@@ -43,6 +44,7 @@ import com.webank.blockchain.data.export.service.BlockIndexService;
 import com.webank.blockchain.data.export.service.BlockPrepareService;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.client.transport.TransportClient;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
 import java.util.ArrayList;
@@ -73,10 +75,9 @@ public class CrawlRunner {
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
     private TxRawDataRepository txRawDataRepository;
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
-    private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
-    private List<RollbackInterface> rollbackOneInterfaceMap = new ArrayList<>();
+    private List<RollbackInterface> rollbackOneInterfaceList = new ArrayList<>();
 
     private AtomicBoolean runSwitch = new AtomicBoolean(false);
 
@@ -89,7 +90,7 @@ public class CrawlRunner {
     }
 
 
-    public void run(DataExportContext context) throws InterruptedException {
+    public void run(DataExportContext context) {
         if (context.getConfig().getCrawlBatchUnit() < 1) {
             log.error("The batch unit threshold can't be less than 1!!");
             System.exit(1);
@@ -162,53 +163,81 @@ public class CrawlRunner {
     }
 
     public void buildDataStore() {
-        Map<String, DaoTemplate> daoTemplateMap = buildDaoMap(context);
+        buildRepository();
+        buildDao();
+        buildESStore();
+    }
 
-        blockTaskPoolRepository = new BlockTaskPoolRepository(
-                daoTemplateMap.get(ExportConstant.BLOCK_TASK_POOL_DAO));
-        blockDetailInfoRepository = new BlockDetailInfoRepository(
-                daoTemplateMap.get(ExportConstant.BLOCK_DETAIL_DAO));
-        blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
-                ExportConstant.BLOCK_RAW_DAO));
-        blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
-                daoTemplateMap.get(ExportConstant.BLOCK_TX_DETAIL_DAO));
-        txRawDataRepository = new TxRawDataRepository(
-                daoTemplateMap.get(ExportConstant.TX_RAW_DAO));
-        txReceiptRawDataRepository = new TxReceiptRawDataRepository(
-                daoTemplateMap.get(ExportConstant.TX_RECEIPT_RAW_DAO));
-        deployedAccountInfoRepository = new DeployedAccountInfoRepository(
-                daoTemplateMap.get(ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE));
+    private void buildESStore(){
+        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
+            TransportClient esClient = ESHandleDao.create();
+            context.setEsClient(esClient);
+            dataStoreServiceList.add(new ESStoreService());
+        }
+    }
 
-        rollbackOneInterfaceMap.add(blockTaskPoolRepository);
-        rollbackOneInterfaceMap.add(blockDetailInfoRepository);
-        rollbackOneInterfaceMap.add(blockRawDataRepository);
-        rollbackOneInterfaceMap.add(txRawDataRepository);
-        rollbackOneInterfaceMap.add(txReceiptRawDataRepository);
-        rollbackOneInterfaceMap.add(blockTxDetailInfoRepository);
-
-
-        BlockDetailInfoDAO blockDetailInfoDao = new BlockDetailInfoDAO(blockDetailInfoRepository);
-        BlockTxDetailInfoDAO blockTxDetailInfoDao = new BlockTxDetailInfoDAO(blockTxDetailInfoRepository);
-        BlockRawDataDAO blockRawDataDao = new BlockRawDataDAO(blockRawDataRepository);
-        TxRawDataDAO txRawDataDao = new TxRawDataDAO(txRawDataRepository);
-        TxReceiptRawDataDAO txReceiptRawDataDao = new TxReceiptRawDataDAO(txReceiptRawDataRepository);
-        DeployedAccountInfoDAO deployedAccountInfoDao = new DeployedAccountInfoDAO(deployedAccountInfoRepository);
+    private void buildDao(){
+        List<SaveInterface<BlockInfoBO>> saveInterfaceList = new ArrayList<>();
         MysqlStoreService mysqlStoreService = new MysqlStoreService();
-        mysqlStoreService.setBlockDetailInfoDao(blockDetailInfoDao);
-        mysqlStoreService.setBlockRawDataDao(blockRawDataDao);
-        mysqlStoreService.setBlockTxDetailInfoDao(blockTxDetailInfoDao);
-        mysqlStoreService.setDeployedAccountInfoDao(deployedAccountInfoDao);
-        mysqlStoreService.setTxReceiptRawDataDao(txReceiptRawDataDao);
-        mysqlStoreService.setTxRawDataDao(txRawDataDao);
-
+        mysqlStoreService.setSaveInterfaceList(saveInterfaceList);
         dataStoreServiceList.add(mysqlStoreService);
 
-        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
-            ESHandleDao esHandleDao = new ESHandleDao();
-            esHandleDao.init();
-            ESStoreService esStoreService = new ESStoreService();
-            esStoreService.setEsHandleDao(esHandleDao);
-            dataStoreServiceList.add(esStoreService);
+        if (blockDetailInfoRepository != null) {
+            BlockDetailInfoDAO blockDetailInfoDao = new BlockDetailInfoDAO(blockDetailInfoRepository);
+            saveInterfaceList.add(blockDetailInfoDao);
+        }
+        if (blockTxDetailInfoRepository != null) {
+            BlockTxDetailInfoDAO blockTxDetailInfoDao = new BlockTxDetailInfoDAO(blockTxDetailInfoRepository);
+            saveInterfaceList.add(blockTxDetailInfoDao);
+        }
+        if (blockRawDataRepository != null) {
+            BlockRawDataDAO blockRawDataDao = new BlockRawDataDAO(blockRawDataRepository);
+            saveInterfaceList.add(blockRawDataDao);
+        }
+        if (txRawDataRepository != null) {
+            TxRawDataDAO txRawDataDao = new TxRawDataDAO(txRawDataRepository);
+            saveInterfaceList.add(txRawDataDao);
+        }
+        if (txReceiptRawDataRepository != null) {
+            TxReceiptRawDataDAO txReceiptRawDataDao = new TxReceiptRawDataDAO(txReceiptRawDataRepository);
+            saveInterfaceList.add(txReceiptRawDataDao);
+        }
+
+    }
+
+    private void buildRepository(){
+        Map<String, DaoTemplate> daoTemplateMap = buildDaoMap(context);
+        blockTaskPoolRepository = new BlockTaskPoolRepository(
+                daoTemplateMap.get(ExportConstant.BLOCK_TASK_POOL_DAO));
+        rollbackOneInterfaceList.add(blockTaskPoolRepository);
+
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_DETAIL_INFO_TABLE)) {
+            blockDetailInfoRepository = new BlockDetailInfoRepository(
+                    daoTemplateMap.get(ExportConstant.BLOCK_DETAIL_DAO));
+            rollbackOneInterfaceList.add(blockDetailInfoRepository);
+
+        }
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_RAW_DATA_TABLE)) {
+            blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
+                    ExportConstant.BLOCK_RAW_DAO));
+            rollbackOneInterfaceList.add(blockRawDataRepository);
+
+        }
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE)) {
+            blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
+                    daoTemplateMap.get(ExportConstant.BLOCK_TX_DETAIL_DAO));
+            rollbackOneInterfaceList.add(blockTxDetailInfoRepository);
+
+        }
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.TX_RAW_DATA_TABLE)) {
+            txRawDataRepository = new TxRawDataRepository(
+                    daoTemplateMap.get(ExportConstant.TX_RAW_DAO));
+            rollbackOneInterfaceList.add(txRawDataRepository);
+        }
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.TX_RECEIPT_RAW_DATA_TABLE)) {
+            txReceiptRawDataRepository = new TxReceiptRawDataRepository(
+                    daoTemplateMap.get(ExportConstant.TX_RECEIPT_RAW_DAO));
+            rollbackOneInterfaceList.add(txReceiptRawDataRepository);
         }
 
     }
@@ -217,6 +246,9 @@ public class CrawlRunner {
         Db db = Db.use(context.getDataSource());
         Map<String, DaoTemplate> daoTemplateMap = new ConcurrentHashMap<>();
         ExportConstant.tables.forEach(table -> {
+            if (DataType.getTables(context.getConfig().getDataTypeBlackList()).contains(table)){
+                return;
+            }
             DaoTemplate daoTemplate = new DaoTemplate(table, "pk_id", db);
             daoTemplateMap.put(table + "_dao", daoTemplate);
         });

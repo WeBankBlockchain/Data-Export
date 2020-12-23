@@ -1,9 +1,11 @@
 package com.webank.blockchain.data.export.api;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.meta.MetaUtil;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
+import com.webank.blockchain.data.export.common.entity.DataType;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
@@ -49,50 +51,89 @@ public class DataExportService {
     }
 
     private static DataExportContext buildContext(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws ConfigException {
+        checkConfig(dataSource, chainInfo, config);
         DataExportContext context = new DataExportContext();
         context.setClient(ClientUtil.getClient(chainInfo));
         context.setChainInfo(chainInfo);
         context.setConfig(config);
-        context.setDataSource(buildDataSource(dataSource));
+        context.setDataSource(buildDataSource(dataSource, DataType.getTables(config.getDataTypeBlackList())));
         context.setEsConfig(dataSource.getEsDataSource());
         context.setAutoCreateTable(dataSource.isAutoCreateTable());
         return context;
     }
 
-    private static DataSource buildDataSource(ExportDataSource exportDataSource) {
-        if (!exportDataSource.isSharding()){
-            return buildSingleDataSource(exportDataSource.getMysqlDataSources().get(0),
-                    exportDataSource.isAutoCreateTable());
-        } else {
-            return buildShardingDataSource(exportDataSource.getMysqlDataSources(),
-                    exportDataSource.getShardingNumberPerDatasource(),
-                    exportDataSource.isAutoCreateTable());
+    private static void checkConfig(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) {
+        if (CollectionUtil.isEmpty(dataSource.getMysqlDataSources())) {
+            log.error("mysqlDataSources is not set，please set it ！！！");
+            Thread.currentThread().interrupt();
+            return;
+        }
+        if (dataSource.isSharding()) {
+            if (dataSource.getShardingNumberPerDatasource() == 0) {
+                log.error("shardingNumberPerDatasource is zero, please set it to a number greater than 0 ");
+                Thread.currentThread().interrupt();
+                return;
+            }
+            if (dataSource.getMysqlDataSources().size() < 2) {
+                log.error("isSharding is true, mysqlDataSources size must >= 2 ");
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
+        if (chainInfo.getNodeStr() == null){
+            log.error("nodeStr is not set，please set it ！！！ ");
+            Thread.currentThread().interrupt();
+            return;
+        }
+        if (chainInfo.getCertPath() == null){
+            log.error("certPath is not set，please set it ！！！ ");
+            Thread.currentThread().interrupt();
+            return;
+        }
+        if (CollectionUtil.isEmpty(config.getDataTypeBlackList())){
+            config.setDataTypeBlackList(DataType.getDefault());
         }
     }
 
+    private static DataSource buildDataSource(ExportDataSource exportDataSource, List<String> blackTables) {
+        if (!exportDataSource.isSharding()){
+            return buildSingleDataSource(exportDataSource.getMysqlDataSources().get(0),
+                    exportDataSource.isAutoCreateTable(),blackTables);
+        } else {
+            return buildShardingDataSource(exportDataSource.getMysqlDataSources(),
+                    exportDataSource.getShardingNumberPerDatasource(),
+                    exportDataSource.isAutoCreateTable(), blackTables);
+        }
+    }
 
-    private static DataSource buildSingleDataSource(MysqlDataSource mysqlDataSource, boolean autoCreateTable) {
+    private static DataSource buildSingleDataSource(MysqlDataSource mysqlDataSource) {
+        return buildSingleDataSource(mysqlDataSource,false, null);
+    }
+
+
+    private static DataSource buildSingleDataSource(MysqlDataSource mysqlDataSource, boolean autoCreateTable,
+                                                    List<String> blackTables) {
         DataSource dataSource = DataSourceUtils.createDataSource(mysqlDataSource.getJdbcUrl(),
                 null,
                 mysqlDataSource.getUser(),
                 mysqlDataSource.getPass());
         if (autoCreateTable){
-            createTable(dataSource);
+            createTable(dataSource,blackTables);
         }
         return dataSource;
     }
 
     private static DataSource buildShardingDataSource(List<MysqlDataSource> mysqlDataSources,
                                                       int shardingNumberPerDatasource,
-                                                      boolean autoCreateTable) {
+                                                      boolean autoCreateTable, List<String> blackTables) {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         String dsName = "ds";
         int i = 0;
         for (MysqlDataSource dataSource : mysqlDataSources) {
-            DataSource ds = buildSingleDataSource(dataSource, false);
+            DataSource ds = buildSingleDataSource(dataSource);
             dataSourceMap.put(dsName + i++, ds);
             if(autoCreateTable) {
-                creatShardingTables(ds, shardingNumberPerDatasource);
+                creatShardingTables(ds, shardingNumberPerDatasource,blackTables);
             }
         }
         // 配置分片规则
@@ -135,12 +176,15 @@ public class DataExportService {
         return null;
     }
 
-    private static void creatShardingTables(DataSource ds, int shardingNumberPerDatasource) {
+    private static void creatShardingTables(DataSource ds, int shardingNumberPerDatasource, List<String> blackTables) {
         log.info("export data auto create table begin....");
         Db db = Db.use(ds);
         List<String> tables = MetaUtil.getTables(ds);
         try {
             for (Map.Entry<String, String> entry : TableSQL.tableSqlMap.entrySet()) {
+                if (blackTables.contains(entry.getKey())) {
+                    continue;
+                }
                 if (entry.getKey().equals(ExportConstant.BLOCK_TASK_POOL_TABLE)){
                     if (!tables.contains(entry.getKey())){
                         db.execute(entry.getValue());
@@ -160,12 +204,15 @@ public class DataExportService {
         log.info("export data auto create table success !");
     }
 
-    private static void createTable(DataSource ds) {
+    private static void createTable(DataSource ds, List<String> blackTables) {
         log.info("export data auto create table begin....");
         try {
             Db db = Db.use(ds);
             List<String> tables = MetaUtil.getTables(ds);
             for (Map.Entry<String, String> entry : TableSQL.tableSqlMap.entrySet()) {
+                if (blackTables.contains(entry.getKey())){
+                    continue;
+                }
                 if (!tables.contains(entry.getKey())) {
                     db.execute(entry.getValue());
                 }

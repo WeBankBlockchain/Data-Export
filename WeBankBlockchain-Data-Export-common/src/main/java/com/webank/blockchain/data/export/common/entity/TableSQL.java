@@ -21,7 +21,7 @@ public class TableSQL {
             "  `status` smallint(6) NOT NULL,\n" +
             "  `tx_count` smallint(6) DEFAULT NULL,\n" +
             "  PRIMARY KEY (`pk_id`),\n" +
-            "  UNIQUE KEY `UK_95d40j5tcrygdf9cdpvlva33i` (`block_height`),\n" +
+            "  UNIQUE KEY `UK_block_height` (`block_height`),\n" +
             "  KEY `block_hash` (`block_hash`),\n" +
             "  KEY `block_timestamp` (`block_time_stamp`)\n" +
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
@@ -45,7 +45,7 @@ public class TableSQL {
             "  `transaction_list` longtext,\n" +
             "  `transactions_root` varchar(255) DEFAULT NULL,\n" +
             "  PRIMARY KEY (`pk_id`),\n" +
-            "  UNIQUE KEY `UK_dxxxrbs3ujg6juh8f6onne5y6` (`block_height`),\n" +
+            "  UNIQUE KEY `UK_block_height` (`block_height`),\n" +
             "  KEY `block_hash` (`block_hash`),\n" +
             "  KEY `block_timestamp` (`block_time_stamp`)\n" +
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
@@ -58,7 +58,7 @@ public class TableSQL {
             "  `handle_item` smallint(6) DEFAULT NULL,\n" +
             "  `sync_status` smallint(6) DEFAULT NULL,\n" +
             "  PRIMARY KEY (`pk_id`),\n" +
-            "  UNIQUE KEY `UK_1g6iq2db94yf1p2k1jw54gxep` (`block_height`),\n" +
+            "  UNIQUE KEY `UK_block_height` (`block_height`),\n" +
             "  KEY `sync_status` (`sync_status`),\n" +
             "  KEY `certainty` (`certainty`),\n" +
             "  KEY `depot_updatetime` (`depot_updatetime`)\n" +

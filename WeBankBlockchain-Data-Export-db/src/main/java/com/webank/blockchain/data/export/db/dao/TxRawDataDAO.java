@@ -14,6 +14,7 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.db.entity.TxRawData;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
@@ -27,7 +28,7 @@ import java.util.List;
  * @date 2020/10/26
  */
 @AllArgsConstructor
-public class TxRawDataDAO implements SaveInterface<TxRawDataBO>{
+public class TxRawDataDAO implements SaveInterface<BlockInfoBO>{
 
     private TxRawDataRepository txRawDataRepository;
 
@@ -40,10 +41,14 @@ public class TxRawDataDAO implements SaveInterface<TxRawDataBO>{
         txRawDataList.forEach(this :: save);
     }
 
-    @Override
     public void save(TxRawDataBO txRawDataBO) {
         TxRawData txRawData = new TxRawData();
         BeanUtil.copyProperties(txRawDataBO,txRawData,true);
         save(txRawData);
+    }
+
+    @Override
+    public void save(BlockInfoBO blockInfoBO) {
+        save(blockInfoBO.getTxRawDataBOList());
     }
 }

@@ -12,6 +12,7 @@ WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISC
 
 
 
+
 ## 环境要求
 
 在使用本组件前，请确认系统环境已安装相关依赖软件，清单如下：
@@ -26,16 +27,16 @@ WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISC
 | zookeeper | >= zookeeper[3.4] | 只有在进行集群部署的时候需要安装|
 
 
-##使用教程
+## 使用教程
 
 ### 1.引入数据导出SDK依赖 
 
 项目打包后，将打包后的SDK-jar包放到项目lib下，建立依赖
 
+
 ### 2.SDK接口介绍
 
-SDK提供一下接口
-
+**SDK提供接口如下：**
 ```
 //创建数据导出执行器DataExportExecutor，导出配置采用默认配置
 DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo);
@@ -45,7 +46,7 @@ start(DataExportExecutor exportExecutor)
 //数据导出关闭
 stop(DataExportExecutor exportExecutor)
 ```
-参数ExportDataSource为数据源配置，参数如下：
+**参数ExportDataSource为数据源配置，参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -55,16 +56,16 @@ stop(DataExportExecutor exportExecutor)
 | mysqlDataSources | mysql数据源配置，支持多数据源 | List<MysqlDataSource> | null |
 | esDataSource | es数据源配置 | ESDataSource | null |
 
-其中数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：
+**数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：**
 
-MysqlDataSource
+**MysqlDataSource**
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
 | jdbcUrl | jdbc连接配置，格式：jdbc:mysql://[ip]:[port]/[database] | string | null |
 | user | 用户名 | string | null |
 | pass | 密码 | string | null |
 
-ESDataSource
+**ESDataSource**
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
 | enable | es存储开关 | boolean | false |
@@ -73,7 +74,7 @@ ESDataSource
 | port | 端口号 | int | null |
 
 
-参数ChainInfo为链参数配置，参数如下：
+**参数ChainInfo为链参数配置，参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -82,7 +83,7 @@ ESDataSource
 | certPath | 链节点连接所需证书路径 | string | null |
 
 
-参数ExportConfig为数据导出任务配置，参数如下：
+**参数ExportConfig为数据导出任务配置，参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -90,6 +91,7 @@ ESDataSource
 | frequency | 任务间隔时间 | int | 5s |
 | startBlockHeight | 开始区块高度 | int | 0 |
 | startDate | 开始时间 | Date | null |
+| dataTypeBlackList | 导出数据表黑名单，默认全部导出，可根据DataType枚举设置 | List<DataType> | null |
 | multiLiving | 是否开启多活job | boolean |false |
 | zookeeperServiceLists | zk服务节点列表(,分隔),格式：[IP]:[port],[IP]:[port] | string | null |
 | zookeeperNamespace | zk命名空间(,分隔) | string | null |
@@ -98,7 +100,7 @@ ESDataSource
 | dataFlowJobItemParameters | 任务分片执行job参数 | string | 如 "0=A,1=B,2=C,3=D,4=E,5=F,6=G,7=H" |
 | dataFlowJobShardingTotalCount | 任务分片数目 | int | 8 |
 
-单库使用方式例子如下（默认导出配置）：
+**单库使用方式例子如下（默认导出配置）：**
 ```
 MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
         .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
@@ -121,7 +123,7 @@ ExportDataSDK.start(exportExecutor);
 ```
 
 
-分库分表使用方式例子如下（默认导出配置）：
+**分库分表使用方式例子如下（默认导出配置）：**
 ```
 MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
         .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
@@ -151,7 +153,7 @@ ExportDataSDK.start(exportExecutor);
 //ExportDataSDK.stop(exportExecutor);
 ```
 
-更多使用方式见ExportDataTest.class中测试例子
+**更多使用方式见ExportDataTest.class中测试例子**
 
 
 ## 贡献代码

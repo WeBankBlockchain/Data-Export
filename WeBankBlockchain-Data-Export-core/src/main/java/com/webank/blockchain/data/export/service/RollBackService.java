@@ -33,7 +33,7 @@ public class RollBackService {
      * @param
      */
     public static void rollback(long start, long end) {
-        DataExportExecutor.crawler.get().getRollbackOneInterfaceMap()
+        DataExportExecutor.crawler.get().getRollbackOneInterfaceList()
                 .forEach(v -> {
             v.rollback(start, end);
         });

@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
@@ -26,7 +27,7 @@ import java.util.List;
  * @date 2020/10/26
  */
 @AllArgsConstructor
-public class DeployedAccountInfoDAO implements SaveInterface<DeployedAccountInfoBO>{
+public class DeployedAccountInfoDAO implements SaveInterface<BlockInfoBO>{
 
     private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
@@ -38,12 +39,13 @@ public class DeployedAccountInfoDAO implements SaveInterface<DeployedAccountInfo
         deployedAccountInfoBOS.forEach(this::save);
     }
 
-    @Override
+
     public void save(DeployedAccountInfoBO deployedAccountInfoBO) {
-//        DeployedAccountInfo deployedAccountInfo = new DeployedAccountInfo();
-//        BeanUtil.copyProperties(deployedAccountInfoBO, deployedAccountInfo, true);
-//        ContractDetail contractMethodInfo = contractMapsInfo.getContractBinaryMap().get(deployedAccountInfoBO.getBinary());
-//        deployedAccountInfo.setAbiHash(contractMethodInfo.getContractInfoBO().getAbiHash());
-//        save(deployedAccountInfo);
+
+    }
+
+    @Override
+    public void save(BlockInfoBO blockInfoBO) {
+        save(blockInfoBO.getDeployedAccountInfoBOS());
     }
 }

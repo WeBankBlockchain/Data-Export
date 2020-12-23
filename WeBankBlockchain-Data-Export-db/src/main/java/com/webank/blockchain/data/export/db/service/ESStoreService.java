@@ -28,12 +28,10 @@ import lombok.extern.slf4j.Slf4j;
 @Data
 public class ESStoreService implements DataStoreService{
 
-    private ESHandleDao esHandleDao;
-
     @Override
     public void storeBlockInfoBO(BlockInfoBO blockInfo) {
         try {
-            esHandleDao.saveBlockInfo(blockInfo);
+            ESHandleDao.saveBlockInfo(blockInfo);
         } catch (Exception e) {
             log.error("ES storeBlockInfoBO failed, reason : " , e);
         }
@@ -42,7 +40,7 @@ public class ESStoreService implements DataStoreService{
     @Override
     public void storeContractInfo(ContractInfoBO contractInfoBO) {
         try {
-            esHandleDao.saveContractInfo(contractInfoBO);
+            ESHandleDao.saveContractInfo(contractInfoBO);
         } catch (Exception e) {
             log.error("ES storeContractInfo failed, reason : " , e);
         }
