@@ -30,8 +30,21 @@ WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISC
 ## 使用教程
 
 ### 1.引入数据导出SDK依赖 
-
-项目打包后，将打包后的SDK-jar包放到项目lib下，建立依赖
+1. 在项目中引入如下Maven库
+```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+2. 建立依赖
+```
+dependencies {
+	implementation 'com.github.WeBankBlockchain:Data-Export:DataExport-SDK-Beta-SNAPSHOT'
+}
+```
 
 
 ### 2.SDK接口介绍

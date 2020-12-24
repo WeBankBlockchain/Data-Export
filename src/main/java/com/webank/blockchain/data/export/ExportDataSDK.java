@@ -1,4 +1,4 @@
-package com.webank.blockchain.data.export.sdk;
+package com.webank.blockchain.data.export;
 
 import com.webank.blockchain.data.export.api.DataExportService;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;

@@ -1,7 +1,6 @@
 package com.webank.blockchain.data.export.common.entity;
 
-import cn.hutool.core.collection.ListUtil;
-import lombok.Builder;
+import com.webank.blockchain.data.export.common.entity.DataType;
 import lombok.Data;
 
 import java.util.List;

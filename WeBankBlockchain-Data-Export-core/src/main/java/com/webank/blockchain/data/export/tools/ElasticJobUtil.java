@@ -1,6 +1,5 @@
 package com.webank.blockchain.data.export.tools;
 
-import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
 import org.apache.shardingsphere.elasticjob.reg.zookeeper.ZookeeperConfiguration;

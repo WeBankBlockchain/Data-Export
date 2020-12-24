@@ -1,26 +1,3 @@
-//jar.enabled=true
-//jar {
-//    destinationDir file("dist/apps")
-//    archiveName 'DataExport-SDK' + "-" + '1.0.0-SNAPOSHOT' + ".jar"
-//
-//    exclude "**/*.xml"
-//    exclude "**/*.properties"
-//
-//    doLast {
-//        copy {
-//            from file("src/test/resources/")
-//            into "./dist/conf"
-//        }
-//        copy {
-//            from configurations.runtime
-//            into "./dist/lib"
-//        }
-//        copy {
-//            from file("build/libs/")
-//            into "./dist/apps"
-//        }
-//    }
-//}
 clean {
     println "delete ${projectDir}/dist"
     delete "${projectDir}/dist"
