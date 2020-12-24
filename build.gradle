@@ -12,6 +12,7 @@ allprojects {
         }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         maven { url "https://dl.bintray.com/ethereum/maven/" }
+        maven { url "https://jitpack.io" }
         mavenLocal()
         jcenter()
     }
@@ -23,6 +24,7 @@ dependencies {
     compile project(':WeBankBlockchain-Data-Export-db')
     compile project(':WeBankBlockchain-Data-Export-extractor')
     testCompile ("junit:junit:4.12")
+    implementation 'com.github.jitpack:gradle-simple:DataExport-SDK-Beta-SNAPSHOT'
 }
 
 jar {
