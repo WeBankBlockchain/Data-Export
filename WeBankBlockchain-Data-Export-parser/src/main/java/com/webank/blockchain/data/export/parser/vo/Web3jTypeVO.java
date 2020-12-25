@@ -11,34 +11,26 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webank.blockchain.data.export.common.bo.data;
+package com.webank.blockchain.data.export.parser.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * BlockMethodInfo
+ * Web3jTypeVO
  *
- * @Description: BlockMethodInfo
+ * @Description: Web3jTypeVO
  * @author maojiayu
- * @data Jul 3, 2019 2:59:33 PM
+ * @data Oct 22, 2019 2:25:20 PM
  *
  */
 @Data
 @Accessors(chain = true)
-public class BlockMethodInfo {
+public class Web3jTypeVO {
 
-    private List<BlockTxDetailInfoBO> blockTxDetailInfoList;
-
-    private List<TxRawDataBO> txRawDataBOList;
-
-    private List<TxReceiptRawDataBO> txReceiptRawDataBOList;
-
-    private List<MethodBO> methodInfoList;
-
-    private Map<String, String> txHashContractNameMapping;
+    private String solidityType;
+    private String sqlType;
+    private String javaType;
+    private String typeMethod;
 
 }

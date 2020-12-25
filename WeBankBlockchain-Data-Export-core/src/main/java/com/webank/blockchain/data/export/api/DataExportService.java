@@ -5,7 +5,7 @@ import cn.hutool.db.Db;
 import cn.hutool.db.meta.MetaUtil;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.DataType;
+import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;

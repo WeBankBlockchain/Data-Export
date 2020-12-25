@@ -35,12 +35,7 @@ public class EventMetaInfo {
     
     /** @Fields eventName : event name */
     private String eventName;
-    
-    /** @Fields eventTableCount : for sharding event tables */
-    private int eventTableCount;
-    
-    /** @Fields ignoreParams : when parsing event data, the ignore params will be ignored */
-    private List<String> ignoreParams;
+
     
     /** @Fields contractName : contract name */
     private String contractName;

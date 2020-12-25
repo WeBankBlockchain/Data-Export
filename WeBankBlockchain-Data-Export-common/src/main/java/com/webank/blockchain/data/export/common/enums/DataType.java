@@ -1,4 +1,4 @@
-package com.webank.blockchain.data.export.common.entity;
+package com.webank.blockchain.data.export.common.enums;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;

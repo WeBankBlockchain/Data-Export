@@ -3,6 +3,7 @@ package com.webank.blockchain.data.export.common.entity;
 import lombok.Data;
 import org.elasticsearch.client.transport.TransportClient;
 import org.fisco.bcos.sdk.client.Client;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 
 import javax.sql.DataSource;
 
@@ -28,5 +29,6 @@ public class DataExportContext {
 
     private boolean autoCreateTable;
 
+    private TransactionDecoderInterface decoder;
 
 }

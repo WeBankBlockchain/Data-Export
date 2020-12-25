@@ -13,6 +13,8 @@
  */
 package com.webank.blockchain.data.export.common.constants;
 
+import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+
 /**
  * ContractConstants
  *
@@ -25,5 +27,7 @@ public class ContractConstants {
     public static final String EMPTY_ADDRESS = "0x0000000000000000000000000000000000000000";
 
     public static final boolean EXPORT_INNER_CALL_EVENT = true;
+
+    public final static ThreadLocal<ContractMapsInfo> contractMapsInfo = new ThreadLocal<>();
 
 }

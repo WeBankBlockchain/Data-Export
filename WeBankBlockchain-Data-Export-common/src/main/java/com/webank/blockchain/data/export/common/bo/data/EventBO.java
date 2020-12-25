@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * EventBo
@@ -30,9 +31,6 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class EventBO extends CommonBO {
-    private String blockHeight;
-    private String txHash;
-    private Date blockTimeStamp;
-    private String eventContractAddress;
+public class EventBO {
+    private Map<String, Object> entity;
 }

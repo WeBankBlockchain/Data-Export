@@ -1,9 +1,10 @@
 package com.webank.blockchain.data.export.common.entity;
 
-import com.webank.blockchain.data.export.common.entity.DataType;
+import com.webank.blockchain.data.export.common.enums.DataType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wesleywang
@@ -20,6 +21,8 @@ public class ExportConfig {
     private String startDate;
 
     private List<DataType> dataTypeBlackList = DataType.getDefault();
+
+    private Map<String, ContractInfo> ContractInfoMap;
 
     private boolean multiLiving;
     private String zookeeperServiceLists;

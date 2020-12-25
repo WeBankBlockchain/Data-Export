@@ -49,6 +49,5 @@ public class BlockDetailInfoDAO implements SaveInterface<BlockInfoBO> {
     @Override
     public void save(BlockInfoBO t) {
         save(t.getBlockDetailInfo());
-        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
     }
 }

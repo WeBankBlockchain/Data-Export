@@ -19,6 +19,7 @@ import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
 import com.webank.blockchain.data.export.parser.handler.BlockCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.ContractCrawlerHandler;
+import com.webank.blockchain.data.export.parser.handler.EventCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.MethodCrawlerHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
@@ -57,8 +58,8 @@ public class ParseFacade {
                 .setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS())
                 .setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block))
                 .setBlockRawDataBO(BlockCrawlerHandler.handleBlockRawData(block))
-//                .setEventInfoList(eventCrawlHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()))
-//                .setMethodInfoList(blockMethodInfo.getMethodInfoList())
+                .setEventInfoList(EventCrawlerHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()))
+                .setMethodInfoList(blockMethodInfo.getMethodInfoList())
                 .setBlockTxDetailInfoList(blockMethodInfo.getBlockTxDetailInfoList())
                 .setTxRawDataBOList(blockMethodInfo.getTxRawDataBOList())
                 .setTxReceiptRawDataBOList(blockMethodInfo.getTxReceiptRawDataBOList());
