@@ -91,6 +91,12 @@ public class ESHandleDao {
         if (!ESService.indexExists(client,BLOCK_TX_DETAIL)){
             ESService.createIndex(client,BLOCK_TX_DETAIL);
         }
+        if (!ESService.indexExists(client,DEPLOY_ACCOUNT)){
+            ESService.createIndex(client,DEPLOY_ACCOUNT);
+        }
+        if (!ESService.indexExists(client,CONTRACT_INFO)){
+            ESService.createIndex(client,CONTRACT_INFO);
+        }
         return client;
     }
 

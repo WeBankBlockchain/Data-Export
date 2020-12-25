@@ -33,8 +33,6 @@ public class DeployedAccountInfoRepository {
 
     private DaoTemplate deployedAccountInfoDao;
 
-    private final String tableName = ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
-
     public void save(DeployedAccountInfo deployedAccountInfo) {
         try {
             deployedAccountInfoDao.addForGeneratedKey(Entity.parse(deployedAccountInfo,true,true));

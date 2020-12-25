@@ -13,16 +13,22 @@
  */
 package com.webank.blockchain.data.export.task;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
+import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
+import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
+import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
+import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
+import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
 import com.webank.blockchain.data.export.db.dao.ESHandleDao;
 import com.webank.blockchain.data.export.db.dao.SaveInterface;
 import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
@@ -31,12 +37,14 @@ import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository
 import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
+import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
 import com.webank.blockchain.data.export.db.repository.RollbackInterface;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.TxReceiptRawDataRepository;
 import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.db.service.ESStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
+import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.service.BlockAsyncService;
 import com.webank.blockchain.data.export.service.BlockCheckService;
 import com.webank.blockchain.data.export.service.BlockDepotService;
@@ -75,6 +83,7 @@ public class CrawlRunner {
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;
     private TxRawDataRepository txRawDataRepository;
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
+    private DeployedAccountInfoRepository deployedAccountInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
     private List<RollbackInterface> rollbackOneInterfaceList = new ArrayList<>();
@@ -110,6 +119,13 @@ public class CrawlRunner {
      *
      */
     public void handle() {
+        try{
+            ContractParser.initContractMaps();
+            saveContractInfo();
+        }catch (Exception e) {
+            log.error("initContractMaps and save Contract Info, {}", e.getMessage());
+        }
+
         try {
             startBlockNumber = BlockIndexService.getStartBlockIndex();
             log.info("Start succeed, and the block number is {}", startBlockNumber);
@@ -162,6 +178,20 @@ public class CrawlRunner {
         log.info("DataExportExecutor already ended ！！！");
     }
 
+    private void saveContractInfo() {
+        ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        Map<String, ContractDetail> contractBinaryMap = mapsInfo.getContractBinaryMap();
+        if (CollectionUtil.isEmpty(contractBinaryMap)) {
+            return;
+        }
+        for (Map.Entry<String, ContractDetail> entry : contractBinaryMap.entrySet()){
+            ContractInfoBO contractInfoBO = entry.getValue().getContractInfoBO();
+            for (DataStoreService storeService : dataStoreServiceList) {
+                storeService.storeContractInfo(contractInfoBO);
+            }
+        }
+    }
+
     public void buildDataStore() {
         buildRepository();
         buildDao();
@@ -202,6 +232,10 @@ public class CrawlRunner {
             TxReceiptRawDataDAO txReceiptRawDataDao = new TxReceiptRawDataDAO(txReceiptRawDataRepository);
             saveInterfaceList.add(txReceiptRawDataDao);
         }
+        if (deployedAccountInfoRepository != null){
+            DeployedAccountInfoDAO deployedAccountInfoDAO = new DeployedAccountInfoDAO(deployedAccountInfoRepository);
+            saveInterfaceList.add(deployedAccountInfoDAO);
+        }
 
     }
 
@@ -215,7 +249,6 @@ public class CrawlRunner {
             blockDetailInfoRepository = new BlockDetailInfoRepository(
                     daoTemplateMap.get(ExportConstant.BLOCK_DETAIL_DAO));
             rollbackOneInterfaceList.add(blockDetailInfoRepository);
-
         }
         if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_RAW_DATA_TABLE)) {
             blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
@@ -238,6 +271,10 @@ public class CrawlRunner {
             txReceiptRawDataRepository = new TxReceiptRawDataRepository(
                     daoTemplateMap.get(ExportConstant.TX_RECEIPT_RAW_DAO));
             rollbackOneInterfaceList.add(txReceiptRawDataRepository);
+        }
+        if (!context.getConfig().getDataTypeBlackList().contains(DataType.DEPLOYED_ACCOUNT_INFO_TABLE)) {
+            deployedAccountInfoRepository = new DeployedAccountInfoRepository(
+                    daoTemplateMap.get(ExportConstant.DEPLOYED_ACCOUNT_DAO));
         }
 
     }

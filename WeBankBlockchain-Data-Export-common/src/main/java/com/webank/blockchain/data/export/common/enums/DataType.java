@@ -23,7 +23,9 @@ public enum DataType {
     BLOCK_RAW_DATA_TABLE("block_raw_data"),
     BLOCK_TX_DETAIL_INFO_TABLE("block_tx_detail_info"),
     TX_RAW_DATA_TABLE("tx_raw_data"),
-    TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data");
+    TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data"),
+    DEPLOYED_ACCOUNT_INFO_TABLE("deployed_account_info");
+
 
     private String tableName;
 

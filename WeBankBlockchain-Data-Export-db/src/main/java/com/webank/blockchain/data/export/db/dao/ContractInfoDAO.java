@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.db.entity.ContractInfo;
 import com.webank.blockchain.data.export.db.repository.ContractInfoRepository;
@@ -27,6 +28,8 @@ public class ContractInfoDAO implements SaveInterface<ContractInfoBO>{
     private ContractInfoRepository contractInfoRepository;
 
     public void save(ContractInfo contractInfo) {
+
+
     }
 
     @Override
@@ -35,9 +38,9 @@ public class ContractInfoDAO implements SaveInterface<ContractInfoBO>{
 //        if(contractInfo != null){
 //            return;
 //        }
-//        contractInfo = new ContractInfo();
-//        BeanUtil.copyProperties(contractInfoBO, contractInfo, true);
-//        save(contractInfo);
+        ContractInfo contractInfo = new ContractInfo();
+        BeanUtil.copyProperties(contractInfoBO, contractInfo, true);
+        save(contractInfo);
     }
 
 }

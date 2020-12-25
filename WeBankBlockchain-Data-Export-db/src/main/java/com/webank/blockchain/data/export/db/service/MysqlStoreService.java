@@ -15,13 +15,8 @@ package com.webank.blockchain.data.export.db.service;
 
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
-import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
-import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
-import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
-import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
+import com.webank.blockchain.data.export.db.dao.ContractInfoDAO;
 import com.webank.blockchain.data.export.db.dao.SaveInterface;
-import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
-import com.webank.blockchain.data.export.db.dao.TxReceiptRawDataDAO;
 import lombok.Data;
 
 import java.util.List;
@@ -36,6 +31,8 @@ public class MysqlStoreService implements DataStoreService{
 
     private List<SaveInterface<BlockInfoBO>> saveInterfaceList;
 
+    private ContractInfoDAO contractInfoDAO;
+
     @Override
     public void storeBlockInfoBO(BlockInfoBO blockInfo) {
         saveInterfaceList.forEach(saveInterface -> {
@@ -45,6 +42,6 @@ public class MysqlStoreService implements DataStoreService{
 
     @Override
     public void storeContractInfo(ContractInfoBO contractInfoBO) {
-//        contractInfoDAO.save(contractInfoBO);
+        contractInfoDAO.save(contractInfoBO);
     }
 }

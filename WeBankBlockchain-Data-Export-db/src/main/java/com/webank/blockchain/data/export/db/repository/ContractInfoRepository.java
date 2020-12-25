@@ -20,8 +20,6 @@ package com.webank.blockchain.data.export.db.repository;
  */
 public class ContractInfoRepository {
 
-//    public ContractInfo findByAbiHash(String abiHash){
-//
-//    }
+
 
 }

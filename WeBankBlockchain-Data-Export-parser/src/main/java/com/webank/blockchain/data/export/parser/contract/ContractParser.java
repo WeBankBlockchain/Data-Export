@@ -8,6 +8,7 @@ import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import lombok.extern.slf4j.Slf4j;
+import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class ContractParser {
                 log.error("binary is null !!! please set it");
             }
             contractInfoBO.setContractABI(abi);
+            contractInfoBO.setAbiHash(new Keccak256().hash(abi));
             contractInfoBO.setContractBinary(binary);
             contractInfoBO.setContractName(entry.getKey());
             contractDetail.setContractInfoBO(contractInfoBO);

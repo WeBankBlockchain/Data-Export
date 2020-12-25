@@ -3,7 +3,6 @@ package com.webank.blockchain.data.export.task;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.tools.ElasticJobUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +73,6 @@ public class DataExportExecutor {
         public void run() {
             threadLocal.set(context);
             crawler.set(crawlRunner);
-            ContractParser.initContractMaps();
             try {
                 crawlRunner.run(context);
             } catch (Exception e) {
