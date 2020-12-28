@@ -42,7 +42,6 @@ sourceSets {
             srcDir "WeBankBlockchain-Data-Export-common/src/main/java"
             srcDir "WeBankBlockchain-Data-Export-core/src/main/java"
             srcDir "WeBankBlockchain-Data-Export-db/src/main/java"
-            srcDir "WeBankBlockchain-Data-Export-extractor/src/main/java"
             srcDir "WeBankBlockchain-Data-Export-parser/src/main/java"
             srcDir "src/main/java"
         }
@@ -176,26 +175,17 @@ project(':WeBankBlockchain-Data-Export-core') {
         implementation project(':WeBankBlockchain-Data-Export-parser')
         implementation project(':WeBankBlockchain-Data-Export-common')
         implementation project(':WeBankBlockchain-Data-Export-db')
-        implementation project(':WeBankBlockchain-Data-Export-extractor')
-    }
-}
-
-project(':WeBankBlockchain-Data-Export-extractor') {
-    dependencies {
-        implementation project(':WeBankBlockchain-Data-Export-common')
     }
 }
 
 project(':WeBankBlockchain-Data-Export-parser') {
     dependencies {
-        implementation project(':WeBankBlockchain-Data-Export-extractor')
         implementation project(':WeBankBlockchain-Data-Export-common')
     }
 }
 
 project(':WeBankBlockchain-Data-Export-db') {
     dependencies {
-        implementation project(':WeBankBlockchain-Data-Export-extractor')
         implementation project(':WeBankBlockchain-Data-Export-common')
         implementation project(':WeBankBlockchain-Data-Export-parser')
         compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'

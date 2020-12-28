@@ -16,7 +16,6 @@ package com.webank.blockchain.data.export.service;
 import com.google.common.base.Stopwatch;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.extractor.ods.EthClient;
 import com.webank.blockchain.data.export.parser.facade.ParseFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
@@ -44,8 +43,7 @@ public class BlockCrawlService {
      */
     public static BlockInfoBO parse(long blockHeight) throws IOException {
         BigInteger bigBlockHeight = new BigInteger(Long.toString(blockHeight));
-        EthClient ethClient = new EthClient(ExportConstant.threadLocal.get().getClient());
-        Block block = ethClient.getBlock(bigBlockHeight);
+        Block block = getBlock(bigBlockHeight);
         return parse(block);
     }
 
@@ -55,6 +53,17 @@ public class BlockCrawlService {
         log.info("bcosCrawlerMap block:{} succeed, bcosCrawlerMap.handleReceipt useTime: {}",
                 block.getNumber().longValue(), st1.stop().elapsed(TimeUnit.MILLISECONDS));
         return blockInfo;
+    }
+
+    public static Block getBlock(BigInteger blockHeightNumber) throws IOException {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        log.debug("get block number: {}", blockHeightNumber);
+        Block block = ExportConstant.threadLocal.get().getClient()
+                .getBlockByNumber(blockHeightNumber, true).getBlock();
+        Stopwatch st1 = stopwatch.stop();
+        log.info("get block:{} succeed, eth.getBlock useTime: {}", blockHeightNumber,
+                st1.elapsed(TimeUnit.MILLISECONDS));
+        return block;
     }
 
 }
