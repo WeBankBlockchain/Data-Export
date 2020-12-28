@@ -72,7 +72,7 @@ public class DataExportExecutor {
             ExportConstant.threadLocal.set(context);
             crawler.set(crawlRunner);
             try {
-                crawlRunner.run();
+                crawlRunner.export();
             } catch (Exception e) {
                 log.error("DataExportExecutor boot failed ", e);
             }

@@ -18,4 +18,6 @@ public class ContractInfo {
 
     private String binary;
 
+    private short version;
+
 }

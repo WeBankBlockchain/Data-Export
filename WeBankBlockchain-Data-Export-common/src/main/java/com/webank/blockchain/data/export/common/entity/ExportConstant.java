@@ -34,6 +34,8 @@ public class ExportConstant {
 
     public static final String DEPLOYED_ACCOUNT_DAO = "deployed_account_info_dao";
 
+    public static final String CONTRACT_INFO_DAO = "contract_info_dao";
+
     public static final String BLOCK_DETAIL_INFO_TABLE = "block_detail_info";
 
     public static final String BLOCK_TASK_POOL_TABLE = "block_task_pool";
@@ -48,6 +50,8 @@ public class ExportConstant {
 
     public static final String TX_RECEIPT_RAW_DATA_TABLE = "tx_receipt_raw_data";
 
+    public static final String CONTRACT_INFO_TABLE = "contract_info";
+
     public static final List<String> tables = Lists.newArrayList(
             BLOCK_DETAIL_INFO_TABLE,
             BLOCK_TASK_POOL_TABLE,
@@ -55,5 +59,6 @@ public class ExportConstant {
             BLOCK_TX_DETAIL_INFO_TABLE,
             DEPLOYED_ACCOUNT_INFO_TABLE,
             TX_RAW_DATA_TABLE,
-            TX_RECEIPT_RAW_DATA_TABLE);
+            TX_RECEIPT_RAW_DATA_TABLE,
+            CONTRACT_INFO_TABLE);
 }

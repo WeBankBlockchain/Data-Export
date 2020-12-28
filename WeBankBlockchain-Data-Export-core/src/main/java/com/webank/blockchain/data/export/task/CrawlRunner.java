@@ -33,6 +33,7 @@ import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
 import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
+import com.webank.blockchain.data.export.db.dao.ContractInfoDAO;
 import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
 import com.webank.blockchain.data.export.db.dao.ESHandleDao;
 import com.webank.blockchain.data.export.db.dao.MethodAndEventDao;
@@ -43,6 +44,7 @@ import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository
 import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
 import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
+import com.webank.blockchain.data.export.db.repository.ContractInfoRepository;
 import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
 import com.webank.blockchain.data.export.db.repository.RollbackInterface;
 import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
@@ -83,6 +85,7 @@ import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLO
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_DAO;
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
@@ -112,6 +115,7 @@ public class CrawlRunner {
     private TxRawDataRepository txRawDataRepository;
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
     private DeployedAccountInfoRepository deployedAccountInfoRepository;
+    private ContractInfoRepository contractInfoRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
     private List<RollbackInterface> rollbackOneInterfaceList = new ArrayList<>();
@@ -127,7 +131,7 @@ public class CrawlRunner {
     }
 
 
-    public void run() {
+    public void export() {
         checkConfig();
         if (Thread.currentThread().isInterrupted() || !runSwitch.get()){
             log.info("data export already stop");
@@ -247,6 +251,9 @@ public class CrawlRunner {
     }
 
     private void saveContractInfo() {
+        if (CollectionUtil.isEmpty(context.getConfig().getContractInfoList())) {
+            return;
+        }
         ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
         Map<String, ContractDetail> contractBinaryMap = mapsInfo.getContractBinaryMap();
         if (CollectionUtil.isEmpty(contractBinaryMap)) {
@@ -306,6 +313,9 @@ public class CrawlRunner {
             DeployedAccountInfoDAO deployedAccountInfoDAO = new DeployedAccountInfoDAO(deployedAccountInfoRepository);
             saveInterfaceList.add(deployedAccountInfoDAO);
         }
+        if (contractInfoRepository != null){
+            mysqlStoreService.setContractInfoDAO(new ContractInfoDAO(contractInfoRepository));
+        }
         MethodAndEventDao methodAndEventDao = new MethodAndEventDao();
         saveInterfaceList.add(methodAndEventDao);
     }
@@ -315,37 +325,40 @@ public class CrawlRunner {
         blockTaskPoolRepository = new BlockTaskPoolRepository(
                 daoTemplateMap.get(BLOCK_TASK_POOL_DAO));
         rollbackOneInterfaceList.add(blockTaskPoolRepository);
+        List<DataType> blackTables = context.getConfig().getDataTypeBlackList();
 
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_DETAIL_INFO_TABLE)) {
+        if (!blackTables.contains(DataType.BLOCK_DETAIL_INFO_TABLE)) {
             blockDetailInfoRepository = new BlockDetailInfoRepository(
                     daoTemplateMap.get(BLOCK_DETAIL_DAO));
             rollbackOneInterfaceList.add(blockDetailInfoRepository);
         }
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_RAW_DATA_TABLE)) {
+        if (!blackTables.contains(DataType.BLOCK_RAW_DATA_TABLE)) {
             blockRawDataRepository = new BlockRawDataRepository(daoTemplateMap.get(
                     BLOCK_RAW_DAO));
             rollbackOneInterfaceList.add(blockRawDataRepository);
-
         }
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE)) {
+        if (!blackTables.contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE)) {
             blockTxDetailInfoRepository = new BlockTxDetailInfoRepository(
                     daoTemplateMap.get(BLOCK_TX_DETAIL_DAO));
             rollbackOneInterfaceList.add(blockTxDetailInfoRepository);
-
         }
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.TX_RAW_DATA_TABLE)) {
+        if (!blackTables.contains(DataType.TX_RAW_DATA_TABLE)) {
             txRawDataRepository = new TxRawDataRepository(
                     daoTemplateMap.get(TX_RAW_DAO));
             rollbackOneInterfaceList.add(txRawDataRepository);
         }
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.TX_RECEIPT_RAW_DATA_TABLE)) {
+        if (!blackTables.contains(DataType.TX_RECEIPT_RAW_DATA_TABLE)) {
             txReceiptRawDataRepository = new TxReceiptRawDataRepository(
                     daoTemplateMap.get(TX_RECEIPT_RAW_DAO));
             rollbackOneInterfaceList.add(txReceiptRawDataRepository);
         }
-        if (!context.getConfig().getDataTypeBlackList().contains(DataType.DEPLOYED_ACCOUNT_INFO_TABLE)) {
+        if (!blackTables.contains(DataType.DEPLOYED_ACCOUNT_INFO_TABLE)) {
             deployedAccountInfoRepository = new DeployedAccountInfoRepository(
                     daoTemplateMap.get(DEPLOYED_ACCOUNT_DAO));
+        }
+        if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE)) {
+            contractInfoRepository = new ContractInfoRepository(
+                    daoTemplateMap.get(CONTRACT_INFO_DAO));
         }
 
     }
@@ -413,25 +426,25 @@ public class CrawlRunner {
         addMethodAndEventTables(tables);
 
         for (String table : tables) {
-            if (table.equals(ExportConstant.BLOCK_TASK_POOL_TABLE)) {
+            if (table.equals(ExportConstant.BLOCK_TASK_POOL_TABLE) || table.equals(ExportConstant.CONTRACT_INFO_TABLE)) {
                 continue;
             }
-            // 配置表规则
+            // table rule
             ShardingTableRuleConfiguration orderTableRuleConfig = new
                     ShardingTableRuleConfiguration(table, "ds${0..1}." + table + "${0..1}");
-            // 配置分库策略
+            // database rule
             orderTableRuleConfig.setDatabaseShardingStrategy(
                     new StandardShardingStrategyConfiguration("block_height", table + "_dbShardingAlgorithm"));
-            // 配置分表策略
+            // table order rule
             orderTableRuleConfig.setTableShardingStrategy(
                     new StandardShardingStrategyConfiguration("block_height", table + "_tableShardingAlgorithm"));
             shardingRuleConfig.getTables().add(orderTableRuleConfig);
 
-            // 配置分库算法
+            // database Algorithm
             Properties dbShardingAlgorithmrProps = new Properties();
             dbShardingAlgorithmrProps.setProperty("algorithm-expression",
                     dsName + "${block_height % " + mysqlDataSources.size() + "}");
-            // 配置分表算法
+            // table Algorithm
             Properties tableShardingAlgorithmrProps = new Properties();
             tableShardingAlgorithmrProps.setProperty("algorithm-expression",
                     table + "${block_height % " + shardingNumberPerDatasource + "}");
@@ -476,7 +489,8 @@ public class CrawlRunner {
                 if (blackTables.contains(entry.getKey())) {
                     continue;
                 }
-                if (entry.getKey().equals(ExportConstant.BLOCK_TASK_POOL_TABLE)) {
+                if (entry.getKey().equals(ExportConstant.BLOCK_TASK_POOL_TABLE)
+                        || entry.getKey().equals(ExportConstant.CONTRACT_INFO_TABLE)) {
                     if (!tables.contains(entry.getKey())) {
                         db.execute(entry.getValue());
                     }

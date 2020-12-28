@@ -143,6 +143,18 @@ public class TableSQL {
             "  KEY `block_timestamp` (`block_time_stamp`)\n" +
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
 
+    public static final String CONTRACT_INFO = "CREATE TABLE `contract_info` (\n" +
+            "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
+            "  `abi_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `contract_abi` longtext,\n" +
+            "  `contract_binary` longtext,\n" +
+            "  `contract_name` varchar(255) DEFAULT NULL,\n" +
+            "  `depot_updatetime` datetime(6) DEFAULT NULL,\n" +
+            "  `version` smallint(6) DEFAULT NULL,\n" +
+            "  PRIMARY KEY (`pk_id`),\n" +
+            "  UNIQUE KEY `abi_hash` (`abi_hash`)\n" +
+            ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+
     public static final String TABLE_POSTFIX =
             "  PRIMARY KEY (`pk_id`),\n" +
                     "  KEY `block_height` (`block_height`),\n" +
@@ -213,5 +225,6 @@ public class TableSQL {
         tableSqlMap.put("deployed_account_info", DEPLOYED_ACCOUNT_INFO);
         tableSqlMap.put("tx_receipt_raw_data", TX_RECEIPT_RAW_DATA);
         tableSqlMap.put("tx_raw_data", TX_RAW_DATA);
+        tableSqlMap.put("contract_info",CONTRACT_INFO);
     }
 }

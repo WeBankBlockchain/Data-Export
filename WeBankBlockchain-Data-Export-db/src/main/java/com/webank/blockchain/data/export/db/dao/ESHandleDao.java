@@ -14,6 +14,10 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
+import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
+import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
@@ -22,6 +26,7 @@ import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
+import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
@@ -34,6 +39,8 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wesleywang
@@ -97,6 +104,27 @@ public class ESHandleDao {
         if (!ESService.indexExists(client,CONTRACT_INFO)){
             ESService.createIndex(client,CONTRACT_INFO);
         }
+        if (CollectionUtil.isNotEmpty(ExportConstant.threadLocal.get().getConfig().getContractInfoList())){
+            Map<String, ContractDetail> contractBinaryMap = ContractConstants.contractMapsInfo.get().getContractBinaryMap();
+            for(Map.Entry<String,ContractDetail> entry : contractBinaryMap.entrySet()) {
+                ContractDetail contractDetail = entry.getValue();
+                for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {
+                    String index = (contractDetail.getContractInfoBO().getContractName() + methodMetaInfo.getMethodName() +
+                            METHOD).toLowerCase();
+                    if (!ESService.indexExists(client,index)) {
+                        ESService.createIndex(client, index);
+                    }
+                }
+                for (EventMetaInfo eventMetaInfo : contractDetail.getEventMetaInfos()) {
+                    String index = (contractDetail.getContractInfoBO().getContractName() + eventMetaInfo.getEventName() +
+                            EVENT).toLowerCase();
+                    if (!ESService.indexExists(client,index)) {
+                        ESService.createIndex(client, index);
+                    }
+                }
+            }
+        }
+
         return client;
     }
 
@@ -129,6 +157,18 @@ public class ESHandleDao {
                     BLOCK_TX_DETAIL,"_doc",
                     blockTxDetailInfoBO.getTxHash(),
                     blockTxDetailInfoBO);
+        }
+
+        for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
+            ESService.createDocument(client,
+                    eventBO.getTable().toLowerCase() + EVENT,
+                    "_doc", eventBO.getEntity().get("tx_hash").toString(), eventBO);
+        }
+
+        for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
+            ESService.createDocument(client,
+                    methodBO.getTable().toLowerCase() + METHOD,
+                    "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
         }
     }
 
