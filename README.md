@@ -104,6 +104,7 @@ stop(DataExportExecutor exportExecutor)
 | frequency | 任务间隔时间 | int | 5s |
 | startBlockHeight | 开始区块高度 | int | 0 |
 | startDate | 开始时间 | Date | null |
+| ContractInfoList | 合约信息，包括合约名称，abi，binary信息（基础数据无需填充）| List<ContractInfo> | null |
 | dataTypeBlackList | 导出数据表黑名单，默认全部导出，可根据DataType枚举设置 | List<DataType> | null |
 | multiLiving | 是否开启多活job | boolean |false |
 | zookeeperServiceLists | zk服务节点列表(,分隔),格式：[IP]:[port],[IP]:[port] | string | null |
@@ -165,8 +166,6 @@ ExportDataSDK.start(exportExecutor);
 //Thread.sleep(60 *1000L);
 //ExportDataSDK.stop(exportExecutor);
 ```
-
-**更多使用方式见ExportDataTest.class中测试例子**
 
 
 ## 贡献代码
