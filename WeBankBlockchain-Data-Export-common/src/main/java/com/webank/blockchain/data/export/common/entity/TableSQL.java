@@ -163,7 +163,7 @@ public class TableSQL {
                     ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
 
     public static String getTableName(String contractName,String name){
-        return StrUtil.toUnderlineCase(contractName + name);
+        return contractName + "_" + StrUtil.toUnderlineCase(name);
     }
 
 
