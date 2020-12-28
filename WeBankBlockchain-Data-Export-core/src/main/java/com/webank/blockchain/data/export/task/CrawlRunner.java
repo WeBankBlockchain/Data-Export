@@ -133,8 +133,8 @@ public class CrawlRunner {
 
     public void export() {
         checkConfig();
-        if (Thread.currentThread().isInterrupted() || !runSwitch.get()){
-            log.info("data export already stop");
+        if (!runSwitch.get()){
+            log.info("data export config check failed, task already stop");
             return;
         }
         //abi、bin parse
@@ -146,18 +146,15 @@ public class CrawlRunner {
     private void checkConfig() {
         if (CollectionUtil.isEmpty(context.getExportDataSource().getMysqlDataSources())) {
             log.error("mysqlDataSources is not set，please set it ！！！");
-            Thread.currentThread().interrupt();
             return;
         }
         if (context.getExportDataSource().isSharding()) {
             if (context.getExportDataSource().getShardingNumberPerDatasource() == 0) {
                 log.error("shardingNumberPerDatasource is zero, please set it to a number greater than 0 ");
-                Thread.currentThread().interrupt();
                 return;
             }
             if (context.getExportDataSource().getMysqlDataSources().size() < 2) {
                 log.error("isSharding is true, mysqlDataSources size must >= 2 ");
-                Thread.currentThread().interrupt();
                 return;
             }
         }
@@ -167,7 +164,6 @@ public class CrawlRunner {
         }
         if (context.getChainInfo().getCertPath() == null) {
             log.error("certPath is not set，please set it ！！！ ");
-            Thread.currentThread().interrupt();
             return;
         }
         if (CollectionUtil.isEmpty(context.getConfig().getDataTypeBlackList())) {
@@ -175,7 +171,7 @@ public class CrawlRunner {
         }
         if (context.getConfig().getCrawlBatchUnit() < 1) {
             log.error("The batch unit threshold can't be less than 1!!");
-            Thread.currentThread().interrupt();
+            return;
         }
         runSwitch.getAndSet(true);
     }
