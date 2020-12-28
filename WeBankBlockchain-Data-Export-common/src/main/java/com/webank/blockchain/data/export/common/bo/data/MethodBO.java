@@ -30,6 +30,5 @@ import java.util.Map;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-public class MethodBO {
-    private Map<String,Object> entity;
+public class MethodBO extends CommonBO{
 }

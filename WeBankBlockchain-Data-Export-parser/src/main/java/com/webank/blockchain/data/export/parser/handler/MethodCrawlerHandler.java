@@ -14,6 +14,8 @@
 package com.webank.blockchain.data.export.parser.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.google.gson.internal.$Gson$Preconditions;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
@@ -25,6 +27,7 @@ import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import com.webank.blockchain.data.export.common.tools.MethodUtils;
@@ -85,7 +88,7 @@ public class MethodCrawlerHandler {
             }
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
-                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getConfig().getContractInfoMap();
+                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getContractInfoMap();
                 String abi = contractAbiMap.get(contractName.get()).getAbi();
                 if (abi == null){
                     continue;
@@ -126,20 +129,20 @@ public class MethodCrawlerHandler {
             }
             methodBO = new MethodBO();
             Map<String, Object> entity = Maps.newHashMap();
-            entity.put("blockTimeStamp", DateUtils.hexStrToDate(block.getTimestamp()));
-            entity.put("txHash", receipt.getTransactionHash());
-            entity.put("eventContractAddress", receipt.getContractAddress());
-            entity.put("blockHeight", receipt.getBlockNumber());
-            entity.put("methodStatus", receipt.getStatus());
-            entity.put("methodName",methodMetaInfo.getMethodName());
+            entity.put("block_time_stamp", DateUtils.hexStrToDate(block.getTimestamp()));
+            entity.put("tx_hash", receipt.getTransactionHash());
+            entity.put("contract_address", receipt.getContractAddress());
+            entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
+            entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
+            methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()));
             TransactionResponse response;
             if (!CollectionUtil.isEmpty(methodMetaInfo.getOutputList())) {
                 response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getMethodName(), receipt);
                 List<Object> returns = response.getValuesList();
                 int i = 0;
                 for (FieldVO fieldVO : methodMetaInfo.getOutputList()) {
-                    entity.put(fieldVO.getJavaName(), returns.get(i++));
+                    entity.put(StrUtil.toUnderlineCase(fieldVO.getJavaName()), returns.get(i++));
                 }
             }
             List<FieldVO> fieldVOS = methodMetaInfo.getFieldsList();
@@ -147,6 +150,10 @@ public class MethodCrawlerHandler {
                 return methodBO;
             }
             for (int i = 0; i < fieldVOS.size(); i++) {
+                if (params.get(i) instanceof java.util.List){
+                    entity.put(fieldVOS.get(i).getJavaName(), JSONUtil.toJsonStr(params.get(i)));
+                    continue;
+                }
                 entity.put(fieldVOS.get(i).getJavaName(), params.get(i));
             }
         } catch (Exception e) {

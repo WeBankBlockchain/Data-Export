@@ -14,6 +14,8 @@
 package com.webank.blockchain.data.export.parser.handler;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
@@ -22,6 +24,7 @@ import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.parser.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +37,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.utils.Numeric;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,7 +79,7 @@ public class EventCrawlerHandler {
                 if (!contractName.isPresent()) {
                     continue;
                 }
-                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getConfig().getContractInfoMap();
+                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getContractInfoMap();
                 String abi = contractAbiMap.get(contractName.get()).getAbi();
                 if (abi == null) {
                     continue;
@@ -113,14 +117,18 @@ public class EventCrawlerHandler {
                 EventBO eventBO = new EventBO();
                 Map<String, Object> entity = Maps.newHashMap();
                 for (FieldVO fieldVO : eventMetaInfo.getList()) {
-                    entity.put(fieldVO.getJavaName(), params.get(i++));
+                    if (params.get(i) instanceof java.util.List){
+                        entity.put(fieldVO.getJavaName(), JSONUtil.toJsonStr(params.get(i)));
+                        continue;
+                    }
+                    entity.put(StrUtil.toUnderlineCase(fieldVO.getJavaName()), params.get(i++));
                 }
-                entity.put("blockTimeStamp", DateUtils.hexStrToDate(block.getTimestamp()));
-                entity.put("txHash",tr.getTransactionHash());
-                entity.put("eventContractAddress", tr.getContractAddress());
-                entity.put("blockHeight",tr.getBlockNumber());
-                entity.put("eventName",eventMetaInfo.getEventName());
+                entity.put("block_time_stamp", DateUtils.hexStrToDate(block.getTimestamp()));
+                entity.put("tx_hash",tr.getTransactionHash());
+                entity.put("contract_address", tr.getContractAddress());
+                entity.put("block_height", Numeric.toBigInt(tr.getBlockNumber()).longValue());
                 eventBO.setEntity(entity);
+                eventBO.setTable(TableSQL.getTableName(contractName,eventMetaInfo.getEventName()));
                 boList.add(eventBO);
             }
         }

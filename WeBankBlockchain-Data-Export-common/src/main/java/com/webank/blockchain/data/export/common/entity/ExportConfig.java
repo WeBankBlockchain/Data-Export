@@ -4,7 +4,6 @@ import com.webank.blockchain.data.export.common.enums.DataType;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wesleywang
@@ -22,7 +21,7 @@ public class ExportConfig {
 
     private List<DataType> dataTypeBlackList = DataType.getDefault();
 
-    private Map<String, ContractInfo> ContractInfoMap;
+    private List<ContractInfo> ContractInfoList;
 
     private boolean multiLiving;
     private String zookeeperServiceLists;

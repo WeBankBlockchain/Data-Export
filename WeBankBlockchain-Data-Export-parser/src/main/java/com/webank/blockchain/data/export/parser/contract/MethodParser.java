@@ -89,7 +89,7 @@ public class MethodParser {
         for (int i = 0; i < outputs.size(); i++) {
             String javaName = "output" + (i + 1);
             String solType = outputs.get(i).getType();
-            String sqlName = javaName;
+            String sqlName = StrUtil.toUnderlineCase(javaName);
             FieldVO vo = new FieldVO();
             vo.setJavaName(javaName).setJavaCapName(StringUtils.capitalize(javaName)).setSqlName(sqlName)
                     .setSqlType(SolSqlTypeMappingUtils.fromSolBasicTypeToSqlType(solType)).setSolidityType(solType)

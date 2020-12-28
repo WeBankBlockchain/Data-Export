@@ -36,7 +36,6 @@ public class EventMetaInfo {
     /** @Fields eventName : event name */
     private String eventName;
 
-    
     /** @Fields contractName : contract name */
     private String contractName;
     

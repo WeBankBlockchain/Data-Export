@@ -31,6 +31,5 @@ import java.util.Map;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class EventBO {
-    private Map<String, Object> entity;
+public class EventBO extends CommonBO{
 }

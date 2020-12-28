@@ -31,8 +31,6 @@ public class DataExportExecutor {
 
     private CrawlRunner crawlRunner;
 
-    public ThreadLocal<DataExportContext> threadLocal = ExportConstant.threadLocal;
-
     public DataExportExecutor(DataExportContext context) {
         this.context = context;
     }
@@ -63,7 +61,7 @@ public class DataExportExecutor {
 
     public void stop() {
         future.cancel(true);
-        crawlRunner.getRunSwitch().getAndSet(false);
+        crawlRunner.getRunSwitch().compareAndSet(true,false);
         log.info("DataExportExecutor stop success ！！！");
     }
 
@@ -71,10 +69,10 @@ public class DataExportExecutor {
 
         @Override
         public void run() {
-            threadLocal.set(context);
+            ExportConstant.threadLocal.set(context);
             crawler.set(crawlRunner);
             try {
-                crawlRunner.run(context);
+                crawlRunner.run();
             } catch (Exception e) {
                 log.error("DataExportExecutor boot failed ", e);
             }

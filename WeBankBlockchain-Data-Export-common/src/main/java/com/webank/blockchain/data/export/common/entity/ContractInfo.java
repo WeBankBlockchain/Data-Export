@@ -12,6 +12,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class ContractInfo {
 
+    private String contractName;
+
     private String abi;
 
     private String binary;

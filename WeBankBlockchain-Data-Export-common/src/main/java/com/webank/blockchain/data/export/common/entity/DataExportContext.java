@@ -6,6 +6,7 @@ import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
 
 import javax.sql.DataSource;
+import java.util.Map;
 
 /**
  * @author wesleywang
@@ -16,6 +17,8 @@ import javax.sql.DataSource;
 public class DataExportContext {
 
     private DataSource dataSource;
+
+    private ExportDataSource exportDataSource;
 
     private TransportClient esClient;
 
@@ -30,5 +33,7 @@ public class DataExportContext {
     private boolean autoCreateTable;
 
     private TransactionDecoderInterface decoder;
+
+    private Map<String, ContractInfo> contractInfoMap;
 
 }

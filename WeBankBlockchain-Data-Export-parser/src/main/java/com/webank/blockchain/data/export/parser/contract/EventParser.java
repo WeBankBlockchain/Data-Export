@@ -86,7 +86,7 @@ public class EventParser{
                 }
                 vo.setSolidityType(namedType.getType()).setJavaType(javaType).setJavaName(fieldName)
                         .setJavaCapName(StringUtils.capitalize(fieldName));
-                setSqlAttribute(eventMetaInfo, vo);
+                setSqlAttribute(vo);
                 log.debug(JacksonUtils.toJson(vo));
                 fieldList.add(vo);
             }
@@ -96,7 +96,7 @@ public class EventParser{
         return list;
     }
 
-    public static FieldVO setSqlAttribute(EventMetaInfo eventMetaInfo, FieldVO vo) {
+    public static FieldVO setSqlAttribute(FieldVO vo) {
         String javaType = vo.getJavaType();
         // get type from customMap
         if (customMap.containsKey(javaType)) {
@@ -107,7 +107,6 @@ public class EventParser{
             vo.setSqlType(e.getSqlType()).setTypeMethod(e.getTypeMethod());
         }
         // get the personal sql length of event field
-        DataExportContext context = ExportConstant.threadLocal.get();
         String sqlName = StrUtil.toUnderlineCase(vo.getJavaName());
         vo.setSqlName(sqlName);
         return vo;
