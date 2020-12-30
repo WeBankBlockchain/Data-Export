@@ -59,7 +59,7 @@ start(DataExportExecutor exportExecutor)
 //数据导出关闭
 stop(DataExportExecutor exportExecutor)
 ```
-**参数ExportDataSource为数据源配置，参数如下：**
+<br />**参数ExportDataSource为数据源配置，参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -69,16 +69,18 @@ stop(DataExportExecutor exportExecutor)
 | mysqlDataSources | mysql数据源配置，支持多数据源 | List<MysqlDataSource> | null |
 | esDataSource | es数据源配置 | ESDataSource | null |
 
-**数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：**
+<br />**数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：**
 
-**MysqlDataSource**
+<br />**MysqlDataSource（必须），参数如下：**
+
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
 | jdbcUrl | jdbc连接配置，格式：jdbc:mysql://[ip]:[port]/[database] | string | null |
 | user | 用户名 | string | null |
 | pass | 密码 | string | null |
 
-**ESDataSource**
+<br />**ESDataSource（非必须），参数如下：**
+
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
 | enable | es存储开关 | boolean | false |
@@ -87,7 +89,7 @@ stop(DataExportExecutor exportExecutor)
 | port | 端口号 | int | null |
 
 
-**参数ChainInfo为链参数配置，参数如下：**
+<br />**参数ChainInfo为链参数配置（必须），参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -96,7 +98,7 @@ stop(DataExportExecutor exportExecutor)
 | certPath | 链节点连接所需证书路径 | string | null |
 
 
-**参数ExportConfig为数据导出任务配置，参数如下：**
+<br />**参数ExportConfig为数据导出任务配置（非必须），参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -114,7 +116,7 @@ stop(DataExportExecutor exportExecutor)
 | dataFlowJobItemParameters | 任务分片执行job参数 | string | 如 "0=A,1=B,2=C,3=D,4=E,5=F,6=G,7=H" |
 | dataFlowJobShardingTotalCount | 任务分片数目 | int | 8 |
 
-**单库使用方式例子如下（默认导出配置）：**
+<br />**单库基础数据导出使用例子如下（默认导出配置）：**
 ```
 MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
         .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
@@ -137,7 +139,7 @@ ExportDataSDK.start(exportExecutor);
 ```
 
 
-**分库分表使用方式例子如下（默认导出配置）：**
+<br />**分库分表基础数据导出使用例子如下（默认导出配置）：**
 ```
 MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
         .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
