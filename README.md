@@ -69,7 +69,7 @@ stop(DataExportExecutor exportExecutor)
 | mysqlDataSources | mysql数据源配置，支持多数据源 | List<MysqlDataSource> | null |
 | esDataSource | es数据源配置 | ESDataSource | null |
 
-<br />**数据源参数支持了mysql和es，包括MysqlDataSource ESDataSource，参数如下：**
+<br />**数据源参数支持了mysql和es，包括MysqlDataSource, ESDataSource，参数如下：**
 
 <br />**MysqlDataSource（必须），参数如下：**
 
@@ -89,7 +89,7 @@ stop(DataExportExecutor exportExecutor)
 | port | 端口号 | int | null |
 
 
-<br />**参数ChainInfo为链参数配置（必须），参数如下：**
+<br />**ChainInfo为链参数配置（必须），参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|
@@ -98,7 +98,7 @@ stop(DataExportExecutor exportExecutor)
 | certPath | 链节点连接所需证书路径 | string | null |
 
 
-<br />**参数ExportConfig为数据导出任务配置（非必须），参数如下：**
+<br />**ExportConfig为数据导出任务配置（非必须），参数如下：**
 
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | ---|

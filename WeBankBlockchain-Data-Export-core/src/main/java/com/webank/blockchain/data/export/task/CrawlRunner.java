@@ -24,6 +24,7 @@ import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
@@ -148,6 +149,17 @@ public class CrawlRunner {
             log.error("mysqlDataSources is not set，please set it ！！！");
             return;
         }
+        if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
+            if (context.getEsConfig().getClusterName() == null){
+                log.error("clusterName is not set，please set it ！！！");
+            }
+            if (context.getEsConfig().getIp() == null){
+                log.error("es ip is not set，please set it ！！！");
+            }
+            if (context.getEsConfig().getPort() <= 0){
+                log.error("es port is not set，please set it ！！！");
+            }
+        }
         if (context.getExportDataSource().isSharding()) {
             if (context.getExportDataSource().getShardingNumberPerDatasource() == 0) {
                 log.error("shardingNumberPerDatasource is zero, please set it to a number greater than 0 ");
@@ -172,6 +184,14 @@ public class CrawlRunner {
         if (context.getConfig().getCrawlBatchUnit() < 1) {
             log.error("The batch unit threshold can't be less than 1!!");
             return;
+        }
+        if (CollectionUtil.isNotEmpty(context.getConfig().getContractInfoList())) {
+            for(ContractInfo contractInfo : context.getConfig().getContractInfoList()){
+                if (contractInfo.getAbi() == null || contractInfo.getBinary() == null || contractInfo.getContractName() == null) {
+                    log.error("contract information is not complete, please set it ！！！ ");
+                    return;
+                }
+            }
         }
         runSwitch.getAndSet(true);
     }
