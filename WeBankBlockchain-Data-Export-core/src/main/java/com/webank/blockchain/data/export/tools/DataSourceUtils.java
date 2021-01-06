@@ -247,6 +247,9 @@ public class DataSourceUtils {
     private static void createMethodAndEventShardingTable(Db db, List<String> blackTables,
                                                           List<String> tables, int shardingNumberPerDatasource) {
         ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        if (mapsInfo == null) {
+            return;
+        }
         for (Map.Entry<String, ContractDetail> contractDetailMap : mapsInfo.getContractBinaryMap().entrySet()) {
             ContractDetail contractDetail = contractDetailMap.getValue();
             if (!blackTables.contains(DataType.METHOD_TABLE.getTableName()) && CollectionUtil.isNotEmpty(contractDetail.getMethodMetaInfos())) {
