@@ -27,8 +27,10 @@ import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import com.webank.blockchain.data.export.db.service.ESService;
 import lombok.AllArgsConstructor;
@@ -71,7 +73,8 @@ public class ESHandleDao {
     @SneakyThrows
     public static TransportClient create() {
         TransportClient client;
-        ESDataSource esConfig = ExportConstant.threadLocal.get().getEsConfig();
+        DataExportContext context = ExportConstant.threadLocal.get();
+        ESDataSource esConfig = context.getEsConfig();
         System.setProperty("es.set.netty.runtime.available.processors","false");
         Settings settings = Settings.builder()
                 .put("cluster.name", esConfig.getClusterName())
@@ -83,43 +86,50 @@ public class ESHandleDao {
         );
         client.addTransportAddress(node);
 
-        if (!ESService.indexExists(client,BLOCK_DETAIL)){
+        List<DataType> blackTables = context.getConfig().getDataTypeBlackList();
+
+
+        if (!blackTables.contains(DataType.BLOCK_DETAIL_INFO_TABLE) && !ESService.indexExists(client,BLOCK_DETAIL)){
             ESService.createIndex(client,BLOCK_DETAIL);
         }
-        if (!ESService.indexExists(client,BLOCK_RAW_DATA)){
+        if (!blackTables.contains(DataType.BLOCK_RAW_DATA_TABLE) && !ESService.indexExists(client,BLOCK_RAW_DATA)){
             ESService.createIndex(client,BLOCK_RAW_DATA);
         }
-        if (!ESService.indexExists(client,TX_RAW_DATA)){
+        if (!blackTables.contains(DataType.TX_RAW_DATA_TABLE) && !ESService.indexExists(client,TX_RAW_DATA)){
             ESService.createIndex(client,TX_RAW_DATA);
         }
-        if (!ESService.indexExists(client,TX_RECEIPT_RAW_DATA)){
+        if (!blackTables.contains(DataType.TX_RECEIPT_RAW_DATA_TABLE) && !ESService.indexExists(client,TX_RECEIPT_RAW_DATA)){
             ESService.createIndex(client,TX_RECEIPT_RAW_DATA);
         }
-        if (!ESService.indexExists(client,BLOCK_TX_DETAIL)){
+        if (!blackTables.contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE) && !ESService.indexExists(client,BLOCK_TX_DETAIL)){
             ESService.createIndex(client,BLOCK_TX_DETAIL);
         }
-        if (!ESService.indexExists(client,DEPLOY_ACCOUNT)){
+        if (!blackTables.contains(DataType.DEPLOYED_ACCOUNT_INFO_TABLE) && !ESService.indexExists(client,DEPLOY_ACCOUNT)){
             ESService.createIndex(client,DEPLOY_ACCOUNT);
         }
-        if (!ESService.indexExists(client,CONTRACT_INFO)){
+        if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE) && !ESService.indexExists(client,CONTRACT_INFO)){
             ESService.createIndex(client,CONTRACT_INFO);
         }
         if (CollectionUtil.isNotEmpty(ExportConstant.threadLocal.get().getConfig().getContractInfoList())){
             Map<String, ContractDetail> contractBinaryMap = ContractConstants.contractMapsInfo.get().getContractBinaryMap();
             for(Map.Entry<String,ContractDetail> entry : contractBinaryMap.entrySet()) {
                 ContractDetail contractDetail = entry.getValue();
-                for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {
-                    String index = (contractDetail.getContractInfoBO().getContractName() + methodMetaInfo.getMethodName() +
-                            METHOD).toLowerCase();
-                    if (!ESService.indexExists(client,index)) {
-                        ESService.createIndex(client, index);
+                if (!blackTables.contains(DataType.METHOD_TABLE)) {
+                    for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {
+                        String index = (contractDetail.getContractInfoBO().getContractName() + methodMetaInfo.getMethodName() +
+                                METHOD).toLowerCase();
+                        if (!ESService.indexExists(client, index)) {
+                            ESService.createIndex(client, index);
+                        }
                     }
                 }
-                for (EventMetaInfo eventMetaInfo : contractDetail.getEventMetaInfos()) {
-                    String index = (contractDetail.getContractInfoBO().getContractName() + eventMetaInfo.getEventName() +
-                            EVENT).toLowerCase();
-                    if (!ESService.indexExists(client,index)) {
-                        ESService.createIndex(client, index);
+                if (!blackTables.contains(DataType.EVENT_TABLE)) {
+                    for (EventMetaInfo eventMetaInfo : contractDetail.getEventMetaInfos()) {
+                        String index = (contractDetail.getContractInfoBO().getContractName() + eventMetaInfo.getEventName() +
+                                EVENT).toLowerCase();
+                        if (!ESService.indexExists(client, index)) {
+                            ESService.createIndex(client, index);
+                        }
                     }
                 }
             }
@@ -131,51 +141,64 @@ public class ESHandleDao {
     public static void saveBlockInfo(BlockInfoBO blockInfoBO) {
         TransportClient client = ExportConstant.threadLocal.get().getEsClient();
 
-        ESService.createDocument(client,
-                BLOCK_DETAIL, "_doc", String.valueOf(blockInfoBO.getBlockDetailInfo().getBlockHeight()),
-                blockInfoBO.getBlockDetailInfo());
-
-        ESService.createDocument(client,
-                BLOCK_RAW_DATA,"_doc", String.valueOf(blockInfoBO.getBlockRawDataBO().getBlockHeight()),
-                blockInfoBO.getBlockRawDataBO());
-
-        for (TxRawDataBO txRawDataBO : blockInfoBO.getTxRawDataBOList()) {
+        if (ESService.indexExists(client,BLOCK_DETAIL)) {
             ESService.createDocument(client,
-                    TX_RAW_DATA,"_doc",
-                    txRawDataBO.getTxHash(), txRawDataBO);
+                    BLOCK_DETAIL, "_doc", String.valueOf(blockInfoBO.getBlockDetailInfo().getBlockHeight()),
+                    blockInfoBO.getBlockDetailInfo());
+        }
+        if (ESService.indexExists(client,BLOCK_RAW_DATA)) {
+            ESService.createDocument(client,
+                    BLOCK_RAW_DATA, "_doc", String.valueOf(blockInfoBO.getBlockRawDataBO().getBlockHeight()),
+                    blockInfoBO.getBlockRawDataBO());
+        }
+        if (ESService.indexExists(client,TX_RAW_DATA)) {
+            for (TxRawDataBO txRawDataBO : blockInfoBO.getTxRawDataBOList()) {
+                ESService.createDocument(client,
+                        TX_RAW_DATA, "_doc",
+                        txRawDataBO.getTxHash(), txRawDataBO);
+            }
         }
 
-        for (TxReceiptRawDataBO txReceiptRawDataBO : blockInfoBO.getTxReceiptRawDataBOList()) {
-            ESService.createDocument(client,
-                    TX_RECEIPT_RAW_DATA,"_doc",
-                    txReceiptRawDataBO.getTxHash(),
-                    txReceiptRawDataBO);
+        if (ESService.indexExists(client,TX_RECEIPT_RAW_DATA)) {
+            for (TxReceiptRawDataBO txReceiptRawDataBO : blockInfoBO.getTxReceiptRawDataBOList()) {
+                ESService.createDocument(client,
+                        TX_RECEIPT_RAW_DATA, "_doc",
+                        txReceiptRawDataBO.getTxHash(),
+                        txReceiptRawDataBO);
+            }
         }
 
-        for (BlockTxDetailInfoBO blockTxDetailInfoBO : blockInfoBO.getBlockTxDetailInfoList()) {
-            ESService.createDocument(client,
-                    BLOCK_TX_DETAIL,"_doc",
-                    blockTxDetailInfoBO.getTxHash(),
-                    blockTxDetailInfoBO);
+        if (ESService.indexExists(client,BLOCK_TX_DETAIL)) {
+            for (BlockTxDetailInfoBO blockTxDetailInfoBO : blockInfoBO.getBlockTxDetailInfoList()) {
+                ESService.createDocument(client,
+                        BLOCK_TX_DETAIL, "_doc",
+                        blockTxDetailInfoBO.getTxHash(),
+                        blockTxDetailInfoBO);
+            }
         }
 
-        for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
-            ESService.createDocument(client,
-                    eventBO.getTable().toLowerCase() + EVENT,
-                    "_doc", eventBO.getEntity().get("tx_hash").toString(), eventBO);
+        if (CollectionUtil.isNotEmpty(blockInfoBO.getEventInfoList())) {
+            for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
+                ESService.createDocument(client,
+                        eventBO.getTable().toLowerCase() + EVENT,
+                        "_doc", eventBO.getEntity().get("tx_hash").toString(), eventBO);
+            }
         }
-
-        for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
-            ESService.createDocument(client,
-                    methodBO.getTable().toLowerCase() + METHOD,
-                    "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
+        if (CollectionUtil.isNotEmpty(blockInfoBO.getMethodInfoList())) {
+            for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
+                ESService.createDocument(client,
+                        methodBO.getTable().toLowerCase() + METHOD,
+                        "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
+            }
         }
     }
 
     public static void saveContractInfo(ContractInfoBO contractInfoBO) {
         TransportClient client = ExportConstant.threadLocal.get().getEsClient();
-        ESService.createDocument(client,
-                CONTRACT_INFO, "_doc",contractInfoBO);
+        if (ESService.indexExists(client,CONTRACT_INFO)) {
+            ESService.createDocument(client,
+                    CONTRACT_INFO, "_doc", contractInfoBO);
+        }
     }
 
 }
