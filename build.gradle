@@ -64,7 +64,6 @@ jar {
     destinationDir file("dist/apps")
     archiveName project.name + "-" + 'SDK-1.0.0-SNAPOSHOT' + ".jar"
 
-    exclude "**/*.xml"
     exclude "**/*.properties"
 
     manifest {
