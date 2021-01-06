@@ -40,7 +40,7 @@ import java.util.List;
 public class BlockPrepareService {
 
     public static long getTaskPoolHeight() {
-        BlockTaskPool item = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+        BlockTaskPool item = DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                 .findTopByOrderByBlockHeightDesc();
         long height = 0;
         if (item == null){
@@ -75,7 +75,7 @@ public class BlockPrepareService {
             }
             list.add(pool);
         }
-        DataExportExecutor.crawler.get().getBlockTaskPoolRepository().saveAll(list);
+        DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository().saveAll(list);
         log.info("Sync blocks from {} to {} are prepared.", begin, end);
     }
 

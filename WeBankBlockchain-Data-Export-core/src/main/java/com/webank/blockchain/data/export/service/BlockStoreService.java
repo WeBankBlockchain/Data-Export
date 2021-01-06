@@ -31,7 +31,7 @@ import java.util.List;
 public class BlockStoreService {
 
     public static void store(BlockInfoBO blockInfo) {
-        List<DataStoreService> dataStoreServiceList = DataExportExecutor.crawler.get().getDataStoreServiceList();
+        List<DataStoreService> dataStoreServiceList = DataExportExecutor.dataPersistenceManager.get().getDataStoreServiceList();
         if (CollectionUtil.isEmpty(dataStoreServiceList)) {
             return;
         }

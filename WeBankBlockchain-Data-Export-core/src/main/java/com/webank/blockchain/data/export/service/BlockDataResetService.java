@@ -40,7 +40,7 @@ public class BlockDataResetService {
 
     public static CommonResponse resetBlockDataByBlockId(long blockHeight) throws IOException {
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         BlockTaskPool blockTaskPool = blockTaskPoolRepository.findByBlockHeight(blockHeight);
         if (blockTaskPool == null) {
             return CommonResponse.NOBLOCK;

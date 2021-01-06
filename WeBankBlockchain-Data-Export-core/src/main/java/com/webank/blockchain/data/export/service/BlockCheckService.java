@@ -50,7 +50,7 @@ public class BlockCheckService {
     public static void processErrors() {
         log.info("Begin to check error records");
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         List<BlockTaskPool> unnormalRecords = blockTaskPoolRepository.findUnNormalRecords();
         if (CollectionUtil.isEmpty(unnormalRecords)) {
             return;
@@ -68,7 +68,7 @@ public class BlockCheckService {
     public static void checkForks(long currentBlockHeight) throws IOException {
         log.info("current block height is {}, and begin to check forks", currentBlockHeight);
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         List<BlockTaskPool> uncertainBlocks =
                 blockTaskPoolRepository.findByCertainty((short) BlockCertaintyEnum.UNCERTAIN.getCertainty());
         for (BlockTaskPool pool : uncertainBlocks) {
@@ -86,7 +86,7 @@ public class BlockCheckService {
                 Block block = BlockCrawlService.getBlock(BigInteger.valueOf(pool.getBlockHeight()));
                 String newHash = block.getHash();
                 if (!newHash.equals(
-                        DataExportExecutor.crawler.get().getBlockDetailInfoRepository()
+                        DataExportExecutor.dataPersistenceManager.get().getBlockDetailInfoRepository()
                                 .findByBlockHeight(pool.getBlockHeight()).getBlockHash())) {
                     log.info("Block {} is forked!!! ready to resync", pool.getBlockHeight());
                     RollBackService.rollback(pool.getBlockHeight(), pool.getBlockHeight() + 1);
@@ -106,7 +106,7 @@ public class BlockCheckService {
 
     public static void checkTimeOut() {
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         Date offsetDate = DateUtil.offsetSecond(DateUtil.date(), 0 - BlockConstants.DEPOT_TIME_OUT);
         log.info("Begin to check timeout transactions which is ealier than {}", offsetDate);
         List<BlockTaskPool> list = blockTaskPoolRepository
@@ -126,7 +126,7 @@ public class BlockCheckService {
     public static void checkTaskCount(long startBlockNumber, long currentMaxTaskPoolNumber) {
         log.info("Check task count from {} to {}", startBlockNumber, currentMaxTaskPoolNumber);
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         ExportConfig config = ExportConstant.threadLocal.get().getConfig();
         if (isComplete(startBlockNumber, currentMaxTaskPoolNumber)) {
             return;
@@ -148,7 +148,7 @@ public class BlockCheckService {
 
     public static Optional<List<BlockTaskPool>> findMissingPoolRecords(long startIndex, long endIndex) {
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository();
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
         if (isComplete(startIndex, endIndex)) {
             return Optional.empty();
         }
@@ -171,15 +171,11 @@ public class BlockCheckService {
 
     public static boolean isComplete(long startBlockNumber, long currentMaxTaskPoolNumber) {
         long deserveCount = currentMaxTaskPoolNumber - startBlockNumber + 1;
-        long actualCount = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+        long actualCount = DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                 .countByBlockHeightRange(startBlockNumber, currentMaxTaskPoolNumber);
         log.info("Check task count from block {} to {}, deserve count is {}, and actual count is {}", startBlockNumber,
                 currentMaxTaskPoolNumber, deserveCount, actualCount);
-        if (deserveCount == actualCount) {
-            return true;
-        } else {
-            return false;
-        }
+        return deserveCount == actualCount;
     }
 
 }
