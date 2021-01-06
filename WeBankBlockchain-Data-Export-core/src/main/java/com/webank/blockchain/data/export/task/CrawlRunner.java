@@ -61,7 +61,6 @@ public class CrawlRunner {
     private CrawlRunner(DataExportContext context) {
         this.context = context;
         dataPersistenceManager = DataPersistenceManager.create(context);
-        DataExportExecutor.dataPersistenceManager.set(dataPersistenceManager);
     }
 
     public void export() {
@@ -70,6 +69,7 @@ public class CrawlRunner {
             log.info("data export config check failed, task already stop");
             return;
         }
+        DataExportExecutor.dataPersistenceManager.set(dataPersistenceManager);
         //abi、bin parse
         ContractParser.initContractMaps(threadLocal.get().getConfig().getContractInfoList());
         dataPersistenceManager.buildDataStore();

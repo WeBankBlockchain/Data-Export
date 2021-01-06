@@ -67,6 +67,9 @@ public class ContractConstructorService {
      */
     public static Map.Entry<String, ContractDetail> getConstructorNameByCode(String input) {
         ContractMapsInfo contractMapsInfo = ContractConstants.contractMapsInfo.get();
+        if (contractMapsInfo == null) {
+            return null;
+        }
         Map<String, ContractDetail> binaryMap = contractMapsInfo.getContractBinaryMap();
         for (Map.Entry<String, ContractDetail> entry : binaryMap.entrySet()) {
             String key = entry.getKey();
