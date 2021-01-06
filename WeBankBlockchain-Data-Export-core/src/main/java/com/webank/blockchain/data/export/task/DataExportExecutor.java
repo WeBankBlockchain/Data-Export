@@ -35,7 +35,7 @@ public class DataExportExecutor {
         this.context = context;
     }
 
-    public static final ThreadLocal<CrawlRunner> crawler = new ThreadLocal<>();
+    public static final ThreadLocal<DataPersistenceManager> dataPersistenceManager = new ThreadLocal<>();
 
     private static final ThreadPoolExecutor pool = new ThreadPoolExecutor(
             1, 50, 100, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<>(2048));
@@ -70,7 +70,6 @@ public class DataExportExecutor {
         @Override
         public void run() {
             ExportConstant.threadLocal.set(context);
-            crawler.set(crawlRunner);
             try {
                 crawlRunner.export();
             } catch (Exception e) {

@@ -38,7 +38,7 @@ import java.util.List;
 public class BlockDepotService {
 
     public static List<Block> fetchData(int count) {
-        List<BlockTaskPool> tasks = DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+        List<BlockTaskPool> tasks = DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                 .findBySyncStatusOrderByBlockHeightLimit((short) TxInfoStatusEnum.INIT.getStatus(), count);
         return getTasks(tasks);
     }
@@ -56,12 +56,12 @@ public class BlockDepotService {
                 pools.add(task);
             } catch (IOException e) {
                 log.error("Block {},  exception occur in job processing: {}", task.getBlockHeight(), e.getMessage());
-                DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                         .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(),
                         new Date(), task.getBlockHeight());
             }
         }
-        DataExportExecutor.crawler.get().getBlockTaskPoolRepository().saveAll(pools);
+        DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository().saveAll(pools);
         log.info("Successful fetch {} Blocks.", result.size());
         return result;
     }
@@ -76,13 +76,13 @@ public class BlockDepotService {
         try {
             BlockInfoBO blockInfo = BlockCrawlService.parse(b);
             BlockStoreService.store(blockInfo);
-            DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+            DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                     .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
                     b.getNumber().longValue());
             log.info("Block {} of {} sync block succeed.", b.getNumber().longValue(), total);
         } catch (IOException e) {
             log.error("block {}, exception occur in job processing: {}", b.getNumber().longValue(), e.getMessage());
-            DataExportExecutor.crawler.get().getBlockTaskPoolRepository()
+            DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
                     .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(), new Date(),
                     b.getNumber().longValue());
         }

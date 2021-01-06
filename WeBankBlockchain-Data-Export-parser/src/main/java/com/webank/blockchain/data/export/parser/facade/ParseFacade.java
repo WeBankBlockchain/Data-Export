@@ -58,15 +58,25 @@ public class ParseFacade {
         log.debug("Block {} , method crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         st.start();
-        blockInfo
-                .setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS())
-                .setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block))
-                .setBlockRawDataBO(BlockCrawlerHandler.handleBlockRawData(block))
-                .setBlockTxDetailInfoList(blockMethodInfo.getBlockTxDetailInfoList())
-                .setTxRawDataBOList(blockMethodInfo.getTxRawDataBOList())
-                .setTxReceiptRawDataBOList(blockMethodInfo.getTxReceiptRawDataBOList());
-
         List<DataType> blackList = ExportConstant.threadLocal.get().getConfig().getDataTypeBlackList();
+        if (!blackList.contains(DataType.BLOCK_DETAIL_INFO_TABLE)){
+            blockInfo.setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block));
+        }
+        if (!blackList.contains(DataType.DEPLOYED_ACCOUNT_INFO_TABLE)){
+            blockInfo.setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS());
+        }
+        if (!blackList.contains(DataType.BLOCK_RAW_DATA_TABLE)){
+            blockInfo.setBlockRawDataBO(BlockCrawlerHandler.handleBlockRawData(block));
+        }
+        if (!blackList.contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE)){
+            blockInfo.setBlockTxDetailInfoList(blockMethodInfo.getBlockTxDetailInfoList());
+        }
+        if (!blackList.contains(DataType.TX_RAW_DATA_TABLE)){
+            blockInfo.setTxRawDataBOList(blockMethodInfo.getTxRawDataBOList());
+        }
+        if (!blackList.contains(DataType.TX_RECEIPT_RAW_DATA_TABLE)){
+            blockInfo.setTxReceiptRawDataBOList(blockMethodInfo.getTxReceiptRawDataBOList());
+        }
         if (!blackList.contains(DataType.EVENT_TABLE)){
             blockInfo.setEventInfoList(EventCrawlerHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()));
         }
