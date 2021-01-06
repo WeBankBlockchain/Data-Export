@@ -13,11 +13,14 @@
  */
 package com.webank.blockchain.data.export.parser.handler;
 
+import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.data.BlockContractInfoBO;
+import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
+import com.webank.blockchain.data.export.parser.service.ContractConstructorService;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
@@ -74,12 +77,23 @@ public class ContractCrawlerHandler {
             if (transaction.getTo() == null || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
                 String contractAddress = receipt.getContractAddress();
                 String input = ExportConstant.threadLocal.get().getClient().getCode(contractAddress).getCode();
+                Map.Entry<String, ContractDetail> entry = ContractConstructorService.getConstructorNameByCode(input);
                 log.debug("blockNumber: {}, input: {}", receipt.getBlockNumber(), input);
-
+                if (entry == null){
+                    return Optional.empty();
+                }
+                ContractDetail contractDetail = entry.getValue();
+                ContractInfoBO contractInfoBO = contractDetail.getContractInfoBO();
+                if (contractInfoBO == null) {
+                    return Optional.empty();
+                }
                 DeployedAccountInfoBO deployedAccountInfoBO = new DeployedAccountInfoBO();
                 deployedAccountInfoBO.setBlockTimeStamp(blockTimeStamp)
                         .setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue())
                         .setContractAddress(receipt.getContractAddress())
+                        .setContractName(contractInfoBO.getContractName())
+                        .setAbiHash(contractInfoBO.getAbiHash())
+                        .setBinary(contractInfoBO.getContractBinary())
                         .setTxHash(receipt.getTransactionHash());
                 return Optional.of(deployedAccountInfoBO);
             }

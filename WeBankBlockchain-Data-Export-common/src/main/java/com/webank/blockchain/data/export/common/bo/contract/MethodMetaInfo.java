@@ -37,18 +37,14 @@ public class MethodMetaInfo {
     /** @Fields methodName : method name */
     private String methodName;
 
-    /** @Fields methodTableCount : for sharding method table */
-    private int methodTableCount;
-
-    /** @Fields ignoreParams : when parsing method data, the ignore params will be ignored */
-    private List<String> ignoreParams;
+    private String type;
 
     /** @Fields contractName : contract name */
     private String contractName;
 
     /** @Fields fieldsList : method input param list */
-    private List<NamedType> fieldsList;
+    private List<FieldVO> fieldsList;
     
-    private List<NamedType> outputFieldsList;
+    private List<FieldVO> outputList;
 
 }

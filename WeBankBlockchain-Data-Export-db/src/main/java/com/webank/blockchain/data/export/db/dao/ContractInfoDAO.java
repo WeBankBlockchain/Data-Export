@@ -13,31 +13,35 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.db.entity.ContractInfo;
 import com.webank.blockchain.data.export.db.repository.ContractInfoRepository;
+import lombok.AllArgsConstructor;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/10/26
  */
+@AllArgsConstructor
 public class ContractInfoDAO implements SaveInterface<ContractInfoBO>{
 
     private ContractInfoRepository contractInfoRepository;
 
     public void save(ContractInfo contractInfo) {
+        contractInfoRepository.save(contractInfo);
     }
 
     @Override
     public void save(ContractInfoBO contractInfoBO) {
-//        ContractInfo contractInfo = contractInfoRepository.findByAbiHash(contractInfoBO.getAbiHash());
-//        if(contractInfo != null){
-//            return;
-//        }
-//        contractInfo = new ContractInfo();
-//        BeanUtil.copyProperties(contractInfoBO, contractInfo, true);
-//        save(contractInfo);
+        ContractInfo contractInfo = contractInfoRepository.findByAbiHash(contractInfoBO.getAbiHash());
+        if(contractInfo != null){
+            return;
+        }
+        contractInfo = new ContractInfo();
+        BeanUtil.copyProperties(contractInfoBO, contractInfo, true);
+        save(contractInfo);
     }
 
 }

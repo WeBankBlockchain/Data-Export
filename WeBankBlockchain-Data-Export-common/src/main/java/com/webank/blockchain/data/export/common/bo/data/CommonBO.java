@@ -15,6 +15,8 @@ package com.webank.blockchain.data.export.common.bo.data;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * CommonBO
  *
@@ -25,7 +27,6 @@ import lombok.Data;
  */
 @Data
 public class CommonBO {
-    private String identifier;
-    private String metaType;
-
+    private String table;
+    private Map<String, Object> entity;
 }

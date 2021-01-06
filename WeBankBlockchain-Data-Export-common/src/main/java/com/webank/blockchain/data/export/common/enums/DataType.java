@@ -1,4 +1,4 @@
-package com.webank.blockchain.data.export.common.entity;
+package com.webank.blockchain.data.export.common.enums;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
@@ -23,7 +23,12 @@ public enum DataType {
     BLOCK_RAW_DATA_TABLE("block_raw_data"),
     BLOCK_TX_DETAIL_INFO_TABLE("block_tx_detail_info"),
     TX_RAW_DATA_TABLE("tx_raw_data"),
-    TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data");
+    TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data"),
+    DEPLOYED_ACCOUNT_INFO_TABLE("deployed_account_info"),
+    CONTRACT_INFO_TABLE("contract_info"),
+    EVENT_TABLE("event"),
+    METHOD_TABLE("method");
+
 
     private String tableName;
 

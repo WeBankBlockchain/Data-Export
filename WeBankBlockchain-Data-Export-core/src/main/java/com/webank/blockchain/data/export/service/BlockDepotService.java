@@ -14,10 +14,8 @@
 package com.webank.blockchain.data.export.service;
 
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.extractor.ods.EthClient;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
@@ -53,8 +51,7 @@ public class BlockDepotService {
             BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
             Block block;
             try {
-                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
-                block = client.getBlock(bigBlockHeight);
+                block = BlockCrawlService.getBlock(bigBlockHeight);
                 result.add(block);
                 pools.add(task);
             } catch (IOException e) {

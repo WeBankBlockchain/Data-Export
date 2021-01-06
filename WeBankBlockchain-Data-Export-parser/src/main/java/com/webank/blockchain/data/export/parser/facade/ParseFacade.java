@@ -17,13 +17,17 @@ import com.google.common.base.Stopwatch;
 import com.webank.blockchain.data.export.common.bo.data.BlockContractInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.parser.handler.BlockCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.ContractCrawlerHandler;
+import com.webank.blockchain.data.export.parser.handler.EventCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.MethodCrawlerHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,6 +54,7 @@ public class ParseFacade {
         st.start();
         BlockMethodInfo blockMethodInfo =
                 MethodCrawlerHandler.crawl(block, contractInfoBO.getTxHashContractAddressMapping());
+
         log.debug("Block {} , method crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         st.start();
@@ -57,11 +62,18 @@ public class ParseFacade {
                 .setDeployedAccountInfoBOS(contractInfoBO.getDeployedAccountInfoBOS())
                 .setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block))
                 .setBlockRawDataBO(BlockCrawlerHandler.handleBlockRawData(block))
-//                .setEventInfoList(eventCrawlHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()))
-//                .setMethodInfoList(blockMethodInfo.getMethodInfoList())
                 .setBlockTxDetailInfoList(blockMethodInfo.getBlockTxDetailInfoList())
                 .setTxRawDataBOList(blockMethodInfo.getTxRawDataBOList())
                 .setTxReceiptRawDataBOList(blockMethodInfo.getTxReceiptRawDataBOList());
+
+        List<DataType> blackList = ExportConstant.threadLocal.get().getConfig().getDataTypeBlackList();
+        if (!blackList.contains(DataType.EVENT_TABLE)){
+            blockInfo.setEventInfoList(EventCrawlerHandler.crawl(block, blockMethodInfo.getTxHashContractNameMapping()));
+        }
+        if (!blackList.contains(DataType.METHOD_TABLE)){
+            blockInfo.setMethodInfoList(blockMethodInfo.getMethodInfoList());
+        }
+
         log.debug("Block {} , event crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         return blockInfo;

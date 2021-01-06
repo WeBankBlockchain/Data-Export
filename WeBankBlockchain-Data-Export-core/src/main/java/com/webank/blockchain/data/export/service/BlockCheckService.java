@@ -22,7 +22,6 @@ import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.extractor.ods.EthClient;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -84,8 +83,7 @@ public class BlockCheckService {
                             pool.getBlockHeight());
                     continue;
                 }
-                EthClient client = new EthClient(ExportConstant.threadLocal.get().getClient());
-                Block block = client.getBlock(BigInteger.valueOf(pool.getBlockHeight()));
+                Block block = BlockCrawlService.getBlock(BigInteger.valueOf(pool.getBlockHeight()));
                 String newHash = block.getHash();
                 if (!newHash.equals(
                         DataExportExecutor.crawler.get().getBlockDetailInfoRepository()

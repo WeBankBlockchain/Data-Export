@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
@@ -41,7 +42,9 @@ public class DeployedAccountInfoDAO implements SaveInterface<BlockInfoBO>{
 
 
     public void save(DeployedAccountInfoBO deployedAccountInfoBO) {
-
+        DeployedAccountInfo deployedAccountInfo = new DeployedAccountInfo();
+        BeanUtil.copyProperties(deployedAccountInfoBO, deployedAccountInfo, true);
+        save(deployedAccountInfo);
     }
 
     @Override
