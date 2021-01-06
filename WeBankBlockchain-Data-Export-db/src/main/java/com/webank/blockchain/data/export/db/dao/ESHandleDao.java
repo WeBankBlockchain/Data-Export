@@ -141,17 +141,17 @@ public class ESHandleDao {
     public static void saveBlockInfo(BlockInfoBO blockInfoBO) {
         TransportClient client = ExportConstant.threadLocal.get().getEsClient();
 
-        if (ESService.indexExists(client,BLOCK_DETAIL)) {
+        if (blockInfoBO.getBlockDetailInfo() != null) {
             ESService.createDocument(client,
                     BLOCK_DETAIL, "_doc", String.valueOf(blockInfoBO.getBlockDetailInfo().getBlockHeight()),
                     blockInfoBO.getBlockDetailInfo());
         }
-        if (ESService.indexExists(client,BLOCK_RAW_DATA)) {
+        if (blockInfoBO.getBlockRawDataBO() != null) {
             ESService.createDocument(client,
                     BLOCK_RAW_DATA, "_doc", String.valueOf(blockInfoBO.getBlockRawDataBO().getBlockHeight()),
                     blockInfoBO.getBlockRawDataBO());
         }
-        if (ESService.indexExists(client,TX_RAW_DATA)) {
+        if (CollectionUtil.isNotEmpty(blockInfoBO.getTxRawDataBOList())) {
             for (TxRawDataBO txRawDataBO : blockInfoBO.getTxRawDataBOList()) {
                 ESService.createDocument(client,
                         TX_RAW_DATA, "_doc",
@@ -159,7 +159,7 @@ public class ESHandleDao {
             }
         }
 
-        if (ESService.indexExists(client,TX_RECEIPT_RAW_DATA)) {
+        if (CollectionUtil.isNotEmpty(blockInfoBO.getTxReceiptRawDataBOList())) {
             for (TxReceiptRawDataBO txReceiptRawDataBO : blockInfoBO.getTxReceiptRawDataBOList()) {
                 ESService.createDocument(client,
                         TX_RECEIPT_RAW_DATA, "_doc",
@@ -168,7 +168,7 @@ public class ESHandleDao {
             }
         }
 
-        if (ESService.indexExists(client,BLOCK_TX_DETAIL)) {
+        if (CollectionUtil.isNotEmpty(blockInfoBO.getBlockTxDetailInfoList())) {
             for (BlockTxDetailInfoBO blockTxDetailInfoBO : blockInfoBO.getBlockTxDetailInfoList()) {
                 ESService.createDocument(client,
                         BLOCK_TX_DETAIL, "_doc",
