@@ -50,13 +50,13 @@ public class PrepareTaskJob implements SimpleJob {
             log.error("depot Error, {}", e.getMessage());
         }
         try {
-            BigInteger blockNumber = ExportConstant.threadLocal.get().getClient()
+            BigInteger blockNumber = ExportConstant.getCurrentContext().getClient()
                     .getBlockNumber().getBlockNumber();
             long total = blockNumber.longValue();
             log.info("Current chain block number is:{}", total);
             long height = BlockPrepareService.getTaskPoolHeight();
             height = Math.max(height, startBlockNumber);
-            long end = height + ExportConstant.threadLocal.get().getConfig().getCrawlBatchUnit() - 1;
+            long end = height + ExportConstant.getCurrentContext().getConfig().getCrawlBatchUnit() - 1;
             long batchNo = Math.min(total, end);
             boolean certainty = end < total - BlockConstants.MAX_FORK_CERTAINTY_BLOCK_NUMBER;
             BlockPrepareService.prepareTask(height, batchNo, certainty);

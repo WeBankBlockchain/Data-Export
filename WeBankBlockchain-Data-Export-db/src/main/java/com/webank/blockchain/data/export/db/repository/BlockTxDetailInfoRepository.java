@@ -103,7 +103,7 @@ public class BlockTxDetailInfoRepository implements RollbackInterface {
      */
     public void rollback(long startBlockHeight, long endBlockHeight){
         try {
-            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.getCurrentContext().getDataSource()).execute(
                     "delete from block_raw_data where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockTxDetailInfoRepository rollback failed ", e);

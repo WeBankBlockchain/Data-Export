@@ -38,7 +38,7 @@ public class MethodAndEventDao implements SaveInterface<BlockInfoBO>{
                     entity.set(entry.getKey(), entry.getValue());
                 }
                 entity.set("depot_updatetime", new Date());
-                Db.use(ExportConstant.threadLocal.get().getDataSource()).insert(entity);
+                Db.use(ExportConstant.getCurrentContext().getDataSource()).insert(entity);
             } catch (SQLException e) {
                 log.error("save failed ", e);
             }

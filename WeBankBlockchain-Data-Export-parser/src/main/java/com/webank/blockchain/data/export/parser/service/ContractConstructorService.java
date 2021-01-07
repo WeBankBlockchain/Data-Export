@@ -38,11 +38,11 @@ public class ContractConstructorService {
      * Get entry that contains contract binary and contract constructor name. If prefix string of input matches some
      * binary of entry in binaryMap, return entry else return null.
      * 
-     * @param input
-     * @return Map.Entry<String,String>
+     * @param input input of tx
+     * @return key:contract binary, value:contract name
      */
     public static Map.Entry<String, ContractDetail> getConstructorNameByBinary(String input) {
-        ContractMapsInfo contractMapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo contractMapsInfo = ContractConstants.getCurrentContractMaps();
         Map<String, ContractDetail> binaryMap = contractMapsInfo.getContractBinaryMap();
         for (Map.Entry<String, ContractDetail> entry : binaryMap.entrySet()) {
             String key = entry.getKey();
@@ -62,11 +62,11 @@ public class ContractConstructorService {
     /**
      * get constuctor name by transaction input code.
      * 
-     * @param input of tx
+     * @param input input of tx
      * @return key:contract binary, value:contract name
      */
     public static Map.Entry<String, ContractDetail> getConstructorNameByCode(String input) {
-        ContractMapsInfo contractMapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo contractMapsInfo = ContractConstants.getCurrentContractMaps();
         if (contractMapsInfo == null) {
             return null;
         }

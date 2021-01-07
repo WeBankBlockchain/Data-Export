@@ -3,18 +3,12 @@ package com.webank.blockchain.data.export.task;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
-import cn.hutool.db.meta.MetaUtil;
-import com.google.common.collect.Lists;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.common.entity.ExportDataSource;
-import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
-import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
 import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
@@ -41,21 +35,11 @@ import com.webank.blockchain.data.export.db.service.MysqlStoreService;
 import com.webank.blockchain.data.export.tools.DataSourceUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shardingsphere.driver.api.ShardingSphereDataSourceFactory;
-import org.apache.shardingsphere.infra.config.algorithm.ShardingSphereAlgorithmConfiguration;
-import org.apache.shardingsphere.sharding.api.config.ShardingRuleConfiguration;
-import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfiguration;
-import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 import org.elasticsearch.client.transport.TransportClient;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
@@ -76,6 +60,8 @@ import static com.webank.blockchain.data.export.common.entity.ExportConstant.tab
 @Data
 @Slf4j
 public class DataPersistenceManager {
+
+    public static final ThreadLocal<DataPersistenceManager> dataPersistenceManager = new ThreadLocal<>();
 
     private BlockTaskPoolRepository blockTaskPoolRepository;
     private BlockDetailInfoRepository blockDetailInfoRepository;
@@ -99,11 +85,19 @@ public class DataPersistenceManager {
         this.context = context;
     }
 
+    public static DataPersistenceManager getCurrentManager() {
+        return dataPersistenceManager.get();
+    }
+
+    public static void setCurrentManager(DataPersistenceManager manager) {
+        dataPersistenceManager.set(manager);
+    }
+
     public void saveContractInfo() {
         if (CollectionUtil.isEmpty(context.getConfig().getContractInfoList())) {
             return;
         }
-        ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo mapsInfo = ContractConstants.getCurrentContractMaps();
         Map<String, ContractDetail> contractBinaryMap = mapsInfo.getContractBinaryMap();
         if (CollectionUtil.isEmpty(contractBinaryMap)) {
             return;

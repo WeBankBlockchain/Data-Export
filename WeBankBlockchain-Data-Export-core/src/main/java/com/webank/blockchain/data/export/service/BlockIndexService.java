@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class BlockIndexService {
 
     public static long getStartBlockIndex() throws IOException, InterruptedException {
-        DataExportContext context = ExportConstant.threadLocal.get();
+        DataExportContext context = ExportConstant.getCurrentContext();
         ExportConfig config = context.getConfig();
         if (config.getStartBlockHeight() > 0) {
             return config.getStartBlockHeight();
@@ -63,7 +63,7 @@ public class BlockIndexService {
      * @return long
      */
     private static long getBlockIndexByStartDate(Date startDate) throws IOException {
-        DataExportContext context = ExportConstant.threadLocal.get();
+        DataExportContext context = ExportConstant.getCurrentContext();
         Block beginBlock = getBlock(new BigInteger("0"));
         BigInteger blockNumber = context.getClient().getBlockNumber().getBlockNumber();
         Block endBlock = getBlock(blockNumber);
@@ -114,7 +114,7 @@ public class BlockIndexService {
     public static Block getBlock(BigInteger blockHeightNumber) throws IOException {
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.debug("get block number: {}", blockHeightNumber);
-        DataExportContext context = ExportConstant.threadLocal.get();
+        DataExportContext context = ExportConstant.getCurrentContext();
         Block block = context.getClient().getBlockByNumber(blockHeightNumber, true).getBlock();
         Stopwatch st1 = stopwatch.stop();
         log.info("get block:{} succeed, eth.getBlock useTime: {}", blockHeightNumber,

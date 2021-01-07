@@ -72,7 +72,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public long sumByTxCount(){
         try {
-            return Db.use(ExportConstant.threadLocal.get().getDataSource()).query(
+            return Db.use(ExportConstant.getCurrentContext().getDataSource()).query(
                     "select count(tx_count) from block_detail_info", NumberHandler.create()).intValue();
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository sumByTxCount failed ", e);
@@ -89,7 +89,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public long sumByTxCountBetweens(long beginIndex, long endIndex){
         try {
-            return Db.use(ExportConstant.threadLocal.get().getDataSource()).query(
+            return Db.use(ExportConstant.getCurrentContext().getDataSource()).query(
                     "select sum(tx_count) from block_detail_info where block_height >= ? and blockHeight< ?",
                     (RsHandler<Long>) rs -> rs.getLong(0),beginIndex,endIndex);
         } catch (SQLException e) {
@@ -115,7 +115,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
      */
     public void rollback(long startBlockHeight, long endBlockHeight) {
         try {
-            Db.use(ExportConstant.threadLocal.get().getDataSource()).execute(
+            Db.use(ExportConstant.getCurrentContext().getDataSource()).execute(
                     "delete from block_detail_info where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository rollback failed ", e);

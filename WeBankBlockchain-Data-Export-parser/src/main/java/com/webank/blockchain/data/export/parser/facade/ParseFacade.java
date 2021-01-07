@@ -58,7 +58,7 @@ public class ParseFacade {
         log.debug("Block {} , method crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         st.start();
-        List<DataType> blackList = ExportConstant.threadLocal.get().getConfig().getDataTypeBlackList();
+        List<DataType> blackList = ExportConstant.getCurrentContext().getConfig().getDataTypeBlackList();
         if (!blackList.contains(DataType.BLOCK_DETAIL_INFO_TABLE)){
             blockInfo.setBlockDetailInfo(BlockCrawlerHandler.handleBlockDetail(block));
         }

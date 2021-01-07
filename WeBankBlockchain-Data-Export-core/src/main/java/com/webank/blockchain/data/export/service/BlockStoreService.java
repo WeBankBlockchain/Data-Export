@@ -16,7 +16,7 @@ package com.webank.blockchain.data.export.service;
 import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.db.service.DataStoreService;
-import com.webank.blockchain.data.export.task.DataExportExecutor;
+import com.webank.blockchain.data.export.task.DataPersistenceManager;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import java.util.List;
 public class BlockStoreService {
 
     public static void store(BlockInfoBO blockInfo) {
-        List<DataStoreService> dataStoreServiceList = DataExportExecutor.dataPersistenceManager.get().getDataStoreServiceList();
+        List<DataStoreService> dataStoreServiceList = DataPersistenceManager.getCurrentManager().getDataStoreServiceList();
         if (CollectionUtil.isEmpty(dataStoreServiceList)) {
             return;
         }

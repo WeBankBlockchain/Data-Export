@@ -58,7 +58,7 @@ public class BlockCrawlService {
     public static Block getBlock(BigInteger blockHeightNumber) throws IOException {
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.debug("get block number: {}", blockHeightNumber);
-        Block block = ExportConstant.threadLocal.get().getClient()
+        Block block = ExportConstant.getCurrentContext().getClient()
                 .getBlockByNumber(blockHeightNumber, true).getBlock();
         Stopwatch st1 = stopwatch.stop();
         log.info("get block:{} succeed, eth.getBlock useTime: {}", blockHeightNumber,

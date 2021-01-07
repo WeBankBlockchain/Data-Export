@@ -17,7 +17,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
-import com.google.gson.internal.$Gson$Preconditions;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
@@ -26,6 +25,7 @@ import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.threadLocal;
 
 /**
  * MethodCrawlerHandler
@@ -73,7 +72,7 @@ public class MethodCrawlerHandler {
         for (TransactionResult result : transactionResults) {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
-            Optional<TransactionReceipt> opt = threadLocal.get().getClient()
+            Optional<TransactionReceipt> opt = ExportConstant.getCurrentContext().getClient()
                             .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
             Optional<String> contractName = TransactionService.getContractNameByTransaction(transaction, txHashContractAddressMapping);
             if (!contractName.isPresent()){
@@ -85,7 +84,7 @@ public class MethodCrawlerHandler {
             }
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
-                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getContractInfoMap();
+                Map<String, ContractInfo> contractAbiMap = ExportConstant.getCurrentContext().getContractInfoMap();
                 String abi = contractAbiMap.get(contractName.get()).getAbi();
                 if (abi == null){
                     continue;
@@ -116,11 +115,11 @@ public class MethodCrawlerHandler {
     }
 
     public static MethodBO parseMethod(Block block, MethodMetaInfo methodMetaInfo, TransactionReceipt receipt, String abi){
-        TransactionDecoderInterface decoder = threadLocal.get().getDecoder();
+        TransactionDecoderInterface decoder = ExportConstant.getCurrentContext().getDecoder();
         MethodBO methodBO = null;
         try {
             List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getMethodName(), receipt,
-                    threadLocal.get().getClient());
+                    ExportConstant.getCurrentContext().getClient());
             if(CollectionUtil.isEmpty(params)) {
                 return null;
             }
