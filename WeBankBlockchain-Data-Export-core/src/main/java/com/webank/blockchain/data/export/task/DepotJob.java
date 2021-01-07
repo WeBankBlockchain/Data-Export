@@ -45,7 +45,7 @@ public class DepotJob implements DataflowJob<Block> {
     @Override
     public List<Block> fetchData(ShardingContext shardingContext) {
         List<BlockTaskPool> tasks =
-                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
+                DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                         .findBySyncStatusModByBlockHeightLimit(shardingContext.getShardingTotalCount(),
                         shardingContext.getShardingItem(), (short) TxInfoStatusEnum.INIT.getStatus(), 1);
         if (CollectionUtil.isEmpty(tasks)) {
@@ -56,7 +56,7 @@ public class DepotJob implements DataflowJob<Block> {
 
     @Override
     public void processData(ShardingContext shardingContext, List<Block> data) {
-        BigInteger blockNumber = ExportConstant.threadLocal.get().getClient()
+        BigInteger blockNumber = ExportConstant.getCurrentContext().getClient()
                 .getBlockNumber().getBlockNumber();
         BlockDepotService.processDataSequence(data, blockNumber.longValue());
     }

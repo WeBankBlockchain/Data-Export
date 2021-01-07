@@ -18,7 +18,15 @@ public class ExportConstant {
         DbUtil.setShowSqlGlobal(true,false,true, Level.INFO);
     }
 
-    public static final ThreadLocal<DataExportContext> threadLocal = new ThreadLocal<>();
+    public static final ThreadLocal<DataExportContext> context = new ThreadLocal<>();
+
+    public static DataExportContext getCurrentContext() {
+        return context.get();
+    }
+
+    public static void setCurrentContext(DataExportContext currentContext) {
+        context.set(currentContext);
+    }
 
     public static final String BLOCK_TASK_POOL_DAO = "block_task_pool_dao";
 

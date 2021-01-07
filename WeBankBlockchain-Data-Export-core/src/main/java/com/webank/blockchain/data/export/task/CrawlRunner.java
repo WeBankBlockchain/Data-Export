@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.service.BlockAsyncService;
@@ -32,7 +33,6 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.threadLocal;
 
 /**
  * GenerateCodeApplicationRunner
@@ -50,8 +50,6 @@ public class CrawlRunner {
 
     private long startBlockNumber;
 
-    private DataPersistenceManager dataPersistenceManager;
-
     private AtomicBoolean runSwitch = new AtomicBoolean(false);
 
     public static CrawlRunner create(DataExportContext context){
@@ -60,7 +58,6 @@ public class CrawlRunner {
 
     private CrawlRunner(DataExportContext context) {
         this.context = context;
-        dataPersistenceManager = DataPersistenceManager.create(context);
     }
 
     public void export() {
@@ -69,10 +66,9 @@ public class CrawlRunner {
             log.info("data export config check failed, task already stop");
             return;
         }
-        DataExportExecutor.dataPersistenceManager.set(dataPersistenceManager);
         //abi、bin parse
-        ContractParser.initContractMaps(threadLocal.get().getConfig().getContractInfoList());
-        dataPersistenceManager.buildDataStore();
+        ContractParser.initContractMaps(ExportConstant.getCurrentContext().getConfig().getContractInfoList());
+        DataPersistenceManager.getCurrentManager().buildDataStore();
         handle();
     }
 
@@ -139,9 +135,9 @@ public class CrawlRunner {
      */
     public void handle() {
         try{
-            threadLocal.get().setDecoder(new TransactionDecoderService(
-                    threadLocal.get().getClient().getCryptoSuite()));
-            dataPersistenceManager.saveContractInfo();
+            ExportConstant.getCurrentContext().setDecoder(new TransactionDecoderService(
+                    ExportConstant.getCurrentContext().getClient().getCryptoSuite()));
+            DataPersistenceManager.getCurrentManager().saveContractInfo();
         }catch (Exception e) {
             log.error("save Contract Info, {}", e.getMessage());
         }

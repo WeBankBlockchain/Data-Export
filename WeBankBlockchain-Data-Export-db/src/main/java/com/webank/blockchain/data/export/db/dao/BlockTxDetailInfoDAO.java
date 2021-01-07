@@ -60,7 +60,7 @@ public class BlockTxDetailInfoDAO implements SaveInterface<BlockInfoBO>{
         blockTxDetailInfo.setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue());
         blockTxDetailInfo.setContractName(contractName);
         blockTxDetailInfo.setMethodName(methodName.substring(contractName.length()));
-        JsonTransactionResponse transaction = ExportConstant.threadLocal.get().getClient().
+        JsonTransactionResponse transaction = ExportConstant.getCurrentContext().getClient().
                 getTransactionByHash(receipt.getTransactionHash()).getTransaction().get();
         blockTxDetailInfo.setTxFrom(transaction.getFrom());
         blockTxDetailInfo.setTxTo(transaction.getTo());

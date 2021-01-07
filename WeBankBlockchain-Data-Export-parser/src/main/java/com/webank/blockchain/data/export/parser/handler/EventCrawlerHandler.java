@@ -46,8 +46,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.threadLocal;
-
 /**
  * EventCrawlerHandler
  *
@@ -66,7 +64,7 @@ public class EventCrawlerHandler {
         for (TransactionResult result : transactionResults) {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
-            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.threadLocal.get().getClient()
+            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.getCurrentContext().getClient()
                     .getTransactionReceipt(transaction.getHash());
             Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
             if (opt.isPresent()) {
@@ -79,7 +77,7 @@ public class EventCrawlerHandler {
                 if (!contractName.isPresent()) {
                     continue;
                 }
-                Map<String, ContractInfo> contractAbiMap = threadLocal.get().getContractInfoMap();
+                Map<String, ContractInfo> contractAbiMap = ExportConstant.getCurrentContext().getContractInfoMap();
                 String abi = contractAbiMap.get(contractName.get()).getAbi();
                 if (abi == null) {
                     continue;
@@ -93,7 +91,7 @@ public class EventCrawlerHandler {
     private static List<EventBO> parserEvent(Map<String, ContractInfo> contractAbiMap, String contractName, String abi,
                                              TransactionReceipt tr,Block block){
         List<EventBO> boList = new ArrayList<>();
-        ContractDetail contractDetail = ContractConstants.contractMapsInfo.get().getContractBinaryMap()
+        ContractDetail contractDetail = ContractConstants.getCurrentContractMaps().getContractBinaryMap()
                 .get(contractAbiMap.get(contractName).getBinary());
         List<EventMetaInfo> eventMetaInfos = contractDetail.getEventMetaInfos();
 
@@ -101,7 +99,7 @@ public class EventCrawlerHandler {
                 .collect(Collectors.toMap(EventMetaInfo::getEventName, e->e));
         Map<String, List<List<Object>>> events = null;
         try {
-            events = ExportConstant.threadLocal.get().getDecoder()
+            events = ExportConstant.getCurrentContext().getDecoder()
                     .decodeEvents(abi, tr.getLogs());
         } catch (ABICodecException e) {
             log.error("decoder.decodeEvents failed", e);

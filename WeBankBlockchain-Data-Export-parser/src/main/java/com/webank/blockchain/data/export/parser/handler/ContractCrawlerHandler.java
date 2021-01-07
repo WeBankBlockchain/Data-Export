@@ -52,7 +52,7 @@ public class ContractCrawlerHandler {
         for (BcosBlock.TransactionResult result : transactionResults) {
             BcosBlock.TransactionObject to = (BcosBlock.TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
-            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.threadLocal.get().getClient()
+            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.getCurrentContext().getClient()
                     .getTransactionReceipt(transaction.getHash());
             Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
             if (opt.isPresent()) {
@@ -69,14 +69,14 @@ public class ContractCrawlerHandler {
     }
 
     public static Optional<DeployedAccountInfoBO> handle(TransactionReceipt receipt, Date blockTimeStamp) throws IOException {
-        Optional<JsonTransactionResponse> optt = ExportConstant.threadLocal.get().getClient().getTransactionByHash
+        Optional<JsonTransactionResponse> optt = ExportConstant.getCurrentContext().getClient().getTransactionByHash
                 (receipt.getTransactionHash()).getTransaction();
         if (optt.isPresent()) {
             JsonTransactionResponse transaction = optt.get();
             // get constructor function transaction by judging if transaction's param named to is null
             if (transaction.getTo() == null || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
                 String contractAddress = receipt.getContractAddress();
-                String input = ExportConstant.threadLocal.get().getClient().getCode(contractAddress).getCode();
+                String input = ExportConstant.getCurrentContext().getClient().getCode(contractAddress).getCode();
                 Map.Entry<String, ContractDetail> entry = ContractConstructorService.getConstructorNameByCode(input);
                 log.debug("blockNumber: {}, input: {}", receipt.getBlockNumber(), input);
                 if (entry == null){

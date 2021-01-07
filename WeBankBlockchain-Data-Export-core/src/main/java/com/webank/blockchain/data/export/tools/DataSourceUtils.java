@@ -143,7 +143,7 @@ public class DataSourceUtils {
 
     private static void addMethodAndEventTables(List<String> tables) {
         //event and method tables
-        ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo mapsInfo = ContractConstants.getCurrentContractMaps();
         if (mapsInfo != null) {
             for (Map.Entry<String, ContractDetail> contractDetailMap : mapsInfo.getContractBinaryMap().entrySet()) {
                 ContractDetail contractDetail = contractDetailMap.getValue();
@@ -211,7 +211,7 @@ public class DataSourceUtils {
     }
 
     private static void createMethodAndEventTable(Db db, List<String> blackTables, List<String> tables) {
-        ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo mapsInfo = ContractConstants.getCurrentContractMaps();
         if (mapsInfo == null) {
             return;
         }
@@ -248,7 +248,7 @@ public class DataSourceUtils {
 
     private static void createMethodAndEventShardingTable(Db db, List<String> blackTables,
                                                           List<String> tables, int shardingNumberPerDatasource) {
-        ContractMapsInfo mapsInfo = ContractConstants.contractMapsInfo.get();
+        ContractMapsInfo mapsInfo = ContractConstants.getCurrentContractMaps();
         if (mapsInfo == null) {
             return;
         }

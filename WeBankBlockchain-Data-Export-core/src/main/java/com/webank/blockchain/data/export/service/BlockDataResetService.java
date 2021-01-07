@@ -20,7 +20,7 @@ import com.webank.blockchain.data.export.common.tools.ResponseUtils;
 import com.webank.blockchain.data.export.common.vo.CommonResponse;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.task.DataExportExecutor;
+import com.webank.blockchain.data.export.task.DataPersistenceManager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class BlockDataResetService {
 
     public static CommonResponse resetBlockDataByBlockId(long blockHeight) throws IOException {
         BlockTaskPoolRepository blockTaskPoolRepository =
-                DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository();
+                DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository();
         BlockTaskPool blockTaskPool = blockTaskPoolRepository.findByBlockHeight(blockHeight);
         if (blockTaskPool == null) {
             return CommonResponse.NOBLOCK;

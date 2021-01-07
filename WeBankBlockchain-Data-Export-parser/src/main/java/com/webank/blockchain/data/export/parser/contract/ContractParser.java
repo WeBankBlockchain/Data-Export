@@ -27,7 +27,7 @@ public class ContractParser {
             return;
         }
         ContractMapsInfo contractMapsInfo = new ContractMapsInfo();
-        ContractConstants.contractMapsInfo.set(contractMapsInfo);
+        ContractConstants.setCurrentContractMaps(contractMapsInfo);
         Map<String, MethodMetaInfo> methodIdMap = new HashMap<>();
         Map<String, ContractDetail> contractBinaryMap = new HashMap<>();
         contractMapsInfo.setContractBinaryMap(contractBinaryMap);

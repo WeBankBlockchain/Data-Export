@@ -19,7 +19,7 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.BlockCertaintyEnum;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
-import com.webank.blockchain.data.export.task.DataExportExecutor;
+import com.webank.blockchain.data.export.task.DataPersistenceManager;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.Client;
 
@@ -40,7 +40,7 @@ import java.util.List;
 public class BlockPrepareService {
 
     public static long getTaskPoolHeight() {
-        BlockTaskPool item = DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository()
+        BlockTaskPool item = DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                 .findTopByOrderByBlockHeightDesc();
         long height = 0;
         if (item == null){
@@ -51,7 +51,7 @@ public class BlockPrepareService {
     }
 
     public static long getCurrentBlockHeight() throws IOException {
-        Client client = ExportConstant.threadLocal.get().getClient();
+        Client client = ExportConstant.getCurrentContext().getClient();
         BigInteger blockNumber = client.getBlockNumber().getBlockNumber();
         long total = blockNumber.longValue();
         log.debug("Current chain block number is:{}", blockNumber);
@@ -75,7 +75,7 @@ public class BlockPrepareService {
             }
             list.add(pool);
         }
-        DataExportExecutor.dataPersistenceManager.get().getBlockTaskPoolRepository().saveAll(list);
+        DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository().saveAll(list);
         log.info("Sync blocks from {} to {} are prepared.", begin, end);
     }
 

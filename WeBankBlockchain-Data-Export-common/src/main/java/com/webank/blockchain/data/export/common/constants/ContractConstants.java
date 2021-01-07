@@ -29,4 +29,13 @@ public class ContractConstants {
 
     public final static ThreadLocal<ContractMapsInfo> contractMapsInfo = new ThreadLocal<>();
 
+
+    public static ContractMapsInfo getCurrentContractMaps() {
+        return contractMapsInfo.get();
+    }
+
+    public static void setCurrentContractMaps(ContractMapsInfo maps) {
+        contractMapsInfo.set(maps);
+    }
+
 }

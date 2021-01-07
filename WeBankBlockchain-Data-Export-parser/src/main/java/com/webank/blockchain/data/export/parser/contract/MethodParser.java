@@ -17,12 +17,9 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.google.common.collect.Lists;
-import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.constants.AbiTypeConstants;
-import com.webank.blockchain.data.export.common.constants.ContractConstants;
-import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.parser.tools.ABIUtils;
 import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
@@ -72,7 +69,7 @@ public class MethodParser {
             } else {
                 method.setMethodName(abiDefinition.getName());
             }
-            method.setMethodId(abiDefinition.getMethodId(ExportConstant.threadLocal.get().getClient().getCryptoSuite())
+            method.setMethodId(abiDefinition.getMethodId(ExportConstant.getCurrentContext().getClient().getCryptoSuite())
                     + "_" + contractName);
             method.setFieldsList(getFieldList(inputs))
                     .setOutputList(getOutputList(outputs));

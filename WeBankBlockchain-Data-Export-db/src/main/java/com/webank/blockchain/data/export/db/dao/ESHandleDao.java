@@ -73,7 +73,7 @@ public class ESHandleDao {
     @SneakyThrows
     public static TransportClient create() {
         TransportClient client;
-        DataExportContext context = ExportConstant.threadLocal.get();
+        DataExportContext context = ExportConstant.getCurrentContext();
         ESDataSource esConfig = context.getEsConfig();
         System.setProperty("es.set.netty.runtime.available.processors","false");
         Settings settings = Settings.builder()
@@ -110,8 +110,8 @@ public class ESHandleDao {
         if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE) && !ESService.indexExists(client,CONTRACT_INFO)){
             ESService.createIndex(client,CONTRACT_INFO);
         }
-        if (CollectionUtil.isNotEmpty(ExportConstant.threadLocal.get().getConfig().getContractInfoList())){
-            Map<String, ContractDetail> contractBinaryMap = ContractConstants.contractMapsInfo.get().getContractBinaryMap();
+        if (CollectionUtil.isNotEmpty(ExportConstant.getCurrentContext().getConfig().getContractInfoList())){
+            Map<String, ContractDetail> contractBinaryMap = ContractConstants.getCurrentContractMaps().getContractBinaryMap();
             for(Map.Entry<String,ContractDetail> entry : contractBinaryMap.entrySet()) {
                 ContractDetail contractDetail = entry.getValue();
                 if (!blackTables.contains(DataType.METHOD_TABLE)) {
@@ -139,7 +139,7 @@ public class ESHandleDao {
     }
 
     public static void saveBlockInfo(BlockInfoBO blockInfoBO) {
-        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
+        TransportClient client = ExportConstant.getCurrentContext().getEsClient();
 
         if (blockInfoBO.getBlockDetailInfo() != null) {
             ESService.createDocument(client,
@@ -194,7 +194,7 @@ public class ESHandleDao {
     }
 
     public static void saveContractInfo(ContractInfoBO contractInfoBO) {
-        TransportClient client = ExportConstant.threadLocal.get().getEsClient();
+        TransportClient client = ExportConstant.getCurrentContext().getEsClient();
         if (ESService.indexExists(client,CONTRACT_INFO)) {
             ESService.createDocument(client,
                     CONTRACT_INFO, "_doc", contractInfoBO);

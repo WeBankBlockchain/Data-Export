@@ -45,11 +45,10 @@ public class ABIUtils {
 
     /**
      * Get contract abi list by contract class.
-     * 
-     * @return
-     * @return AbiDefinition[]
+     * @param abi abi of contract
+     * @return AbiDefinition[] array of ABIDefinition
      */
-    public static ABIDefinition[] getContractAbiList(String abi ) {
+    public static ABIDefinition[] getContractAbiList(String abi) {
 
         ObjectMapper objectMapper = ObjectMapperFactory.getObjectMapper();
         ABIDefinition[] abiDefinition = null;
