@@ -8,12 +8,10 @@ plugins {
 
 allprojects {
     repositories {
-        maven {
-            url "http://maven.aliyun.com/nexus/content/groups/public/"
-        }
+        mavenCentral()
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-        maven { url "https://dl.bintray.com/ethereum/maven/" }
-        mavenLocal()
         jcenter()
     }
 }
@@ -29,7 +27,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
     compile (group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1')
     compile("com.fasterxml.jackson.core:jackson-databind:2.11.0")
-    compile(group:'org.elasticsearch.client', name: 'transport',version:'6.4.1')
+    compile 'org.elasticsearch.client:transport:7.10.2'
     compile(group:'org.apache.shardingsphere.elasticjob', name: 'elasticjob-lite-core',version:'3.0.0-alpha')
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
 
@@ -137,7 +135,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.10'
         compile (group: 'com.zaxxer', name: 'HikariCP', version: '3.4.1')
         compile("com.fasterxml.jackson.core:jackson-databind:2.11.0")
-        compile(group:'org.elasticsearch.client', name: 'transport',version:'6.4.1')
+        compile 'org.elasticsearch.client:transport:7.10.2'
         compile(group:'org.apache.shardingsphere.elasticjob', name: 'elasticjob-lite-core',version:'3.0.0-alpha')
 
         testCompile ("junit:junit:4.12")
