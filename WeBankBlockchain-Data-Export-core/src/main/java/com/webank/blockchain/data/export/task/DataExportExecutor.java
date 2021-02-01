@@ -9,10 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.ScheduleJobBootstrap;
 import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author wesleywang
@@ -35,8 +35,7 @@ public class DataExportExecutor {
         this.context = context;
     }
 
-    private static final ThreadPoolExecutor pool = new ThreadPoolExecutor(
-            1, 50, 100, TimeUnit.MILLISECONDS, new LinkedBlockingDeque<>(2048));
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
 
     public void start() {
         log.info("DataExportExecutor is starting ！！！");
@@ -54,6 +53,9 @@ public class DataExportExecutor {
         }
         executor = new ExportExecutor();
         crawlRunner = CrawlRunner.create(context);
+        if (((ThreadPoolExecutor) pool).getActiveCount() >= 200) {
+            log.info("current Thread active number rather than 200 ！！！");
+        }
         future = pool.submit(executor);
     }
 
