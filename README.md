@@ -23,7 +23,7 @@ WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISC
 | Java | JDK[1.8] ||
 | Git | 下载的安装包使用Git | |
 | MySQL | >= mysql-community-server[5.7] | 理论上来说支持主流数据库，但未测试|
-| ElasticSearch | >= elasticsearch [7.0] | 只有在需要ES存储时安装 |
+| ElasticSearch |  elasticsearch [7.x] | 只有在需要ES存储时安装 |
 | zookeeper | >= zookeeper[3.4] | 只有在进行集群部署的时候需要安装|
 
 
