@@ -16,12 +16,10 @@ package com.webank.blockchain.data.export.db.dao;
 import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.transport.TransportClient;
 
 /**
  * BlockDetailInfoDAO

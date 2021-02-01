@@ -13,7 +13,6 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
@@ -21,7 +20,6 @@ import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
-import com.webank.blockchain.data.export.common.bo.data.DeployedAccountInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
@@ -31,9 +29,7 @@ import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.DataType;
-import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import com.webank.blockchain.data.export.db.service.ESService;
-import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -49,6 +45,7 @@ import java.util.Map;
  * @Description:
  * @date 2020/10/26
  */
+@SuppressWarnings("deprecation")
 public class ESHandleDao {
 
 

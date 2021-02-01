@@ -119,6 +119,7 @@ public class DataPersistenceManager {
         buildESStore();
     }
 
+    @SuppressWarnings("deprecation")
     public void buildESStore() {
         if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
             TransportClient esClient = ESHandleDao.create();
