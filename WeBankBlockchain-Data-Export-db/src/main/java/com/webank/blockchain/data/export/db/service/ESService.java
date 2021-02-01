@@ -37,6 +37,7 @@ import java.util.Map;
  * @date 2020/10/23
  */
 @Slf4j
+@SuppressWarnings("deprecation")
 public class ESService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
