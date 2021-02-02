@@ -52,11 +52,9 @@ public class BlockCheckService {
         BlockTaskPoolRepository blockTaskPoolRepository =
                 DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository();
         List<BlockTaskPool> unnormalRecords = blockTaskPoolRepository.findUnNormalRecords();
-        if (CollectionUtil.isEmpty(unnormalRecords)) {
-            return;
-        } else {
+        if (!CollectionUtil.isEmpty(unnormalRecords)) {
             log.info("sync block detect {} error transactions.", unnormalRecords.size());
-            unnormalRecords.parallelStream().map(b -> b.getBlockHeight()).forEach(e -> {
+            unnormalRecords.parallelStream().map(BlockTaskPool::getBlockHeight).forEach(e -> {
                 log.error("Block {} sync error, and begin to rollback.", e);
                 RollBackService.rollback(e, e + 1);
                 blockTaskPoolRepository.setSyncStatusByBlockHeight((short) TxInfoStatusEnum.INIT.getStatus(),
@@ -107,7 +105,7 @@ public class BlockCheckService {
     public static void checkTimeOut() {
         BlockTaskPoolRepository blockTaskPoolRepository =
                 DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository();
-        Date offsetDate = DateUtil.offsetSecond(DateUtil.date(), 0 - BlockConstants.DEPOT_TIME_OUT);
+        Date offsetDate = DateUtil.offsetSecond(DateUtil.date(), -BlockConstants.DEPOT_TIME_OUT);
         log.info("Begin to check timeout transactions which is ealier than {}", offsetDate);
         List<BlockTaskPool> list = blockTaskPoolRepository
                 .findBySyncStatusAndDepotUpdatetimeLessThan((short) TxInfoStatusEnum.DOING.getStatus(), offsetDate);

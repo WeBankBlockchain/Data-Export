@@ -76,14 +76,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
             log.error(" BlockTaskPoolRepository findByCertainty failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
-        if (entityList != null) {
-            entityList.forEach(e -> {
-                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-            });
-        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
         return result;
     }
 
@@ -96,14 +94,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
             log.error(" BlockTaskPoolRepository findByBlockHeightRange failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
-        if (entityList != null) {
-            entityList.forEach(e -> {
-                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-            });
-        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
         return result;
     }
 
@@ -126,14 +122,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
             log.error(" BlockTaskPoolRepository findUnNormalRecords failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
-        if (entityList != null) {
-            entityList.forEach(e -> {
-                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-            });
-        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
         return result;
     }
 
@@ -166,14 +160,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
             log.error(" BlockTaskPoolRepository findBySyncStatusModByBlockHeightLimit failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
-        if (entityList != null) {
-            entityList.forEach(e -> {
-                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-            });
-        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
         return result;
     }
 
@@ -187,14 +179,12 @@ public class BlockTaskPoolRepository implements RollbackInterface{
             log.error(" BlockTaskPoolRepository findBySyncStatusAndDepotUpdatetimeLessThan failed ", e);
         }
         List<BlockTaskPool> result = new ArrayList<>();
-        if(CollectionUtil.isEmpty(result)) {
+        if(CollectionUtil.isEmpty(entityList)) {
             return result;
         }
-        if (entityList != null) {
-            entityList.forEach(e -> {
-                result.add(BeanUtils.toBean(e, BlockTaskPool.class));
-            });
-        }
+        entityList.forEach(e -> {
+            result.add(BeanUtils.toBean(e, BlockTaskPool.class));
+        });
         return result;
     }
 
