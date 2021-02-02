@@ -22,12 +22,11 @@ import java.util.Map;
 @Slf4j
 public class ContractParser {
 
-    public static void initContractMaps(List<ContractInfo> contractInfoList){
+    public static ContractMapsInfo initContractMaps(List<ContractInfo> contractInfoList){
         if (CollectionUtil.isEmpty(contractInfoList)){
-            return;
+            return null;
         }
         ContractMapsInfo contractMapsInfo = new ContractMapsInfo();
-        ContractConstants.setCurrentContractMaps(contractMapsInfo);
         Map<String, MethodMetaInfo> methodIdMap = new HashMap<>();
         Map<String, ContractDetail> contractBinaryMap = new HashMap<>();
         contractMapsInfo.setContractBinaryMap(contractBinaryMap);
@@ -55,5 +54,6 @@ public class ContractParser {
                 contractBinaryMap.put(binary, contractDetail);
             }
         }
+        return contractMapsInfo;
     }
 }

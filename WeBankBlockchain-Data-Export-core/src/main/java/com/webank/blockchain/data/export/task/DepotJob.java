@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.service.BlockDepotService;
@@ -30,6 +33,7 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 
 import lombok.extern.slf4j.Slf4j;
+import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 
 /**
  * MyDataflowJob
@@ -42,20 +46,40 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DepotJob implements DataflowJob<Block> {
 
+    private final DataExportContext context;
+
+    private final DataPersistenceManager dataPersistenceManager;
+
+    private final ContractMapsInfo mapsInfo;
+
+    public DepotJob(DataExportContext context, ContractMapsInfo mapsInfo, DataPersistenceManager dataPersistenceManager) {
+        this.context = context;
+        this.mapsInfo = mapsInfo;
+        this.dataPersistenceManager = dataPersistenceManager;
+    }
+
     @Override
     public List<Block> fetchData(ShardingContext shardingContext) {
+        ExportConstant.setCurrentContext(context);
+        DataPersistenceManager.setCurrentManager(dataPersistenceManager);
+        ContractConstants.setCurrentContractMaps(mapsInfo);
+
         List<BlockTaskPool> tasks =
                 DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                         .findBySyncStatusModByBlockHeightLimit(shardingContext.getShardingTotalCount(),
                         shardingContext.getShardingItem(), (short) TxInfoStatusEnum.INIT.getStatus(), 1);
         if (CollectionUtil.isEmpty(tasks)) {
-            return new ArrayList<Block>();
+            return new ArrayList<>();
         }
         return BlockDepotService.getTasks(tasks);
     }
 
     @Override
     public void processData(ShardingContext shardingContext, List<Block> data) {
+        ExportConstant.setCurrentContext(context);
+        DataPersistenceManager.setCurrentManager(dataPersistenceManager);
+        ContractConstants.setCurrentContractMaps(mapsInfo);
+
         BigInteger blockNumber = ExportConstant.getCurrentContext().getClient()
                 .getBlockNumber().getBlockNumber();
         BlockDepotService.processDataSequence(data, blockNumber.longValue());

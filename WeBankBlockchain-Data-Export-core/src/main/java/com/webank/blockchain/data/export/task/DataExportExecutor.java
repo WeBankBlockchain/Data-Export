@@ -43,10 +43,12 @@ public class DataExportExecutor {
             ExportConfig config = context.getConfig();
             CoordinatorRegistryCenter registryCenter = ElasticJobUtil.createRegistryCenter(
                     config.getZookeeperServiceLists(), config.getZookeeperNamespace());
-            new ScheduleJobBootstrap(registryCenter, new PrepareTaskJob(),
+            PrepareTaskJob prepareTaskJob = new PrepareTaskJob(context);
+            new ScheduleJobBootstrap(registryCenter, prepareTaskJob,
                     ElasticJobUtil.createJobConfiguration("PrepareTaskJob",config.getPrepareTaskJobCron(),
                             1, "0=A")).schedule();
-            new ScheduleJobBootstrap(registryCenter, new DepotJob(),
+            new ScheduleJobBootstrap(registryCenter, new DepotJob(context,
+                    prepareTaskJob.getMapsInfo(),prepareTaskJob.getDataPersistenceManager()),
                     ElasticJobUtil.createJobConfiguration("DataFlowJob",config.getDataFlowJobCron(),
                     config.getDataFlowJobShardingTotalCount(), config.getDataFlowJobItemParameters())).schedule();
             return;
