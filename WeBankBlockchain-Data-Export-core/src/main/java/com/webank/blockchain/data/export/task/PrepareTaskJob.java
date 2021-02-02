@@ -60,7 +60,10 @@ public class PrepareTaskJob implements SimpleJob {
         }catch (Exception e) {
             log.error("save Contract Info, {}", e.getMessage());
         }
-        mapsInfo = ContractParser.initContractMaps(ExportConstant.getCurrentContext().getConfig().getContractInfoList());
+        mapsInfo = ContractParser.initContractMaps(context.getConfig().getContractInfoList());
+        ExportConstant.setCurrentContext(context);
+        DataPersistenceManager.setCurrentManager(dataPersistenceManager);
+        ContractConstants.setCurrentContractMaps(mapsInfo);
         dataPersistenceManager.buildDataStore();
     }
 
