@@ -6,6 +6,7 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.tools.ElasticJobUtil;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.ScheduleJobBootstrap;
 import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
 
@@ -43,12 +44,17 @@ public class DataExportExecutor {
             ExportConfig config = context.getConfig();
             CoordinatorRegistryCenter registryCenter = ElasticJobUtil.createRegistryCenter(
                     config.getZookeeperServiceLists(), config.getZookeeperNamespace());
-            new ScheduleJobBootstrap(registryCenter, new PrepareTaskJob(),
-                    ElasticJobUtil.createJobConfiguration("PrepareTaskJob",config.getPrepareTaskJobCron(),
-                            1, "0=A")).schedule();
-            new ScheduleJobBootstrap(registryCenter, new DepotJob(),
-                    ElasticJobUtil.createJobConfiguration("DataFlowJob",config.getDataFlowJobCron(),
-                    config.getDataFlowJobShardingTotalCount(), config.getDataFlowJobItemParameters())).schedule();
+            PrepareTaskJob prepareTaskJob = new PrepareTaskJob(context);
+            new ScheduleJobBootstrap(registryCenter, prepareTaskJob,
+                    JobConfiguration.newBuilder("PrepareTaskJob", 1)
+                            .cron(config.getPrepareTaskJobCron()).shardingItemParameters("0=A").overwrite(true).build()
+                   ).schedule();
+            new ScheduleJobBootstrap(registryCenter, new DepotJob(context,
+                    prepareTaskJob.getMapsInfo(),prepareTaskJob.getDataPersistenceManager()),
+                    JobConfiguration.newBuilder("DataFlowJob", config.getDataFlowJobShardingTotalCount())
+                            .cron(config.getDataFlowJobCron())
+                            .shardingItemParameters(config.getDataFlowJobItemParameters()).overwrite(true).build()
+                    ).schedule();
             return;
         }
         executor = new ExportExecutor();

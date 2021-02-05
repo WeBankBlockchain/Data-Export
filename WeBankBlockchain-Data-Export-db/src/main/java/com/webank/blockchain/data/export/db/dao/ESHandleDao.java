@@ -68,9 +68,8 @@ public class ESHandleDao {
     public static final String EVENT = "event";
 
     @SneakyThrows
-    public static TransportClient create() {
+    public static TransportClient create(DataExportContext context) {
         TransportClient client;
-        DataExportContext context = ExportConstant.getCurrentContext();
         ESDataSource esConfig = context.getEsConfig();
         System.setProperty("es.set.netty.runtime.available.processors","false");
         Settings settings = Settings.builder()
@@ -107,7 +106,7 @@ public class ESHandleDao {
         if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE) && !ESService.indexExists(client,CONTRACT_INFO)){
             ESService.createIndex(client,CONTRACT_INFO);
         }
-        if (CollectionUtil.isNotEmpty(ExportConstant.getCurrentContext().getConfig().getContractInfoList())){
+        if (CollectionUtil.isNotEmpty(context.getConfig().getContractInfoList())){
             Map<String, ContractDetail> contractBinaryMap = ContractConstants.getCurrentContractMaps().getContractBinaryMap();
             for(Map.Entry<String,ContractDetail> entry : contractBinaryMap.entrySet()) {
                 ContractDetail contractDetail = entry.getValue();

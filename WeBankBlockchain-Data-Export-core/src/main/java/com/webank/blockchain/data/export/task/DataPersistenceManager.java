@@ -122,7 +122,7 @@ public class DataPersistenceManager {
     @SuppressWarnings("deprecation")
     public void buildESStore() {
         if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
-            TransportClient esClient = ESHandleDao.create();
+            TransportClient esClient = ESHandleDao.create(context);
             context.setEsClient(esClient);
             dataStoreServiceList.add(new ESStoreService());
         }

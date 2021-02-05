@@ -14,7 +14,9 @@
 package com.webank.blockchain.data.export.task;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
+import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -67,7 +69,8 @@ public class CrawlRunner {
             return;
         }
         //abi、bin parse
-        ContractParser.initContractMaps(ExportConstant.getCurrentContext().getConfig().getContractInfoList());
+        ContractMapsInfo mapsInfo = ContractParser.initContractMaps(ExportConstant.getCurrentContext().getConfig().getContractInfoList());
+        ContractConstants.setCurrentContractMaps(mapsInfo);
         DataPersistenceManager.getCurrentManager().buildDataStore();
         handle();
     }
