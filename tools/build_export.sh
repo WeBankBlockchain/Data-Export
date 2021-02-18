@@ -10,6 +10,14 @@ LANG=zh_CN.UTF-8
 ##
 ##############################################################################
 
+# @function: output information log
+# @param: content: information message
+function LOG_INFO()
+{
+    local content=${1}
+    echo -e "\033[32m"${content}"\033[0m"
+}
+
 # project info
 SETTING_PATH=~/.data_export
 PROJECT_NAME="WeBankBlockchain-Data-Export"
@@ -33,14 +41,6 @@ function LOG_ERROR()
 {
     local content=${1}
     echo -e "\033[31m"${content}"\033[0m"
-}
-
-# @function: output information log
-# @param: content: information message
-function LOG_INFO()
-{
-    local content=${1}
-    echo -e "\033[32m"${content}"\033[0m"
 }
 
 function check_java(){
