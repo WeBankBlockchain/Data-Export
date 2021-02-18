@@ -13,8 +13,8 @@
  */
 package com.webank.blockchain.data.export.parser.handler;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.collection.ListUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
@@ -23,6 +23,7 @@ import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
+import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
@@ -35,8 +36,6 @@ import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionObject;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionResult;
 import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 import java.io.IOException;
@@ -93,6 +92,7 @@ public class EventCrawlerHandler {
         List<EventBO> boList = new ArrayList<>();
         ContractDetail contractDetail = ContractConstants.getCurrentContractMaps().getContractBinaryMap()
                 .get(contractAbiMap.get(contractName).getBinary());
+        ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         List<EventMetaInfo> eventMetaInfos = contractDetail.getEventMetaInfos();
 
         Map<String,EventMetaInfo> eventMetaInfoMap = eventMetaInfos.stream()
@@ -115,11 +115,21 @@ public class EventCrawlerHandler {
                 EventBO eventBO = new EventBO();
                 Map<String, Object> entity = Maps.newHashMap();
                 for (FieldVO fieldVO : eventMetaInfo.getList()) {
+                    if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
+                            && config.getIgnoreParam().containsKey(eventMetaInfo.getContractName())){
+                        Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
+                        if (ignoreParamMap.containsKey(eventMetaInfo.getEventName())){
+                            if (ignoreParamMap.get(eventMetaInfo.getEventName()).contains(fieldVO.getSolidityName())){
+                                i++;
+                                continue;
+                            }
+                        }
+                    }
                     if (params.get(i) instanceof java.util.List){
-                        entity.put(fieldVO.getJavaName(), JSONUtil.toJsonStr(params.get(i)));
+                        entity.put(fieldVO.getSqlName(), JSONUtil.toJsonStr(params.get(i++)));
                         continue;
                     }
-                    entity.put(StrUtil.toUnderlineCase(fieldVO.getJavaName()), params.get(i++));
+                    entity.put(fieldVO.getSqlName(), params.get(i++));
                 }
                 entity.put("block_time_stamp", DateUtils.hexStrToDate(block.getTimestamp()));
                 entity.put("tx_hash",tr.getTransactionHash());
