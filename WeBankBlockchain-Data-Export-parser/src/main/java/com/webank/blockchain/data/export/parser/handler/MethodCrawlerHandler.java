@@ -14,7 +14,6 @@
 package com.webank.blockchain.data.export.parser.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
@@ -25,6 +24,7 @@ import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
+import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.TableSQL;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
@@ -116,6 +116,7 @@ public class MethodCrawlerHandler {
 
     public static MethodBO parseMethod(Block block, MethodMetaInfo methodMetaInfo, TransactionReceipt receipt, String abi){
         TransactionDecoderInterface decoder = ExportConstant.getCurrentContext().getDecoder();
+        ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         MethodBO methodBO = null;
         try {
             List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getMethodName(), receipt,
@@ -138,7 +139,17 @@ public class MethodCrawlerHandler {
                 List<Object> returns = response.getValuesList();
                 int i = 0;
                 for (FieldVO fieldVO : methodMetaInfo.getOutputList()) {
-                    entity.put(StrUtil.toUnderlineCase(fieldVO.getJavaName()), returns.get(i++));
+                    if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
+                            && config.getIgnoreParam().containsKey(methodMetaInfo.getContractName())){
+                        Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(methodMetaInfo.getContractName());
+                        if (ignoreParamMap.containsKey(methodMetaInfo.getMethodName())){
+                            if (ignoreParamMap.get(methodMetaInfo.getMethodName()).contains(fieldVO.getJavaName())){
+                                i++;
+                                continue;
+                            }
+                        }
+                    }
+                    entity.put(fieldVO.getSqlName(), returns.get(i++));
                 }
             }
             List<FieldVO> fieldVOS = methodMetaInfo.getFieldsList();
@@ -146,11 +157,20 @@ public class MethodCrawlerHandler {
                 return methodBO;
             }
             for (int i = 0; i < fieldVOS.size(); i++) {
+                if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
+                        && config.getIgnoreParam().containsKey(methodMetaInfo.getContractName())){
+                    Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(methodMetaInfo.getContractName());
+                    if (ignoreParamMap.containsKey(methodMetaInfo.getMethodName())){
+                        if (ignoreParamMap.get(methodMetaInfo.getMethodName()).contains(fieldVOS.get(i).getSolidityName())){
+                            continue;
+                        }
+                    }
+                }
                 if (params.get(i) instanceof java.util.List){
-                    entity.put(fieldVOS.get(i).getJavaName(), JSONUtil.toJsonStr(params.get(i)));
+                    entity.put(fieldVOS.get(i).getSqlName(), JSONUtil.toJsonStr(params.get(i)));
                     continue;
                 }
-                entity.put(fieldVOS.get(i).getJavaName(), params.get(i));
+                entity.put(fieldVOS.get(i).getSqlName(), params.get(i));
             }
         } catch (Exception e) {
             log.error("decoder.decodeEvents failed", e);

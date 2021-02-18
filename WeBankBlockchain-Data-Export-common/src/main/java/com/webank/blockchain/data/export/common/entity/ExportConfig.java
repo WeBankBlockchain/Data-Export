@@ -1,9 +1,12 @@
 package com.webank.blockchain.data.export.common.entity;
 
+import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wesleywang
@@ -20,6 +23,29 @@ public class ExportConfig {
     private String startDate;
 
     private List<DataType> dataTypeBlackList = DataType.getDefault();
+
+    /**
+     * ex: Map<contractName, methodName or eventName>
+     */
+    private Map<String,List<String>> generatedOff = new HashMap<>();
+
+    /**
+     * ex: Map<contractName, Map<methodName or eventName, List<javaNameParamName>>>
+     */
+    private Map<String, Map<String,List<String>>> ignoreParam = new HashMap<>();
+
+    /**
+     * ex: Map<contractName, Map<methodName or eventName, Map<solidityParamName,paramType>>>
+     */
+    private Map<String, Map<String,Map<String,String>>> paramSQLType = new HashMap<>();
+
+    private String tablePrefix = "";
+
+    private String tablePostfix= "";
+
+    private String namePrefix = "";
+
+    private String namePostfix = "";
 
     private List<ContractInfo> ContractInfoList;
 

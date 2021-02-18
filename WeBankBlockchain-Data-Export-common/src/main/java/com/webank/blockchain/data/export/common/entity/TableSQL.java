@@ -163,7 +163,10 @@ public class TableSQL {
                     ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
 
     public static String getTableName(String contractName,String name){
-        return contractName + "_" + StrUtil.toUnderlineCase(name);
+        ExportConfig config = ExportConstant.getCurrentContext().getConfig();
+        String tablePrefix = config.getTablePrefix();
+        String tablePostfix = config.getTablePostfix();
+        return tablePrefix + contractName + "_" + StrUtil.toUnderlineCase(name) + tablePostfix;
     }
 
 
