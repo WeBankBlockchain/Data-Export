@@ -16,6 +16,8 @@ WeBankBlockchain-Data-Export 是一个基于[FISCO-BCOS](https://github.com/FISC
 
 WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前块高、交易总量等。如果正确配置了FISCO-BCOS上运行的所有合约，WeBankBlockchain-Data-Export可以导出区块链上这些合约的业务数据，包括event、构造函数、合约地址、执行函数的信息等。
 
+**此版本增加了SDK调用方式，无spring等框架依赖，使用更加轻便灵活** 
+
 **此版本只支持**[FISCO BCOS 2.0](https://fisco-bcos-documentation.readthedocs.io/zh_CN/latest/)及以上版本。
 
 
@@ -38,6 +40,8 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 - 支持可视化的监控页面
 
 - 提供可视化的互动API控制台
+
+- 支持SDK调用
 
 ## 环境要求
 
