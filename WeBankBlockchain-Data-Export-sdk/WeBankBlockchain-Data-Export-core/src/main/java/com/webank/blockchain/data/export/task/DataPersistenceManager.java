@@ -59,6 +59,7 @@ import static com.webank.blockchain.data.export.common.entity.ExportConstant.tab
  */
 @Data
 @Slf4j
+@SuppressWarnings("deprecation")
 public class DataPersistenceManager {
 
     public static final ThreadLocal<DataPersistenceManager> dataPersistenceManager = new ThreadLocal<>();

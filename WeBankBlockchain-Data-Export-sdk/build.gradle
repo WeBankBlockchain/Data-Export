@@ -60,7 +60,7 @@ sourceSets {
 
 jar {
     destinationDir file("dist/apps")
-    archiveName project.name + "-" + 'SDK-1.7.0' + ".jar"
+    archiveName project.name + "-" + '1.7.0' + ".jar"
 
     exclude "**/*.properties"
 
@@ -109,7 +109,7 @@ clean {
 }
 
 subprojects {
-    version = "1.6.0"
+    version = "1.7.0"
     apply plugin: "java"
 
     sourceCompatibility = '1.8'
