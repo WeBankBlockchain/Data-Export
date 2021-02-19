@@ -41,7 +41,7 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 
 - 提供可视化的互动API控制台
 
-- 支持SDK调用
+- 支持jar包集成调用
 
 ## 环境要求
 
