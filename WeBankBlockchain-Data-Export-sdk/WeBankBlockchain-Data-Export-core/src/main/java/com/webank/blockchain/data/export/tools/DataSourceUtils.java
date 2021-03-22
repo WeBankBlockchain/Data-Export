@@ -88,6 +88,8 @@ public class DataSourceUtils {
                                                       boolean autoCreateTable, List<String> blackTables) {
         Map<String, DataSource> dataSourceMap = new HashMap<>();
         String dsName = "ds";
+        String tablePrefix = ExportConstant.getCurrentContext().getConfig().getTablePrefix();
+        String tablePostfix = ExportConstant.getCurrentContext().getConfig().getTablePostfix();
         int i = 0;
         for (MysqlDataSource dataSource : mysqlDataSources) {
             DataSource ds = buildSingleDataSource(dataSource);
@@ -107,6 +109,9 @@ public class DataSourceUtils {
         for (String table : tables) {
             if (table.equals(ExportConstant.BLOCK_TASK_POOL_TABLE) || table.equals(ExportConstant.CONTRACT_INFO_TABLE)) {
                 continue;
+            }
+            if (ExportConstant.tables.contains(table)) {
+                table = tablePrefix + table + tablePostfix;
             }
             // table rule
             ShardingTableRuleConfiguration orderTableRuleConfig = new
@@ -161,6 +166,8 @@ public class DataSourceUtils {
 
     private static void creatShardingTables(DataSource ds, int shardingNumberPerDatasource, List<String> blackTables) {
         log.info("export data auto create table begin....");
+        String tablePrefix = ExportConstant.getCurrentContext().getConfig().getTablePrefix();
+        String tablePostfix = ExportConstant.getCurrentContext().getConfig().getTablePostfix();
         Db db = Db.use(ds);
         List<String> tables = MetaUtil.getTables(ds);
         try {
@@ -170,14 +177,14 @@ public class DataSourceUtils {
                 }
                 if (entry.getKey().equals(ExportConstant.BLOCK_TASK_POOL_TABLE)
                         || entry.getKey().equals(ExportConstant.CONTRACT_INFO_TABLE)) {
-                    if (!tables.contains(entry.getKey())) {
-                        db.execute(entry.getValue());
+                    if (!tables.contains(tablePrefix + entry.getKey() + tablePostfix)) {
+                        db.execute(entry.getValue().replaceFirst(entry.getKey(), tablePrefix + entry.getKey() + tablePostfix));
                     }
                     continue;
                 }
                 for (int i = 0; i < shardingNumberPerDatasource; i++) {
-                    if (!tables.contains(entry.getKey() + i)) {
-                        db.execute(entry.getValue().replaceFirst(entry.getKey(), entry.getKey() + i));
+                    if (!tables.contains(tablePrefix + entry.getKey() + tablePostfix + i)) {
+                        db.execute(entry.getValue().replaceFirst(entry.getKey(), tablePrefix + entry.getKey()  + tablePostfix + i));
                     }
                 }
             }
@@ -191,6 +198,8 @@ public class DataSourceUtils {
 
     private static void createTable(DataSource ds, List<String> blackTables) {
         log.info("export data auto create table begin....");
+        String tablePrefix = ExportConstant.getCurrentContext().getConfig().getTablePrefix();
+        String tablePostfix = ExportConstant.getCurrentContext().getConfig().getTablePostfix();
         try {
             Db db = Db.use(ds);
             List<String> tables = MetaUtil.getTables(ds);
@@ -198,8 +207,8 @@ public class DataSourceUtils {
                 if (blackTables.contains(entry.getKey())) {
                     continue;
                 }
-                if (!tables.contains(entry.getKey())) {
-                    db.execute(entry.getValue());
+                if (!tables.contains(tablePrefix + entry.getKey() + tablePostfix)) {
+                    db.execute(entry.getValue().replaceFirst(entry.getKey(), tablePrefix + entry.getKey() + tablePostfix));
                 }
             }
             createMethodAndEventTable(db, blackTables, tables);

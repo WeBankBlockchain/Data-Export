@@ -125,7 +125,7 @@ public class EventCrawlerHandler {
                             }
                         }
                     }
-                    if (params.get(i) instanceof java.util.List){
+                    if (params.get(i) instanceof List){
                         entity.put(fieldVO.getSqlName(), JSONUtil.toJsonStr(params.get(i++)));
                         continue;
                     }

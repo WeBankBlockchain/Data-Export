@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
+import com.webank.blockchain.data.export.common.client.ChainClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.ABICodecException;
@@ -23,7 +24,6 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
 import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
 import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.client.Client;
 import org.fisco.bcos.sdk.model.TransactionReceipt;
 
 import java.lang.reflect.Field;
@@ -84,7 +84,7 @@ public class MethodUtils {
     }
 
     @SuppressWarnings("static-access")
-    public static List<Object> decodeMethodInput(String ABI, String methodName, TransactionReceipt tr, Client client)
+    public static List<Object> decodeMethodInput(String ABI, String methodName, TransactionReceipt tr, ChainClient client)
             throws ABICodecException {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(client.getCryptoSuite());
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
@@ -92,7 +92,7 @@ public class MethodUtils {
         ABICodecObject abiCodecObject = new ABICodecObject();
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         if (StringUtils.equals(methodName, "constructor")) {
-            String code = client.getCode(tr.getContractAddress()).getCode();
+            String code = client.getCode(tr.getContractAddress());
             String lastCode = StringUtils.substring(code, code.length() - 32, code.length());
             String paramsInput = StringUtils.substringAfter(tr.getInput(), lastCode);
             // remove methodId of input
