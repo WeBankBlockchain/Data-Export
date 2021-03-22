@@ -6,6 +6,7 @@ package ${group}.${projectName}.generated.entity.event;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -42,8 +43,9 @@ public class ${class_name} extends IdEntity {
         var sqlName =  entry.sqlName;
         var entityType = entry.entityType;
         var length = entry.length;
-        if(length>0){
-        	println("	@Column(name = \"" + sqlName + "\", length = "+ length+")");
+        if(length>10240){
+            println("   @Lob");
+        	println("	@Column(name = \"" + sqlName + "\")");
         }
         else{
         	println("	@Column(name = \"" + sqlName+ "\")");

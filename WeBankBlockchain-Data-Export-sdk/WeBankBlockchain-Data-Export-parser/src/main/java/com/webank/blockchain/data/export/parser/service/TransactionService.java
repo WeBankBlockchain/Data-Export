@@ -60,7 +60,13 @@ public class TransactionService {
                     transaction.getBlockNumber());
             return Optional.empty();
         }
-        String input = ExportConstant.getCurrentContext().getClient().getCode(contractAddress).getCode();
+        String input = ExportConstant.getCurrentContext().getClient().getCode(contractAddress);
+        if (input == null) {
+            log.warn(
+                    "block:{} contract:{} code can't be find",
+                    transaction.getBlockNumber(),contractAddress);
+            return Optional.empty();
+        }
         log.debug("code: {}", JacksonUtils.toJson(input));
         Map.Entry<String, ContractDetail> contractEntry = ContractConstructorService.getConstructorNameByCode(input);
         if (contractEntry == null) {
