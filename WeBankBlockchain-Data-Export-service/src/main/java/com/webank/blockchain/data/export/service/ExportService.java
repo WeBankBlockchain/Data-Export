@@ -37,16 +37,14 @@ public class ExportService {
                 .shardingNumberPerDatasource(serviceConfig.getShardingNumberPerDatasource())
                 .esDataSource(serviceConfig.getEsDataSource())
                 .build();
-        ExportConfig config = buildExportConfig();
-        //数据导出执行器构建
-        DataExportExecutor exportExecutor = null;
         try {
             if (serviceConfig.getNodeStr() != null) {
                 for(Integer groupId : serviceConfig.getGroupIds()) {
+                    ExportConfig config = buildExportConfig();
                     if (serviceConfig.getGroupIds().size() > 1) {
                         config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
                     }
-                    exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+                    DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                             //链节点连接信息
                             .nodeStr(serviceConfig.getNodeStr())
                             //链连接证书位置
@@ -59,10 +57,11 @@ public class ExportService {
                 }
             } else if(serviceConfig.getRpcUrl() != null) {
                 for(Integer groupId : serviceConfig.getGroupIds()) {
+                    ExportConfig config = buildExportConfig();
                     if (serviceConfig.getGroupIds().size() > 1) {
                         config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
                     }
-                    exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+                    DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                             .rpcUrl(serviceConfig.getRpcUrl())
                             .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
                             //群组id
@@ -72,7 +71,8 @@ public class ExportService {
                     ExportDataSDK.start(exportExecutor);
                 }
             } else if(serviceConfig.getJdbcUrl() != null) {
-                exportExecutor = ExportDataSDK.create(dataSource, StashInfo.builder()
+                ExportConfig config = buildExportConfig();
+                DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, StashInfo.builder()
                         .jdbcUrl(serviceConfig.getJdbcUrl())
                         .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
                         //群组id
