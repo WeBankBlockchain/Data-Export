@@ -1,6 +1,6 @@
 bootJar {
 	destinationDir file('dist')
-	archiveName project.name + version + '.jar'
+archiveName "Data-Export-" + version + '.jar'
     doLast {
         copy {
             from file('tools/')
