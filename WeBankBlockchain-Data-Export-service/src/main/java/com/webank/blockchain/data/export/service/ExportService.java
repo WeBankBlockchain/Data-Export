@@ -42,21 +42,35 @@ public class ExportService {
         DataExportExecutor exportExecutor = null;
         try {
             if (serviceConfig.getNodeStr() != null) {
-                exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
-                        //链节点连接信息
-                        .nodeStr(serviceConfig.getNodeStr())
-                        //链连接证书位置
-                        .certPath(serviceConfig.getCertPath())
-                        //群组id
-                        .groupId(serviceConfig.getGroupId())
-                        .build(), config);
+                for(Integer groupId : serviceConfig.getGroupIds()) {
+                    if (serviceConfig.getGroupIds().size() > 1) {
+                        config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
+                    }
+                    exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+                            //链节点连接信息
+                            .nodeStr(serviceConfig.getNodeStr())
+                            //链连接证书位置
+                            .certPath(serviceConfig.getCertPath())
+                            //群组id
+                            .groupId(groupId)
+                            .build(), config);
+                    //数据导出执行启动
+                    ExportDataSDK.start(exportExecutor);
+                }
             } else if(serviceConfig.getRpcUrl() != null) {
-                exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
-                        .rpcUrl(serviceConfig.getRpcUrl())
-                        .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
-                        //群组id
-                        .groupId(serviceConfig.getGroupId())
-                        .build(), config);
+                for(Integer groupId : serviceConfig.getGroupIds()) {
+                    if (serviceConfig.getGroupIds().size() > 1) {
+                        config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
+                    }
+                    exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
+                            .rpcUrl(serviceConfig.getRpcUrl())
+                            .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
+                            //群组id
+                            .groupId(groupId)
+                            .build(), config);
+                    //数据导出执行启动
+                    ExportDataSDK.start(exportExecutor);
+                }
             } else if(serviceConfig.getJdbcUrl() != null) {
                 exportExecutor = ExportDataSDK.create(dataSource, StashInfo.builder()
                         .jdbcUrl(serviceConfig.getJdbcUrl())
@@ -65,10 +79,10 @@ public class ExportService {
                         .pass(serviceConfig.getPassword())
                         .user(serviceConfig.getUser())
                         .build(), config);
+                //数据导出执行启动
+                ExportDataSDK.start(exportExecutor);
             }
-            //数据导出执行启动
-            assert exportExecutor != null;
-            ExportDataSDK.start(exportExecutor);
+
         } catch (Exception e) {
             log.error("ExportDataSDK.start failed",e);
         }
