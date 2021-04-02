@@ -1,2 +1,0 @@
-rootProject.name = 'Data-Export'
-include 'WeBankBlockchain-Data-Export-service', 'WeBankBlockchain-Data-Export-sdk'
