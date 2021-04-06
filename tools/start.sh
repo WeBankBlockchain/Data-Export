@@ -41,4 +41,4 @@ echo "copy Data-Export.jar success..."
 
 echo "run Data-Export.jar"
 
-java -jar Data-Export*.jar -Dspring.config.location=./config/application.properties
+java -jar Data-Export*.jar --spring.config.location=./config/application.properties

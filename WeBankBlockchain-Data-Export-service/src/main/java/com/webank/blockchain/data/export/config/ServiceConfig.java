@@ -137,7 +137,9 @@ public class ServiceConfig {
                 groupIds.add(Integer.valueOf(id));
             }
         }else {
-            groupIds.add(Integer.valueOf(groupId));
+            if (groupId != null) {
+                groupIds.add(Integer.valueOf(groupId));
+            }
         }
     }
 
