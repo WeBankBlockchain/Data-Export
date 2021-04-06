@@ -59,6 +59,10 @@ public class ServiceConfig {
     @Value("${system.db.sharding}")
     private boolean sharding;
 
+    private String abiPath;
+
+    private String binaryPath;
+
     @Value("${system.db.shardingNumberPerDatasource}")
     private int shardingNumberPerDatasource;
 

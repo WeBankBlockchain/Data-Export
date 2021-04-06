@@ -13,14 +13,21 @@
  */
 package com.webank.blockchain.data.export.utils;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
+import com.webank.blockchain.data.export.config.ServiceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +47,9 @@ public class PropertiesUtils {
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private ServiceConfig config;
 
 
     /**
@@ -77,25 +87,62 @@ public class PropertiesUtils {
         return dataSources;
     }
 
-
     public  List<ContractInfo> getContractInfos() {
         List<ContractInfo> dataSources = new ArrayList<>();
-        int i = 0;
-        while (true) {
-            String contractName = getProperty("system", "contract" + i, "contractName");
-            if (StringUtils.isBlank(contractName)) {
-                break;
+        Map<String,File> abiMap = getFiles(config.getAbiPath(),".abi");
+        Map<String,File> binMap = getFiles(config.getBinaryPath(),".bin");
+        if (CollectionUtil.isEmpty(abiMap) || CollectionUtil.isEmpty(binMap)){
+            return dataSources;
+        }
+        for(Map.Entry<String,File> entry : abiMap.entrySet()) {
+            if (!binMap.containsKey(entry.getKey())){
+                continue;
             }
-            String abi = getProperty("system", "contract" + i, "abi");
-            String binary = getProperty("system", "contract" + i, "binary");
+            StringBuilder abi = new StringBuilder();
+            try {
+                List<String> abis = Files.readAllLines(Paths.get(entry.getValue().toURI()), StandardCharsets.UTF_8);
+                for (String str : abis){
+                    abi.append(str);
+                }
+            } catch (IOException e) {
+                log.error("abi read failed ", e);
+            }
+            StringBuilder bin = new StringBuilder();
+            try {
+                List<String> bins = Files.readAllLines(Paths.get(binMap.get(entry.getKey()).toURI()), StandardCharsets.UTF_8);
+                for (String str : bins){
+                    bin.append(str);
+                }
+            } catch (IOException e) {
+                log.error("abi read failed ", e);
+            }
             ContractInfo contractInfo = new ContractInfo()
-                    .setBinary(binary)
-                    .setAbi(abi)
-                    .setContractName(contractName);
+                    .setBinary(bin.toString())
+                    .setAbi(abi.toString())
+                    .setContractName(entry.getKey());
             dataSources.add(contractInfo);
-            i++;
         }
         return dataSources;
+    }
+
+
+    public static Map<String,File> getFiles(String path, String fileType) {
+        Map<String,File> abiMap = new HashMap<>();
+        File file = new File(path);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null){
+                return abiMap;
+            }
+            for (File value : files) {
+                if (!value.isDirectory()) {
+                    if (value.getName().endsWith(fileType)) {
+                        abiMap.put(value.getName().substring(0, value.getName().length() - 4), value);
+                    }
+                }
+            }
+        }
+        return abiMap;
     }
 
     public  Map<String, List<String>> getGeneratedOff() {
