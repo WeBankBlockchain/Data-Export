@@ -4,6 +4,7 @@ import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.resource.ClasspathResourceLoader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,7 +138,7 @@ public class ServiceConfig {
                 groupIds.add(Integer.valueOf(id));
             }
         }else {
-            if (groupId != null) {
+            if (StringUtils.isNotBlank(groupId)) {
                 groupIds.add(Integer.valueOf(groupId));
             }
         }
