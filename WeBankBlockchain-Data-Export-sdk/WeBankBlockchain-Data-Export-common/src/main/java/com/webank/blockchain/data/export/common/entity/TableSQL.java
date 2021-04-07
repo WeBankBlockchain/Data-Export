@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +14,18 @@ import java.util.Map;
  * @Description:
  * @date 2020/12/18
  */
+@Slf4j
 public class TableSQL {
 
     public static Map<String, String> tableSqlMap;
 
+    public static String SQL_SCRIPT_NAME = "data_export.sql";
+
+    public static String SQL_SCRIPT_DIR = "./config";
+
     public static String BLOCK_DETAIL_INFO = "CREATE TABLE `block_detail_info` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `block_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
             "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
             "  `depot_updatetime` datetime(6) DEFAULT NULL,\n" +
@@ -32,7 +38,7 @@ public class TableSQL {
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
     public static final String BLOCK_RAW_DATA = " CREATE TABLE `block_raw_data` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `block_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
             "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
             "  `db_hash` varchar(255) DEFAULT NULL,\n" +
@@ -82,15 +88,14 @@ public class TableSQL {
             "  `tx_to` varchar(255) DEFAULT NULL,\n" +
             "  PRIMARY KEY (`pk_id`),\n" +
             "  KEY `block_height` (`block_height`),\n" +
-            "  KEY `tx_from` (`tx_from`),\n" +
             "  KEY `block_timestamp` (`block_time_stamp`)\n" +
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
     public static final String DEPLOYED_ACCOUNT_INFO = "CREATE TABLE `deployed_account_info` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `abi_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `abi_hash` varchar(128) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
             "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
-            "  `contract_address` varchar(255) DEFAULT NULL,\n" +
+            "  `contract_address` varchar(128) DEFAULT NULL,\n" +
             "  `contract_name` varchar(255) DEFAULT NULL,\n" +
             "  `depot_updatetime` datetime(6) DEFAULT NULL,\n" +
             "  PRIMARY KEY (`pk_id`),\n" +
@@ -100,7 +105,7 @@ public class TableSQL {
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
     public static final String TX_RAW_DATA = "CREATE TABLE `tx_raw_data` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `block_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
             "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
             "  `depot_updatetime` datetime(6) DEFAULT NULL,\n" +
@@ -119,7 +124,7 @@ public class TableSQL {
             ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
     public static final String TX_RECEIPT_RAW_DATA = "CREATE TABLE `tx_receipt_raw_data` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `block_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
             "  `block_height` bigint(20) DEFAULT NULL,\n" +
             "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
             "  `contract_address` varchar(255) DEFAULT NULL,\n" +
@@ -130,7 +135,7 @@ public class TableSQL {
             "  `logs` longtext,\n" +
             "  `logs_bloom` longtext,\n" +
             "  `message` varchar(255) DEFAULT NULL,\n" +
-            "  `output` varchar(255) DEFAULT NULL,\n" +
+            "  `output` longtext,\n" +
             "  `receipt_proof` longtext,\n" +
             "  `root` varchar(255) DEFAULT NULL,\n" +
             "  `status` varchar(255) DEFAULT NULL,\n" +
@@ -145,7 +150,7 @@ public class TableSQL {
 
     public static final String CONTRACT_INFO = "CREATE TABLE `contract_info` (\n" +
             "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
-            "  `abi_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `abi_hash` varchar(128) DEFAULT NULL,\n" +
             "  `contract_abi` longtext,\n" +
             "  `contract_binary` longtext,\n" +
             "  `contract_name` varchar(255) DEFAULT NULL,\n" +
@@ -158,8 +163,7 @@ public class TableSQL {
     public static final String TABLE_POSTFIX =
             "  PRIMARY KEY (`pk_id`),\n" +
                     "  KEY `block_height` (`block_height`),\n" +
-                    "  KEY `block_timestamp` (`block_time_stamp`),\n" +
-                    "  KEY `tx_hash` (`tx_hash`)\n" +
+                    "  KEY `block_timestamp` (`block_time_stamp`)\n" +
                     ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
 
     public static String getTableName(String contractName,String name){
@@ -172,6 +176,7 @@ public class TableSQL {
 
     public static String createMethodTableSql(MethodMetaInfo methodMetaInfo) {
         StringBuilder sql = new StringBuilder();
+        DataExportContext currentContext = ExportConstant.getCurrentContext();
         sql.append("CREATE TABLE ")
                 .append("`").append(getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()))
                 .append("`")
@@ -194,14 +199,16 @@ public class TableSQL {
                     .append(" DEFAULT NULL,\n");
         }
         sql.append(TABLE_POSTFIX);
+        currentContext.setSqlScript(currentContext.getSqlScript() + sql.toString() + "\n");
         return sql.toString();
     }
 
 
     public static String createEventTableSql(EventMetaInfo eventMetaInfo) {
         StringBuilder sql = new StringBuilder();
+        DataExportContext currentContext = ExportConstant.getCurrentContext();
         sql.append("CREATE TABLE ").append("`").append(
-                 getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName()))
+                getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName()))
                 .append("`")
                 .append(" (\n")
                 .append("  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
@@ -216,6 +223,7 @@ public class TableSQL {
                     .append(" DEFAULT NULL,\n");
         }
         sql.append(TABLE_POSTFIX);
+        currentContext.setSqlScript(currentContext.getSqlScript() + sql.toString() + "\n");
         return sql.toString();
     }
 
@@ -230,4 +238,5 @@ public class TableSQL {
         tableSqlMap.put("tx_raw_data", TX_RAW_DATA);
         tableSqlMap.put("contract_info",CONTRACT_INFO);
     }
+
 }

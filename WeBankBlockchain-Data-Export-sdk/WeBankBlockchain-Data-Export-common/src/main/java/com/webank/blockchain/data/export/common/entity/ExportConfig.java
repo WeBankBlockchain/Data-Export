@@ -1,6 +1,5 @@
 package com.webank.blockchain.data.export.common.entity;
 
-import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import lombok.Data;
 
@@ -47,7 +46,7 @@ public class ExportConfig {
 
     private String namePostfix = "";
 
-    private List<ContractInfo> ContractInfoList;
+    private List<ContractInfo> contractInfoList;
 
     private boolean multiLiving;
     private String zookeeperServiceLists;

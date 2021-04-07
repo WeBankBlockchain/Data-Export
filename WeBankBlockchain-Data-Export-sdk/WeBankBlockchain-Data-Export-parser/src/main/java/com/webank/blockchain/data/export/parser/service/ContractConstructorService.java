@@ -15,14 +15,13 @@
  */
 package com.webank.blockchain.data.export.parser.service;
 
-import java.util.Map;
-
+import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
+import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+import com.webank.blockchain.data.export.common.constants.BinConstant;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import org.apache.commons.lang3.StringUtils;
 
-import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
-import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
-import com.webank.blockchain.data.export.common.constants.BinConstant;
+import java.util.Map;
 
 /**
  * ContractConstructorService for querying contract constructor name by input.

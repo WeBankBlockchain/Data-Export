@@ -16,7 +16,6 @@ package com.webank.blockchain.data.export.common.tools;
 import com.webank.blockchain.data.export.common.constants.StatusCode;
 import com.webank.blockchain.data.export.common.vo.CommonDataResponse;
 import com.webank.blockchain.data.export.common.vo.CommonResponse;
-import com.webank.blockchain.data.export.common.vo.ValidErrorResponse;
 
 /**
  * ResponseUtils

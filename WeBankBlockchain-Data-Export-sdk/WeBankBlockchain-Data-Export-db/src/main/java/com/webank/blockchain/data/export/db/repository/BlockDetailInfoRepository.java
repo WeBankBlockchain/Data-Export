@@ -25,7 +25,6 @@ import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
 
     private DaoTemplate blockDetailDao;
 
-    private final String tableName = ExportConstant.BLOCK_DETAIL_INFO_TABLE;
+    private String tableName;
 
 
     /**
@@ -54,7 +53,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
     public BlockDetailInfo findTopByOrderByBlockHeightDesc(){
         List<Entity> entityList = null;
         try {
-            entityList = blockDetailDao.findBySql("block_detail_info order by block_height desc limit 1");
+            entityList = blockDetailDao.findBySql(tableName + " order by block_height desc limit 1");
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository findTopByOrderByBlockHeightDesc failed ", e);
         }
@@ -62,7 +61,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
             return null;
         }
         Entity entity = entityList.get(0);
-        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+        return BeanUtils.toBean(entity, BlockDetailInfo.class);
     }
 
     /**
@@ -73,7 +72,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
     public long sumByTxCount(){
         try {
             return Db.use(ExportConstant.getCurrentContext().getDataSource()).query(
-                    "select count(tx_count) from block_detail_info", NumberHandler.create()).intValue();
+                    "select count(tx_count) from " + tableName, NumberHandler.create()).intValue();
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository sumByTxCount failed ", e);
         }
@@ -90,7 +89,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
     public long sumByTxCountBetweens(long beginIndex, long endIndex){
         try {
             return Db.use(ExportConstant.getCurrentContext().getDataSource()).query(
-                    "select sum(tx_count) from block_detail_info where block_height >= ? and blockHeight< ?",
+                    "select sum(tx_count) from " + tableName + " where block_height >= ? and blockHeight< ?",
                     (RsHandler<Long>) rs -> rs.getLong(0),beginIndex,endIndex);
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository sumByTxCountBetweens failed ", e);
@@ -116,7 +115,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
     public void rollback(long startBlockHeight, long endBlockHeight) {
         try {
             Db.use(ExportConstant.getCurrentContext().getDataSource()).execute(
-                    "delete from block_detail_info where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+                    "delete from "+ tableName + " where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository rollback failed ", e);
         }
@@ -124,7 +123,9 @@ public class BlockDetailInfoRepository implements RollbackInterface {
 
     public void save(BlockDetailInfo blockDetailInfo) {
         try {
-            blockDetailDao.addForGeneratedKey(Entity.parse(blockDetailInfo,true,true));
+            Entity entity = Entity.parse(blockDetailInfo,true,true);
+            entity.setTableName(tableName);
+            blockDetailDao.addForGeneratedKey(entity);
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository save failed ", e);
         }
@@ -137,7 +138,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository findByBlockHeight failed ", e);
         }
-        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+        return BeanUtils.toBean(entity, BlockDetailInfo.class);
     }
 
 

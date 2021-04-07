@@ -4,8 +4,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven'
+    id 'java'
 }
-
 
 allprojects {
   repositories {
@@ -14,64 +14,42 @@ allprojects {
     }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url "https://dl.bintray.com/ethereum/maven/" }
-    mavenLocal()  
-    jcenter() 
+    mavenLocal()
+    jcenter()
   }
 }
 
-subprojects {
-  version = "1.7.2-SNAPSHOT"
-  apply plugin: "java"
-  apply plugin: "org.springframework.boot"
+subprojects{
+    version = "1.7.2-SNAPSHOT"
+    group = 'com.webank'
+
+}
+
+
+project(':WeBankBlockchain-Data-Export-service') {
+    apply plugin: "java"
+
+    apply plugin: "org.springframework.boot"
   apply plugin: "io.spring.dependency-management"
-
-  sourceCompatibility = '1.8'
-  targetCompatibility = '1.8'
-
-  def defaultEncoding = 'UTF-8'
-  tasks.withType(AbstractCompile).each { it.options.encoding = defaultEncoding }
-
-  javadoc {
-    options.encoding = defaultEncoding
-    options.addBooleanOption('Xdoclint:none', true)
-  }
-
-  compileJava.dependsOn(processResources)
-
-
   springBoot {
     buildInfo()
   }
 
-  dependencyManagement {
-    imports {
-      mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
-    }
-  }
-
-  test {
-    useJUnitPlatform()
+  javadoc {
+    def defaultEncoding = 'UTF-8'
+    options.encoding = defaultEncoding
+    options.addBooleanOption('Xdoclint:none', true)
   }
 
   dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
     testImplementation('org.springframework.boot:spring-boot-starter-test')
-    compile 'com.webank:data-export-sdk:1.7.2-SNAPSHOT'
-    implementation('com.ibeetl:beetl:2.9.3')
-
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+      exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-  }
-}
-
-
-
-project(':WeBankBlockchain-Data-Export-service') {
-  dependencies {
     compile 'com.webank:data-export-sdk:1.7.2-SNAPSHOT'
     implementation('com.ibeetl:beetl:2.9.3')
   }

@@ -19,7 +19,7 @@ import java.util.Map;
  * @date 2020/12/28
  */
 @Slf4j
-public class MethodAndEventDao implements SaveInterface<BlockInfoBO>{
+public class MethodAndEventDao implements SaveInterface<BlockInfoBO> {
 
     @Override
     public void save(BlockInfoBO blockInfoBO) {

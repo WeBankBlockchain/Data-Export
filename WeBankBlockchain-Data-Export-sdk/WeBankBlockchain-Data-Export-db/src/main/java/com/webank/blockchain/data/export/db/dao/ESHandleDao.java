@@ -108,7 +108,7 @@ public class ESHandleDao {
         }
         if (CollectionUtil.isNotEmpty(context.getConfig().getContractInfoList())){
             Map<String, ContractDetail> contractBinaryMap = ContractConstants.getCurrentContractMaps().getContractBinaryMap();
-            for(Map.Entry<String,ContractDetail> entry : contractBinaryMap.entrySet()) {
+            for(Map.Entry<String, ContractDetail> entry : contractBinaryMap.entrySet()) {
                 ContractDetail contractDetail = entry.getValue();
                 if (!blackTables.contains(DataType.METHOD_TABLE)) {
                     for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {

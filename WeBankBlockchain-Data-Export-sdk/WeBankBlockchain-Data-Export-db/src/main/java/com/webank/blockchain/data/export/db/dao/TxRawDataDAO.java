@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2020/10/26
  */
 @AllArgsConstructor
-public class TxRawDataDAO implements SaveInterface<BlockInfoBO>{
+public class TxRawDataDAO implements SaveInterface<BlockInfoBO> {
 
     private TxRawDataRepository txRawDataRepository;
 

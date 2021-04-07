@@ -6,11 +6,7 @@ plugins {
     id 'org.ajoberstar.grgit' version '4.1.0'
 }
 apply plugin: 'signing'
-group = 'com.webank'
-version = '1.7.0'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
-
-
 
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
@@ -34,19 +30,10 @@ artifacts {
     archives javadocJar
 }
 
-allprojects {
-    repositories {
-        mavenCentral()
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url "https://oss.sonatype.org/service/local/staging/deploy/maven2"}
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-        jcenter()
-    }
-}
 dependencies {
     compile ('cn.hutool:hutool-all:5.3.7')
     compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
-    compile('org.fisco-bcos.java-sdk:java-sdk:2.6.1')
+    compile('org.fisco-bcos.java-sdk:java-sdk:2.7.0')
     compile 'commons-codec:commons-codec:1.4'
     compile group: "org.apache.shardingsphere", name: "shardingsphere-jdbc-core", version: '5.0.0-alpha'
     compile('ch.qos.logback:logback-core:1.2.3')
@@ -60,6 +47,7 @@ dependencies {
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
     compile 'org.apache.logging.log4j:log4j-core:2.11.0'
     testCompile ("junit:junit:4.12")
+    compile 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.0'
 }
 
 sourceSets {
@@ -134,7 +122,7 @@ sourceSets {
 
 jar {
     destinationDir file("dist/apps")
-    archiveName project.name + "-" + '1.7.0-SNAPSHOT' + ".jar"
+    archiveName project.name + "-" + version + ".jar"
 
     exclude "**/*.properties"
 
@@ -199,7 +187,7 @@ subprojects {
     dependencies {
         compile ('cn.hutool:hutool-all:5.3.7')
         compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
-        compile('org.fisco-bcos.java-sdk:java-sdk:2.6.1')
+        compile('org.fisco-bcos.java-sdk:java-sdk:2.7.0')
         compile 'commons-codec:commons-codec:1.4'
         compile group: "org.apache.shardingsphere", name: "shardingsphere-jdbc-core", version: '5.0.0-alpha'
         compile('ch.qos.logback:logback-core:1.2.3')
@@ -212,6 +200,8 @@ subprojects {
         compile(group:'org.apache.shardingsphere.elasticjob', name: 'elasticjob-lite-core',version:'3.0.0-alpha')
         compile 'org.apache.logging.log4j:log4j-core:2.11.0'
         testCompile ("junit:junit:4.12")
+        compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
+        compile 'com.github.briandilley.jsonrpc4j:jsonrpc4j:1.0'
     }
 
     jar {
@@ -237,30 +227,6 @@ subprojects {
         }
     }
 }
-
-
-
-//project(':WeBankBlockchain-Data-Export-core') {
-//    dependencies {
-//        implementation project(':WeBankBlockchain-Data-Export-parser')
-//        implementation project(':WeBankBlockchain-Data-Export-common')
-//        implementation project(':WeBankBlockchain-Data-Export-db')
-//    }
-//}
-//
-//project(':WeBankBlockchain-Data-Export-parser') {
-//    dependencies {
-//        implementation project(':WeBankBlockchain-Data-Export-common')
-//    }
-//}
-//
-//project(':WeBankBlockchain-Data-Export-db') {
-//    dependencies {
-//        implementation project(':WeBankBlockchain-Data-Export-common')
-//        implementation project(':WeBankBlockchain-Data-Export-parser')
-//        compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.16'
-//    }
-//}
 
 
 configurations {

@@ -15,25 +15,22 @@
  */
 package com.webank.blockchain.data.export.task;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.service.BlockDepotService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.dataflow.job.DataflowJob;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
-import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
-
-import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * MyDataflowJob
@@ -80,8 +77,7 @@ public class DepotJob implements DataflowJob<Block> {
         DataPersistenceManager.setCurrentManager(dataPersistenceManager);
         ContractConstants.setCurrentContractMaps(mapsInfo);
 
-        BigInteger blockNumber = ExportConstant.getCurrentContext().getClient()
-                .getBlockNumber().getBlockNumber();
+        BigInteger blockNumber = ExportConstant.getCurrentContext().getClient().getBlockNumber();
         BlockDepotService.processDataSequence(data, blockNumber.longValue());
     }
 

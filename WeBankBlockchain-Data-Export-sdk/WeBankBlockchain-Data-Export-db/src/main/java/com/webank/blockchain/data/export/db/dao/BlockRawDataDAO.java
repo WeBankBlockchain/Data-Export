@@ -26,7 +26,7 @@ import lombok.AllArgsConstructor;
  * @date 2020/10/23
  */
 @AllArgsConstructor
-public class BlockRawDataDAO implements SaveInterface<BlockInfoBO>{
+public class BlockRawDataDAO implements SaveInterface<BlockInfoBO> {
 
     private BlockRawDataRepository blockRawDataRepository;
 

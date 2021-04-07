@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Data
-public class ESStoreService implements DataStoreService{
+public class ESStoreService implements DataStoreService {
 
     @Override
     public void storeBlockInfoBO(BlockInfoBO blockInfo) {

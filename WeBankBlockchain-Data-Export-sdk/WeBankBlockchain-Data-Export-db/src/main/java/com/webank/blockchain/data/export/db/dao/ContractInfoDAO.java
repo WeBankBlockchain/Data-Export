@@ -25,7 +25,7 @@ import lombok.AllArgsConstructor;
  * @date 2020/10/26
  */
 @AllArgsConstructor
-public class ContractInfoDAO implements SaveInterface<ContractInfoBO>{
+public class ContractInfoDAO implements SaveInterface<ContractInfoBO> {
 
     private ContractInfoRepository contractInfoRepository;
 

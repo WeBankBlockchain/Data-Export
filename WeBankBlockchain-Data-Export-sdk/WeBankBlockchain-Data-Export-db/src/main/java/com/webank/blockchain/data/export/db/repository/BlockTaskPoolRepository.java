@@ -38,11 +38,11 @@ import java.util.List;
  */
 @Slf4j
 @AllArgsConstructor
-public class BlockTaskPoolRepository implements RollbackInterface{
+public class BlockTaskPoolRepository implements RollbackInterface {
 
     private DaoTemplate blockTaskPoolDao;
 
-    private final String tableName = ExportConstant.BLOCK_TASK_POOL_TABLE;
+    private String tableName;
 
     public BlockTaskPool findTopByOrderByBlockHeightDesc() {
         List<Entity> entityList = null;
@@ -58,7 +58,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         return BeanUtils.toBean(entity, BlockTaskPool.class);
     }
 
-    public  BlockTaskPool findByBlockHeight(long blockHeight) {
+    public BlockTaskPool findByBlockHeight(long blockHeight) {
         Entity entity = null;
         try {
             entity = blockTaskPoolDao.get("block_height", blockHeight);
@@ -150,7 +150,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
     }
 
     public List<BlockTaskPool> findBySyncStatusModByBlockHeightLimit(int shardingCount, int shardingItem,
-            short syncStatus, int limit) {
+                                                                     short syncStatus, int limit) {
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(
@@ -233,7 +233,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
     public void rollback(long startBlockHeight, long endBlockHeight) {
         try {
             Db.use(ExportConstant.getCurrentContext().getDataSource()).execute(
-                    "delete from block_task_pool where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
+                    "delete from " +  tableName +" where block_height >= ? and block_height< ?",startBlockHeight,endBlockHeight);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository rollback failed ", e);
         }
@@ -245,7 +245,9 @@ public class BlockTaskPoolRepository implements RollbackInterface{
 
     public void save(BlockTaskPool blockTaskPool) {
         try {
-            blockTaskPoolDao.addOrUpdate(Entity.parse(blockTaskPool, true, true));
+            Entity entity = Entity.parse(blockTaskPool, true, true);
+            entity.setTableName(tableName);
+            blockTaskPoolDao.addOrUpdate(entity);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository saveAll failed ", e);
         }

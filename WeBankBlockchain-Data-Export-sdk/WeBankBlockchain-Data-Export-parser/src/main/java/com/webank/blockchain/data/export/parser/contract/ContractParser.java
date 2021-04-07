@@ -1,14 +1,13 @@
 package com.webank.blockchain.data.export.parser.contract;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.crypto.digest.MD5;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
-import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.crypto.hash.Keccak256;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ public class ContractParser {
         Map<String, ContractDetail> contractBinaryMap = new HashMap<>();
         contractMapsInfo.setContractBinaryMap(contractBinaryMap);
         contractMapsInfo.setMethodIdMap(methodIdMap);
+        MD5 md5 = MD5.create();
         for (ContractInfo entry : contractInfoList) {
             ContractDetail contractDetail = new ContractDetail();
             ContractInfoBO contractInfoBO = new ContractInfoBO();
@@ -43,7 +43,7 @@ public class ContractParser {
                 log.error("binary is null !!! please set it");
             }
             contractInfoBO.setContractABI(abi);
-            contractInfoBO.setAbiHash(new Keccak256().hash(abi));
+            contractInfoBO.setAbiHash(md5.digestHex(abi));
             contractInfoBO.setContractBinary(binary);
             contractInfoBO.setContractName(entry.getContractName());
             contractDetail.setContractInfoBO(contractInfoBO);

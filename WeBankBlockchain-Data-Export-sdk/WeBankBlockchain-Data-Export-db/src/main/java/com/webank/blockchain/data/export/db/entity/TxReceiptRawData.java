@@ -29,7 +29,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class TxReceiptRawData extends IdEntity{
+public class TxReceiptRawData extends IdEntity {
 
     /** @Fields blockHeight : block height */
     private long blockHeight;

@@ -15,7 +15,6 @@ package com.webank.blockchain.data.export.db.repository;
 
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +32,14 @@ public class DeployedAccountInfoRepository {
 
     private DaoTemplate deployedAccountInfoDao;
 
+    private String tableName;
+
+
     public void save(DeployedAccountInfo deployedAccountInfo) {
         try {
-            deployedAccountInfoDao.addForGeneratedKey(Entity.parse(deployedAccountInfo,true,true));
+            Entity entity = Entity.parse(deployedAccountInfo,true,true);
+            entity.setTableName(tableName);
+            deployedAccountInfoDao.addForGeneratedKey(entity);
         } catch (SQLException e) {
             log.error(" DeployedAccountInfoRepository save failed ", e);
         }

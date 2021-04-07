@@ -15,11 +15,17 @@ package com.webank.blockchain.data.export.task;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+import com.webank.blockchain.data.export.common.client.ChainClient;
+import com.webank.blockchain.data.export.common.client.ChannelClient;
+import com.webank.blockchain.data.export.common.client.RpcHttpClient;
+import com.webank.blockchain.data.export.common.client.StashClient;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.entity.StashInfo;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.service.BlockAsyncService;
@@ -27,11 +33,15 @@ import com.webank.blockchain.data.export.service.BlockCheckService;
 import com.webank.blockchain.data.export.service.BlockDepotService;
 import com.webank.blockchain.data.export.service.BlockIndexService;
 import com.webank.blockchain.data.export.service.BlockPrepareService;
+import com.webank.blockchain.data.export.tools.DataSourceUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 
+import javax.sql.DataSource;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,17 +72,40 @@ public class CrawlRunner {
         this.context = context;
     }
 
-    public void export() {
+    public void export() throws ConfigException, MalformedURLException {
         checkConfig();
         if (!runSwitch.get()){
             log.info("data export config check failed, task already stop");
             return;
         }
+        buildClient();
         //abi、bin parse
         ContractMapsInfo mapsInfo = ContractParser.initContractMaps(ExportConstant.getCurrentContext().getConfig().getContractInfoList());
         ContractConstants.setCurrentContractMaps(mapsInfo);
         DataPersistenceManager.getCurrentManager().buildDataStore();
         handle();
+    }
+
+    private void buildClient() throws MalformedURLException, ConfigException {
+        ChainClient chainClient;
+        ChainInfo chainInfo = context.getChainInfo();
+        StashInfo stashInfo = context.getStashInfo();
+        if (stashInfo != null) {
+            DataSource dataSource = DataSourceUtils.createDataSource(stashInfo.getJdbcUrl(),
+                    null,
+                    stashInfo.getUser(),
+                    stashInfo.getPass());
+            context.setStashDataSource(dataSource);
+            chainClient = new StashClient();
+            context.setClient(chainClient);
+            return;
+        }
+        if (chainInfo.getRpcUrl() != null) {
+            chainClient = new RpcHttpClient();
+        } else {
+            chainClient = new ChannelClient();
+        }
+        context.setClient(chainClient);
     }
 
     private void checkConfig() {
@@ -101,13 +134,15 @@ public class CrawlRunner {
                 return;
             }
         }
-        if (context.getChainInfo().getNodeStr() == null) {
-            log.error("nodeStr is not set，please set it ！！！ ");
-            return;
-        }
-        if (context.getChainInfo().getCertPath() == null) {
-            log.error("certPath is not set，please set it ！！！ ");
-            return;
+        if (context.getChainInfo() != null) {
+            if (context.getChainInfo().getRpcUrl() == null && context.getChainInfo().getNodeStr() == null) {
+                log.error("rpcUrl and nodeStr are not set，please set it ！！！ ");
+                return;
+            }
+            if (context.getChainInfo().getNodeStr() != null && context.getChainInfo().getCertPath() == null) {
+                log.error("certPath is not set，please set it ！！！ ");
+                return;
+            }
         }
         if (CollectionUtil.isEmpty(context.getConfig().getDataTypeBlackList())) {
             context.getConfig().setDataTypeBlackList(DataType.getDefault());

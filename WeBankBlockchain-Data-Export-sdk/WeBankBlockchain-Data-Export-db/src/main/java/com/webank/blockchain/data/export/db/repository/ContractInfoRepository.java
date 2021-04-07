@@ -13,12 +13,8 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.db.entity.BlockRawData;
-import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.entity.ContractInfo;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;
@@ -37,9 +33,13 @@ public class ContractInfoRepository {
 
     private DaoTemplate contractDao;
 
+    private String tableName;
+
     public void save(ContractInfo contractInfo) {
         try {
-            contractDao.add(Entity.parse(contractInfo,true,true));
+            Entity entity = Entity.parse(contractInfo,true,true);
+            entity.setTableName(tableName);
+            contractDao.add(entity);
         } catch (SQLException e) {
             log.error("ContractInfoRepository save failed ", e);
         }

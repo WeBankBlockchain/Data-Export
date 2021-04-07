@@ -88,14 +88,14 @@ public class EventCrawlerHandler {
     }
 
     private static List<EventBO> parserEvent(Map<String, ContractInfo> contractAbiMap, String contractName, String abi,
-                                             TransactionReceipt tr,Block block){
+                                             TransactionReceipt tr, Block block){
         List<EventBO> boList = new ArrayList<>();
         ContractDetail contractDetail = ContractConstants.getCurrentContractMaps().getContractBinaryMap()
                 .get(contractAbiMap.get(contractName).getBinary());
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         List<EventMetaInfo> eventMetaInfos = contractDetail.getEventMetaInfos();
 
-        Map<String,EventMetaInfo> eventMetaInfoMap = eventMetaInfos.stream()
+        Map<String, EventMetaInfo> eventMetaInfoMap = eventMetaInfos.stream()
                 .collect(Collectors.toMap(EventMetaInfo::getEventName, e->e));
         Map<String, List<List<Object>>> events = null;
         try {
@@ -125,7 +125,7 @@ public class EventCrawlerHandler {
                             }
                         }
                     }
-                    if (params.get(i) instanceof java.util.List){
+                    if (params.get(i) instanceof List){
                         entity.put(fieldVO.getSqlName(), JSONUtil.toJsonStr(params.get(i++)));
                         continue;
                     }
