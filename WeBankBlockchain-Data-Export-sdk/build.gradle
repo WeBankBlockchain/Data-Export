@@ -8,6 +8,18 @@ plugins {
 apply plugin: 'signing'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
+allprojects {
+    repositories {
+        maven {
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
+        }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        maven { url "https://dl.bintray.com/ethereum/maven/" }
+        mavenLocal()
+        jcenter()
+    }
+}
+
 javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addStringOption('encoding', 'UTF-8')
@@ -64,14 +76,14 @@ sourceSets {
             srcDir 'src/main/resources'
         }
     }
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file('src/test/java')
-        }
-        resources.srcDir file('src/main/resources')
-    }
+//    integrationTest {
+//        java {
+//            compileClasspath += main.output + test.output
+//            runtimeClasspath += main.output + test.output
+//            srcDir file('src/test/java')
+//        }
+//        resources.srcDir file('src/main/resources')
+//    }
 }
 
 //signing {

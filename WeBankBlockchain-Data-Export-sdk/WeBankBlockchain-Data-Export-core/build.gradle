@@ -2,4 +2,8 @@ clean {
     println "delete ${projectDir}/dist"
     delete "${projectDir}/dist"
 }
-
+dependencies {
+    implementation project(':WeBankBlockchain-Data-Export-parser')
+    implementation project(':WeBankBlockchain-Data-Export-common')
+    implementation project(':WeBankBlockchain-Data-Export-db')
+}
