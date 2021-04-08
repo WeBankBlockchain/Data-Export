@@ -30,6 +30,7 @@ import java.util.Date;
 @Accessors(chain = true)
 @ToString(callSuper = true)
 public class ContractInfo extends IdEntity {
+    private static final long serialVersionUID = 5724687955937639884L;
 
     protected String abiHash;
 

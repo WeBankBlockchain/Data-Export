@@ -30,6 +30,8 @@ import java.util.Date;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class DeployedAccountInfo extends IdEntity {
+    /** @Fields serialVersionUID : TODO */
+    private static final long serialVersionUID = 8671861939859734978L;
 
     /** @Fields contractName : contract name */
     private String contractName;

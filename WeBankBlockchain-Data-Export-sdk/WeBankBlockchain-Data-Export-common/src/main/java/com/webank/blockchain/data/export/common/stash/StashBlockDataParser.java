@@ -52,6 +52,7 @@ public class StashBlockDataParser {
     }
 
 
+    @SuppressWarnings("rawtypes")
     public BcosBlock.Block parse(String blockStr) {
         BlockV2RC2 blockV2RC2 = new BlockV2RC2(blockStr);
         BlockHeader blockHeader = blockV2RC2.getBlockHeader();
@@ -150,6 +151,7 @@ public class StashBlockDataParser {
     }
 
     
+    @SuppressWarnings("rawtypes")
     public BcosTransaction getTransaction(String transactionHash) {
         long blockHeight = dataStashMysqlRepo.queryBlockHeight(transactionHash);
         BcosBlock.Block block = blockCache.get(blockHeight);
