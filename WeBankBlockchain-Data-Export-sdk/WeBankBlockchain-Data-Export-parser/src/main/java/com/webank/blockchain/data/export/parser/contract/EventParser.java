@@ -24,7 +24,6 @@ import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import com.webank.blockchain.data.export.parser.enums.JavaTypeEnum;
 import com.webank.blockchain.data.export.parser.tools.ABIUtils;
 import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
-import com.webank.blockchain.data.export.parser.vo.Web3jTypeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
@@ -32,27 +31,18 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
 import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * EventParser can parse contract files of java to standard event data structures.
  *
- * @author maojiayu
+ * @author maojiayu & wesleywang
  * @date 2018-11-7 16:11:05
- * 
+ *
  */
 @Slf4j
 public class EventParser{
-
-    private static Map<String, Web3jTypeVO> customMap = new HashMap<>();
-
-    static {
-        customMap.put("byte[]",
-                new Web3jTypeVO().setJavaType("byte[]").setSolidityType("StaticArray<Bytes32>").
-                        setSqlType("blob").setTypeMethod("String.valueOf"));
-    }
 
     public static List<EventMetaInfo> parseToInfoList(String abiStr, String contractName) {
         Map<String, List<ABIDefinition>> eventsAbis =
@@ -92,8 +82,7 @@ public class EventParser{
                 if (StringUtils.isEmpty(fieldName) || StringUtils.isEmpty(javaType)) {
                     continue;
                 }
-                vo.setSolidityType(namedType.getType()).setJavaType(javaType).setJavaName(fieldName)
-                        .setJavaCapName(StringUtils.capitalize(fieldName));
+                vo.setSolidityType(namedType.getType()).setJavaType(javaType).setJavaName(fieldName);
                 setSqlAttribute(vo,eventName,contractName);
                 log.debug(JacksonUtils.toJson(vo));
                 fieldList.add(vo);
@@ -107,14 +96,7 @@ public class EventParser{
     public static FieldVO setSqlAttribute(FieldVO vo, String eventName, String contractName) {
         String javaType = vo.getJavaType();
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
-        // get type from customMap
-        if (customMap.containsKey(javaType)) {
-            Web3jTypeVO typeVo = customMap.get(javaType);
-            vo.setSqlType(typeVo.getSqlType()).setTypeMethod(typeVo.getTypeMethod());
-        } else {
-            JavaTypeEnum e = JavaTypeEnum.parse(javaType);
-            vo.setSqlType(e.getSqlType()).setTypeMethod(e.getTypeMethod());
-        }
+        vo.setSqlType(JavaTypeEnum.parse(javaType).getSqlType());
         if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
             Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
             if (paramSQLType.containsKey(contractName)){

@@ -25,7 +25,6 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.parser.tools.ABIUtils;
 import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
 import com.webank.blockchain.data.export.parser.tools.SolSqlTypeMappingUtils;
-import com.webank.blockchain.data.export.parser.tools.SolTypeMethodMappingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
@@ -111,10 +110,9 @@ public class MethodParser {
             }
             String sqlName = config.getNamePrefix() + StrUtil.toUnderlineCase(javaName) + config.getNamePostfix();
             FieldVO vo = new FieldVO();
-            vo.setJavaName(javaName).setJavaCapName(StringUtils.capitalize(javaName)).setSqlName(sqlName)
+            vo.setJavaName(javaName).setSqlName(sqlName)
                     .setSqlType(SolSqlTypeMappingUtils.fromSolBasicTypeToSqlType(solType)).setSolidityType(solType)
-                    .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType))
-                    .setTypeMethod(SolTypeMethodMappingUtils.fromSolBasicTypeToTypeMethod(solType));
+                    .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType));
             if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
                 Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
                 if (paramSQLType.containsKey(contractName)){
@@ -157,9 +155,7 @@ public class MethodParser {
             String sqlName = config.getNamePrefix() + StrUtil.toUnderlineCase(solName) + config.getNamePostfix();
             vo.setSolidityName(solName).setSqlName(sqlName).setJavaName(solName)
                     .setSqlType(SolSqlTypeMappingUtils.fromSolBasicTypeToSqlType(solType)).setSolidityType(solType)
-                    .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType))
-                    .setTypeMethod(SolTypeMethodMappingUtils.fromSolBasicTypeToTypeMethod(solType))
-                    .setJavaCapName(StringUtils.capitalize(solName));
+                    .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType));
             if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
                 Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
                 if (paramSQLType.containsKey(contractName)){
@@ -179,5 +175,5 @@ public class MethodParser {
         return fieldList;
     }
 
-    
+
 }
