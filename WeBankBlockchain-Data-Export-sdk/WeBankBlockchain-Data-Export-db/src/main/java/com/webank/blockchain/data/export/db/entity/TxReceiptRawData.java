@@ -30,6 +30,7 @@ import java.util.Date;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class TxReceiptRawData extends IdEntity {
+    private static final long serialVersionUID = 2319335707392149645L;
 
     /** @Fields blockHeight : block height */
     private long blockHeight;

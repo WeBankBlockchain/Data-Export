@@ -14,7 +14,6 @@
 package com.webank.blockchain.data.export.service;
 
 import com.webank.blockchain.data.export.task.DataPersistenceManager;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * RollBackService, rollback
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
  * @data 2018-12-27 15:59:41
  *
  */
-@Slf4j
 public class RollBackService {
 
     /**

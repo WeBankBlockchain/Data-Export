@@ -1,6 +1,8 @@
 package com.webank.blockchain.data.export.api;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.webank.blockchain.data.export.common.entity.BlockDataSource;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
@@ -9,17 +11,14 @@ import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
 import com.webank.blockchain.data.export.common.entity.StashInfo;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
-import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/12/16
  */
-@Slf4j
 public class DataExportService {
 
     public static DataExportExecutor create(ExportDataSource dataSource, BlockDataSource blockDataSource, ExportConfig config) throws Exception {

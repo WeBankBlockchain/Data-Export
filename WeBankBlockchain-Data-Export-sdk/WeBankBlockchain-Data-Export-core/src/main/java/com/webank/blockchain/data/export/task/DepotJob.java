@@ -15,7 +15,14 @@
  */
 package com.webank.blockchain.data.export.task;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.shardingsphere.elasticjob.api.ShardingContext;
+import org.apache.shardingsphere.elasticjob.dataflow.job.DataflowJob;
+import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
@@ -23,14 +30,8 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.service.BlockDepotService;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.shardingsphere.elasticjob.api.ShardingContext;
-import org.apache.shardingsphere.elasticjob.dataflow.job.DataflowJob;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import cn.hutool.core.collection.CollectionUtil;
 
 /**
  * MyDataflowJob
@@ -40,7 +41,6 @@ import java.util.List;
  * @data Jan 10, 2019 12:03:37 PM
  *
  */
-@Slf4j
 public class DepotJob implements DataflowJob<Block> {
 
     private final DataExportContext context;

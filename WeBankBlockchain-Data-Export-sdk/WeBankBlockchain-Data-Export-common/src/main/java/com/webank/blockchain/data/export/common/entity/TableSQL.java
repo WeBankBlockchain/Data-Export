@@ -1,20 +1,19 @@
 package com.webank.blockchain.data.export.common.entity;
 
-import cn.hutool.core.util.StrUtil;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
-import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
+import cn.hutool.core.util.StrUtil;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2020/12/18
  */
-@Slf4j
 public class TableSQL {
 
     public static Map<String, String> tableSqlMap;

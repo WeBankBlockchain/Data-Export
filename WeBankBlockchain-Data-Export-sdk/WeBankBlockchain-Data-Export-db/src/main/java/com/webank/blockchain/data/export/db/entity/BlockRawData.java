@@ -30,6 +30,7 @@ import java.util.Date;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class BlockRawData extends IdEntity {
+    private static final long serialVersionUID = -6636726869135248569L;
 
     /** @Fields blockHash : block hash */
     private String blockHash;
