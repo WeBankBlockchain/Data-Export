@@ -45,7 +45,7 @@ artifacts {
 dependencies {
     compile ('cn.hutool:hutool-all:5.3.7')
     compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
-    compile('org.fisco-bcos.java-sdk:java-sdk:2.7.0')
+    compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:2.7.2')
     compile 'commons-codec:commons-codec:1.4'
     compile group: "org.apache.shardingsphere", name: "shardingsphere-jdbc-core", version: '5.0.0-alpha'
     compile('ch.qos.logback:logback-core:1.2.3')
@@ -199,7 +199,7 @@ subprojects {
     dependencies {
         compile ('cn.hutool:hutool-all:5.3.7')
         compile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
-        compile('org.fisco-bcos.java-sdk:java-sdk:2.7.0')
+        compile ('org.fisco-bcos.java-sdk:fisco-bcos-java-sdk:2.7.2')
         compile 'commons-codec:commons-codec:1.4'
         compile group: "org.apache.shardingsphere", name: "shardingsphere-jdbc-core", version: '5.0.0-alpha'
         compile('ch.qos.logback:logback-core:1.2.3')
