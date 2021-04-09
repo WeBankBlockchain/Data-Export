@@ -152,6 +152,10 @@ public class MethodCrawlerHandler {
                             }
                         }
                     }
+                    if (returns.get(i) instanceof java.util.List){
+                        entity.put(fieldVO.getSqlName(), JSONUtil.toJsonStr(returns.get(i)));
+                        continue;
+                    }
                     entity.put(fieldVO.getSqlName(), returns.get(i++));
                 }
             }
