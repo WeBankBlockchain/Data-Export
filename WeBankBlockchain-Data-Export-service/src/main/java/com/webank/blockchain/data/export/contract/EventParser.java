@@ -23,7 +23,6 @@ import com.webank.blockchain.data.export.config.ServiceConfig;
 import com.webank.blockchain.data.export.parser.enums.JavaTypeEnum;
 import com.webank.blockchain.data.export.parser.tools.ABIUtils;
 import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
-import com.webank.blockchain.data.export.parser.vo.Web3jTypeVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
@@ -44,14 +43,6 @@ import java.util.Map;
  */
 @Slf4j
 public class EventParser{
-
-    private static Map<String, Web3jTypeVO> customMap = new HashMap<>();
-
-    static {
-        customMap.put("byte[]",
-                new Web3jTypeVO().setJavaType("byte[]").setSolidityType("StaticArray<Bytes32>").
-                        setSqlType("blob").setTypeMethod("String.valueOf"));
-    }
 
     public static List<EventMetaInfo> parseToInfoList(String abiStr, String contractName, ServiceConfig config) {
         Map<String, List<ABIDefinition>> eventsAbis =
@@ -106,13 +97,7 @@ public class EventParser{
     public static FieldVO setSqlAttribute(FieldVO vo, String eventName, String contractName,ServiceConfig config) {
         String javaType = vo.getJavaType();
         // get type from customMap
-        if (customMap.containsKey(javaType)) {
-            Web3jTypeVO typeVo = customMap.get(javaType);
-            vo.setSqlType(typeVo.getSqlType()).setTypeMethod(typeVo.getTypeMethod());
-        } else {
-            JavaTypeEnum e = JavaTypeEnum.parse(javaType);
-            vo.setSqlType(e.getSqlType()).setTypeMethod(e.getTypeMethod());
-        }
+        vo.setSqlType(JavaTypeEnum.parse(javaType).getSqlType());
         if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
             Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
             if (paramSQLType.containsKey(contractName)){
