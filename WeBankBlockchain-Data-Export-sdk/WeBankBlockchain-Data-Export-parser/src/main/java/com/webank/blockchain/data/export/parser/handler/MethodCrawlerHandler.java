@@ -74,10 +74,12 @@ public class MethodCrawlerHandler {
             JsonTransactionResponse transaction = to.get();
             Optional<TransactionReceipt> opt = ExportConstant.getCurrentContext().getClient()
                             .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
+            String contractAddress = "";
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
                 TxRawDataBO txRawDataBO = getTxRawDataBO(block, transaction, receipt);
-                TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block, receipt);
+                contractAddress = txRawDataBO.getTo();
+                TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block, receipt, contractAddress);
                 txRawDataBOList.add(txRawDataBO);
                 txReceiptRawDataBOList.add(txReceiptRawDataBO);
             }
@@ -96,7 +98,7 @@ public class MethodCrawlerHandler {
                 if (abi == null){
                     continue;
                 }
-                MethodBO methodBO = parseMethod(block,methodMetaInfo, receipt,abi);
+                MethodBO methodBO = parseMethod(block,methodMetaInfo, receipt, abi, contractAddress);
                 if (methodBO != null){
                     methodInfoList.add(methodBO);
                 }
@@ -117,7 +119,8 @@ public class MethodCrawlerHandler {
 
     }
 
-    public static MethodBO parseMethod(Block block, MethodMetaInfo methodMetaInfo, TransactionReceipt receipt, String abi){
+    public static MethodBO parseMethod(Block block, MethodMetaInfo methodMetaInfo, TransactionReceipt receipt,
+                                       String abi, String contractAddress){
         TransactionDecoderInterface decoder = ExportConstant.getCurrentContext().getDecoder();
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         MethodBO methodBO = null;
@@ -131,7 +134,7 @@ public class MethodCrawlerHandler {
             Map<String, Object> entity = Maps.newHashMap();
             entity.put("block_time_stamp", DateUtils.hexStrToDate(block.getTimestamp()));
             entity.put("tx_hash", receipt.getTransactionHash());
-            entity.put("contract_address", receipt.getContractAddress());
+            entity.put("contract_address", contractAddress);
             entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
             entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
@@ -213,13 +216,13 @@ public class MethodCrawlerHandler {
         return txRawDataBO;
     }
 
-    public static TxReceiptRawDataBO getTxReceiptRawDataBO(Block block, TransactionReceipt receipt) {
+    public static TxReceiptRawDataBO getTxReceiptRawDataBO(Block block, TransactionReceipt receipt, String contractAddress) {
         TxReceiptRawDataBO txReceiptRawDataBO = new TxReceiptRawDataBO();
         txReceiptRawDataBO.setBlockHash(receipt.getBlockHash())
                 .setBlockHeight(Numeric.decodeQuantity((receipt.getBlockNumber())).longValue())
                 .setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()))
                 .setTxHash(receipt.getTransactionHash())
-                .setContractAddress(receipt.getContractAddress())
+                .setContractAddress(contractAddress)
                 .setFrom(receipt.getFrom())
                 .setGasUsed(receipt.getGasUsed())
                 .setInput(receipt.getInput())
