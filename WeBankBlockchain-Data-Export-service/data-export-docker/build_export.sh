@@ -58,6 +58,20 @@ fi
 # @function: output information log
 # @param: content: information message
 
+while getopts :m arg
+do
+  case $arg in
+    m)
+      docker pull mysql:5.7
+      docker run -p 3306:3306 --name mysql -v "$BASE_DIR"/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
+      LOG_INFO "docker run mysql success..."
+      ;;
+    ?)
+      LOG_INFO "unkonw argument\nusage: -m auto install mysql"
+      exit 1
+      ;;
+  esac
+done
 
 docker pull fiscodev/dataexport:1.7.2
 docker run -d -p 5200:5200  -v "$BASE_DIR"/config/:/config -v "$BASE_DIR"/log/:/log --name dataexport fiscodev/dataexport:1.7.2
