@@ -48,7 +48,7 @@ public class EventParser{
                 ABIUtils.getEventsAbiDefs(abiStr, new CryptoSuite(0));
         List<EventMetaInfo> list = new ArrayList<>();
 
-        Map<String,List<String>> genOffMap = config.getGeneratedOff();
+        Map<String,List<String>> genOffMap = config.getGeneratedOff_SDK();
         List<String> contractGenOffs = null;
         if (CollectionUtil.isNotEmpty(genOffMap) && genOffMap.containsKey(contractName)) {
             contractGenOffs = genOffMap.get(contractName);
@@ -97,8 +97,8 @@ public class EventParser{
         String javaType = vo.getJavaType();
         // get type from customMap
         vo.setSqlType(JavaTypeEnum.parse(javaType).getSqlType());
-        if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
-            Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
+        if (CollectionUtil.isNotEmpty(config.getParamSQLType_SDK())){
+            Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType_SDK();
             if (paramSQLType.containsKey(contractName)){
                 Map<String,Map<String,String>> methodTypeMap = paramSQLType.get(contractName);
                 if (methodTypeMap.containsKey(eventName)){

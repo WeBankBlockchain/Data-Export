@@ -50,7 +50,7 @@ public class MethodParser {
         if (ArrayUtil.isEmpty(abiDefinitions)) {
             return null;
         }
-        Map<String,List<String>> genOffMap = config.getGeneratedOff();
+        Map<String,List<String>> genOffMap = config.getGeneratedOff_SDK();
         List<String> contractGenOffs = null;
         if (CollectionUtil.isNotEmpty(genOffMap) && genOffMap.containsKey(contractName)) {
             contractGenOffs = genOffMap.get(contractName);
@@ -92,9 +92,9 @@ public class MethodParser {
         for (int i = 0; i < outputs.size(); i++) {
             String javaName = "output" + (i + 1);
             String solType = outputs.get(i).getType();
-            if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                    && config.getIgnoreParam().containsKey(contractName)){
-                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
+            if (CollectionUtil.isNotEmpty(config.getIgnoreParam_SDK())
+                    && config.getIgnoreParam_SDK().containsKey(contractName)){
+                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam_SDK().get(contractName);
                 if (ignoreParamMap.containsKey(methodName)){
                     if (ignoreParamMap.get(methodName).contains(javaName)){
                         log.info("Contract:{}, method:{}, ignores param:{}", contractName,
@@ -108,8 +108,8 @@ public class MethodParser {
             vo.setJavaName(javaName).setJavaCapName(StringUtils.capitalize(javaName)).setSqlName(sqlName)
                     .setSqlType(SolSqlTypeMappingUtils.fromSolBasicTypeToSqlType(solType)).setSolidityType(solType)
                     .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType));
-            if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
-                Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
+            if (CollectionUtil.isNotEmpty(config.getParamSQLType_SDK())){
+                Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType_SDK();
                 if (paramSQLType.containsKey(contractName)){
                     Map<String,Map<String,String>> methodTypeMap = paramSQLType.get(contractName);
                     if (methodTypeMap.containsKey(methodName)){
@@ -128,9 +128,9 @@ public class MethodParser {
     public static List<FieldVO> getFieldList(List<NamedType> inputs, String methodName, String contractName, ServiceConfig config) {
         ArrayList<FieldVO> fieldList = Lists.newArrayList();
         for (NamedType namedType : inputs) {
-            if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                    && config.getIgnoreParam().containsKey(contractName)){
-                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
+            if (CollectionUtil.isNotEmpty(config.getIgnoreParam_SDK())
+                    && config.getIgnoreParam_SDK().containsKey(contractName)){
+                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam_SDK().get(contractName);
                 if (ignoreParamMap.containsKey(methodName)){
                     if (ignoreParamMap.get(methodName).contains(namedType.getName())){
                         log.info("Contract:{}, method:{}, ignores param:{}", contractName,
@@ -151,8 +151,8 @@ public class MethodParser {
                     .setSqlType(SolSqlTypeMappingUtils.fromSolBasicTypeToSqlType(solType)).setSolidityType(solType)
                     .setJavaType(SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(solType))
                     .setJavaCapName(StringUtils.capitalize(solName));
-            if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
-                Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
+            if (CollectionUtil.isNotEmpty(config.getParamSQLType_SDK())){
+                Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType_SDK();
                 if (paramSQLType.containsKey(contractName)){
                     Map<String,Map<String,String>> methodTypeMap = paramSQLType.get(contractName);
                     if (methodTypeMap.containsKey(methodName)){
