@@ -63,7 +63,7 @@ do
   case $arg in
     m)
       docker pull mysql:5.7
-      docker run -p 3306:3306 --name mysql -v "$BASE_DIR"/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
+      docker run -p 3307:3306 --name mysql -v "$BASE_DIR"/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
       LOG_INFO "docker run mysql success..."
       ;;
     ?)
