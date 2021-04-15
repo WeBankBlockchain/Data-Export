@@ -101,12 +101,12 @@ public class ExportService {
         config.setDataFlowJobShardingTotalCount(serviceConfig.getDataFlowJobShardingTotalCount());
         config.setZookeeperServiceLists(serviceConfig.getZookeeperServiceLists());
         config.setStartDate(serviceConfig.getStartDate());
-        config.setParamSQLType(serviceConfig.getParamSQLType());
+        config.setParamSQLType(serviceConfig.getParamSQLType_SDK());
         config.setNamePostfix(serviceConfig.getNamePostfix());
         config.setNamePrefix(serviceConfig.getNamePrefix());
         config.setPrepareTaskJobCron(serviceConfig.getPrepareTaskJobCron());
-        config.setGeneratedOff(serviceConfig.getGeneratedOff());
-        config.setIgnoreParam(serviceConfig.getIgnoreParam());
+        config.setGeneratedOff(serviceConfig.getGeneratedOff_SDK());
+        config.setIgnoreParam(serviceConfig.getIgnoreParam_SDK());
         config.setMultiLiving(serviceConfig.isMultiLiving());
         return config;
     }

@@ -94,17 +94,17 @@ public class ServiceConfig {
     /**
      * ex: Map<contractName, methodName or eventName>
      */
-    private Map<String,List<String>> generatedOff;
+    private Map<String,List<String>> generatedOff_SDK;
 
     /**
      * ex: Map<contractName, Map<methodName or eventName, List<javaNameParamName>>>
      */
-    private Map<String, Map<String,List<String>>> ignoreParam;
+    private Map<String, Map<String,List<String>>> ignoreParam_SDK;
 
     /**
      * ex: Map<contractName, Map<methodName or eventName, Map<solidityParamName,paramType>>>
      */
-    private Map<String, Map<String,Map<String,String>>> paramSQLType;
+    private Map<String, Map<String,Map<String,String>>> paramSQLType_SDK;
 
     private ESDataSource esDataSource;
 
@@ -125,9 +125,9 @@ public class ServiceConfig {
     private void init() {
         mysqlDataSources = PropertiesUtils.getMysqlConfigs();
         contractInfos = PropertiesUtils.getContractInfos();
-        generatedOff = PropertiesUtils.getGeneratedOff();
-        ignoreParam = PropertiesUtils.getIgnoreParam();
-        paramSQLType = PropertiesUtils.getparamSQLType();
+        generatedOff_SDK = PropertiesUtils.getGeneratedOff();
+        ignoreParam_SDK = PropertiesUtils.getIgnoreParam();
+        paramSQLType_SDK = PropertiesUtils.getparamSQLType();
         if (esEnabled) {
             esDataSource = new ESDataSource();
             esDataSource.setClusterName(clusterName);

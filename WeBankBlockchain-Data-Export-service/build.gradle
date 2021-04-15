@@ -1,6 +1,6 @@
 bootJar {
 	destinationDir file('dist')
-archiveName "Data-Export-" + version + '.jar'
+    archiveName "Data-Export-" + version + '.jar'
     doLast {
         copy {
             from file('tools/')
@@ -13,18 +13,6 @@ archiveName "Data-Export-" + version + '.jar'
 		copy {
             from file('src/main/resources/application.properties')
             into 'dist/config/'
-        }
-        copy {
-            from file('src/main/resources/web3j.def')
-            into 'dist/config/'
-        }
-		copy {
-			from file('.').listFiles().findAll{File f -> (f.name.endsWith('.crt') || f.name.endsWith('.keystore'))}
-			into 'dist/config'
-		}
-		copy {
-            from file('config/contract/')
-            into 'dist/config/contract'
         }
 	}
 }
