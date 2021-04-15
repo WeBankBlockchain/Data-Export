@@ -159,8 +159,9 @@ public class PropertiesUtils {
             if (!map.containsKey(contractName)) {
                 List<String> nameList = Arrays.asList(names);
                 map.put(contractName, nameList);
+            }else {
+                map.get(contractName).addAll(Arrays.asList(names));
             }
-            map.get(contractName).addAll(Arrays.asList(names));
         }
         return map;
     }
@@ -186,9 +187,10 @@ public class PropertiesUtils {
             if (!methodMap.containsKey(methodName)) {
                 List<String> nameList = Arrays.asList(names);
                 methodMap.put(methodName, nameList);
+            }else {
+                methodMap.get(methodName).addAll(Arrays.asList(names));
             }
 
-            map.get(contractName).get(methodName).addAll(Arrays.asList(names));
         }
         return map;
     }
