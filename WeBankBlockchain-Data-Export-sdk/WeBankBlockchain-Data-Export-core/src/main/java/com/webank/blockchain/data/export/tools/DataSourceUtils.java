@@ -138,7 +138,8 @@ public class DataSourceUtils {
             }
             // table rule
             ShardingTableRuleConfiguration orderTableRuleConfig = new
-                    ShardingTableRuleConfiguration(table, "ds${0..1}." + table + "${0..1}");
+                    ShardingTableRuleConfiguration(table, "ds${0.." + mysqlDataSources.size() + "}."
+                    + table + "${0.."+ shardingNumberPerDatasource +"}");
             // database rule
             orderTableRuleConfig.setDatabaseShardingStrategy(
                     new StandardShardingStrategyConfiguration("block_height", table + "_dbShardingAlgorithm"));
