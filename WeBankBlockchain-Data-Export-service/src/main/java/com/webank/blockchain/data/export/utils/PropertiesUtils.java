@@ -154,8 +154,9 @@ public class PropertiesUtils {
         String[] strings = generatedOffStr.split("\\|");
         for (String str : strings) {
             String[] attributes = str.split("\\.");
-            if (attributes.length < 2){
+            if (attributes.length != 2){
                 log.error("Incorrect system.generatedOffStr size ! Wrong field : " + str);
+                System.exit(1);
             }
             String contractName = attributes[0];
             String[] names = attributes[1].split(",");
@@ -178,8 +179,9 @@ public class PropertiesUtils {
         String[] strings = ignoreParam.split("\\|");
         for (String str : strings) {
             String[] attributes = str.split("\\.");
-            if (attributes.length < 3){
+            if (attributes.length != 3){
                 log.error("Incorrect system.ignoreParam size ! Wrong field : " + str);
+                System.exit(1);
             }
             String contractName = attributes[0];
             String methodName = attributes[1];
@@ -210,8 +212,9 @@ public class PropertiesUtils {
         String[] strings = paramSQLType.split("\\|");
         for (String str : strings) {
             String[] attributes = str.split("\\.");
-            if (attributes.length < 4){
+            if (attributes.length != 4){
                 log.error("Incorrect system.paramSQLType size ! Wrong field : " + str);
+                System.exit(1);
             }
             String contractName = attributes[0];
             String methodName = attributes[1];
