@@ -82,7 +82,10 @@ public class EventParser{
                 if (StringUtils.isEmpty(fieldName) || StringUtils.isEmpty(javaType)) {
                     continue;
                 }
-                vo.setSolidityType(namedType.getType()).setJavaType(javaType).setJavaName(fieldName);
+                vo.setSolidityName(namedType.getName())
+                        .setSolidityType(namedType.getType())
+                        .setJavaType(javaType)
+                        .setJavaName(fieldName);
                 setSqlAttribute(vo,eventName,contractName);
                 log.debug(JacksonUtils.toJson(vo));
                 fieldList.add(vo);
