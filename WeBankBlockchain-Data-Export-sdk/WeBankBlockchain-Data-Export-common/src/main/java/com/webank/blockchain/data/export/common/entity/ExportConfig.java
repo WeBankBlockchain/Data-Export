@@ -29,7 +29,7 @@ public class ExportConfig {
     private Map<String,List<String>> generatedOff = new HashMap<>();
 
     /**
-     * ex: Map<contractName, Map<methodName or eventName, List<javaNameParamName>>>
+     * ex: Map<contractName, Map<methodName or eventName, List<solidityParamName>>>
      */
     private Map<String, Map<String,List<String>>> ignoreParam = new HashMap<>();
 
