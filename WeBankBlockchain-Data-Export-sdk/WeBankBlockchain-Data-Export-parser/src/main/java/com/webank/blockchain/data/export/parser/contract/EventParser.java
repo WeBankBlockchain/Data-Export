@@ -75,9 +75,19 @@ public class EventParser{
                 if (namedType.isIndexed()) {
                     continue;
                 }
+                if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
+                        && config.getIgnoreParam().containsKey(contractName)) {
+                    Map<String, List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
+                    if (ignoreParamMap.containsKey(eventName)) {
+                        if (ignoreParamMap.get(eventName).contains(namedType.getName())) {
+                            log.info("Contract:{}, eventName:{}, ignores param:{}", contractName,
+                                    eventName, namedType.getName());
+                            continue;
+                        }
+                    }
+                }
                 FieldVO vo = new FieldVO();
                 String fieldName = namedType.getName();
-
                 String javaType = SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(namedType.getType());
                 if (StringUtils.isEmpty(fieldName) || StringUtils.isEmpty(javaType)) {
                     continue;
@@ -100,16 +110,6 @@ public class EventParser{
         String javaType = vo.getJavaType();
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         vo.setSqlType(JavaTypeEnum.parse(javaType).getSqlType());
-        if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                && config.getIgnoreParam().containsKey(contractName)) {
-            Map<String, List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
-            if (ignoreParamMap.containsKey(eventName)) {
-                if (ignoreParamMap.get(eventName).contains(vo.getSolidityName())) {
-                    log.info("Contract:{}, eventName:{}, ignores param:{}", contractName,
-                            eventName, vo.getSolidityName());
-                }
-            }
-        }
         if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
             Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
             if (paramSQLType.containsKey(contractName)){
