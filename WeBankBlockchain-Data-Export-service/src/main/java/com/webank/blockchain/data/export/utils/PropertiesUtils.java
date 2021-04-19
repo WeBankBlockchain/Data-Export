@@ -161,10 +161,12 @@ public class PropertiesUtils {
             String contractName = attributes[0];
             String[] names = attributes[1].split(",");
             if (!map.containsKey(contractName)) {
-                List<String> nameList = Arrays.asList(names);
+                List<String> nameList = new ArrayList<>(Arrays.asList(names));
                 map.put(contractName, nameList);
             }else {
-                map.get(contractName).addAll(Arrays.asList(names));
+                for (String name : names) {
+                    map.get(contractName).add(name);
+                }
             }
         }
         return map;
@@ -193,10 +195,12 @@ public class PropertiesUtils {
             }
             methodMap = map.get(contractName);
             if (!methodMap.containsKey(methodName)) {
-                List<String> nameList = Arrays.asList(names);
+                List<String> nameList = new ArrayList<>(Arrays.asList(names));
                 methodMap.put(methodName, nameList);
             }else {
-                methodMap.get(methodName).addAll(Arrays.asList(names));
+                for (String name : names) {
+                    methodMap.get(methodName).add(name);
+                }
             }
 
         }
