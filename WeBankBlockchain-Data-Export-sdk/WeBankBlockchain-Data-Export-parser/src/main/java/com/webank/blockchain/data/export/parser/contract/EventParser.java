@@ -100,6 +100,16 @@ public class EventParser{
         String javaType = vo.getJavaType();
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         vo.setSqlType(JavaTypeEnum.parse(javaType).getSqlType());
+        if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
+                && config.getIgnoreParam().containsKey(contractName)) {
+            Map<String, List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
+            if (ignoreParamMap.containsKey(eventName)) {
+                if (ignoreParamMap.get(eventName).contains(vo.getSolidityName())) {
+                    log.info("Contract:{}, eventName:{}, ignores param:{}", contractName,
+                            eventName, vo.getSolidityName());
+                }
+            }
+        }
         if (CollectionUtil.isNotEmpty(config.getParamSQLType())){
             Map<String, Map<String,Map<String,String>>> paramSQLType = config.getParamSQLType();
             if (paramSQLType.containsKey(contractName)){
@@ -108,6 +118,8 @@ public class EventParser{
                     Map<String,String> paramTypeMap = methodTypeMap.get(eventName);
                     if (paramTypeMap.containsKey(vo.getSolidityName())){
                         vo.setSqlType(paramTypeMap.get(vo.getSolidityName()));
+                        log.info("Contract:{}, eventName:{}, sqlType param:{}", contractName,
+                                eventName, vo.getSolidityName());
                     }
                 }
             }
