@@ -64,6 +64,7 @@ do
     m)
       mysqlexist=`docker inspect --format '{{.State.Running}}' mysql`
       if [ "${mysqlexist}" != "true" ]; then
+        chmod -R 777 ./data/mysql/
         docker pull mysql:5.7
         docker run -p 3307:3306 --name mysql -v "$BASE_DIR"/data/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
       fi
@@ -72,6 +73,7 @@ do
     e)
       esexist=`docker inspect --format '{{.State.Running}}' elasticsearch`
       if [ "${esexist}" != "true" ]; then
+        chmod -R 777 ./data/elasticsearch/
         docker pull elasticsearch:7.8.0
         docker run --name elasticsearch -d -e ES_JAVA_OPTS="-Xms256m -Xmx256m" -e "discovery.type=single-node" -p 9200:9200 -p 9300:9300  -v  "$BASE_DIR"/data/elasticsearch:/usr/share/elasticsearch/data -d  elasticsearch:7.8.0
         if [ "$(uname)" == "Darwin" ]; then
