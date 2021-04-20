@@ -75,17 +75,6 @@ public class EventParser{
                 if (namedType.isIndexed()) {
                     continue;
                 }
-                if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                        && config.getIgnoreParam().containsKey(contractName)) {
-                    Map<String, List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
-                    if (ignoreParamMap.containsKey(eventName)) {
-                        if (ignoreParamMap.get(eventName).contains(namedType.getName())) {
-                            log.info("Contract:{}, eventName:{}, ignores param:{}", contractName,
-                                    eventName, namedType.getName());
-                            continue;
-                        }
-                    }
-                }
                 FieldVO vo = new FieldVO();
                 String fieldName = namedType.getName();
                 String javaType = SolJavaTypeMappingUtils.fromSolBasicTypeToJavaType(namedType.getType());

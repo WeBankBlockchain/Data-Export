@@ -97,17 +97,6 @@ public class MethodParser {
         for (int i = 0; i < outputs.size(); i++) {
             String javaName = "output" + (i + 1);
             String solType = outputs.get(i).getType();
-            if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                    && config.getIgnoreParam().containsKey(contractName)){
-                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
-                if (ignoreParamMap.containsKey(methodName)){
-                    if (ignoreParamMap.get(methodName).contains(javaName)){
-                        log.info("Contract:{}, method:{}, ignores param:{}", contractName,
-                                methodName, javaName);
-                        continue;
-                    }
-                }
-            }
             String sqlName = config.getNamePrefix() + StrUtil.toUnderlineCase(javaName) + config.getNamePostfix();
             FieldVO vo = new FieldVO();
             vo.setJavaName(javaName).setSqlName(sqlName)
@@ -134,16 +123,6 @@ public class MethodParser {
         ArrayList<FieldVO> fieldList = Lists.newArrayList();
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         for (NamedType namedType : inputs) {
-            if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
-                    && config.getIgnoreParam().containsKey(contractName)){
-                Map<String,List<String>> ignoreParamMap = config.getIgnoreParam().get(contractName);
-                if (ignoreParamMap.containsKey(methodName)){
-                    if (ignoreParamMap.get(methodName).contains(namedType.getName())){
-                        log.info("Contract:{}, method:{}, ignores param:{}", contractName,
-                                methodName, namedType.getName());
-                        continue;                    }
-                }
-            }
             FieldVO vo = new FieldVO();
             String solName = namedType.getName();
             // 增加is前缀变量的特殊处理
