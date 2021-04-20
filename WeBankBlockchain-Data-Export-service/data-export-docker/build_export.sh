@@ -58,13 +58,48 @@ fi
 # @function: output information log
 # @param: content: information message
 
-while getopts :m arg
+while getopts meg OPT;
 do
-  case $arg in
+  case $OPT in
     m)
-      docker pull mysql:5.7
-      docker run -p 3307:3306 --name mysql -v "$BASE_DIR"/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
+      mysqlexist=`docker inspect --format '{{.State.Running}}' mysql`
+      if [ "${mysqlexist}" != "true" ]; then
+        docker pull mysql:5.7
+        docker run -p 3307:3306 --name mysql -v "$BASE_DIR"/data/mysql/:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 -e  MYSQL_DATABASE=data_export -d mysql:5.7
+      fi
       LOG_INFO "docker run mysql success..."
+      ;;
+    e)
+      esexist=`docker inspect --format '{{.State.Running}}' elasticsearch`
+      if [ "${esexist}" != "true" ]; then
+        docker pull elasticsearch:7.8.0
+        docker run --name elasticsearch -d -e ES_JAVA_OPTS="-Xms256m -Xmx256m" -e "discovery.type=single-node" -p 9200:9200 -p 9300:9300  -v  "$BASE_DIR"/data/elasticsearch:/usr/share/elasticsearch/data -d  elasticsearch:7.8.0
+        if [ "$(uname)" == "Darwin" ]; then
+          sed -i  "" "s/system.es.enabled=false/system.es.enabled=true/g" ${CONFIGPATH}
+          sed -i  "" "s/system.es.clusterName=my-application/system.es.clusterName=docker-cluster/g" ${CONFIGPATH}
+        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+          sed -i 's/system.es.enabled=false/system.es.enabled=true/g' $CONFIGPATH
+          sed -i 's/system.es.clusterName=my-application/system.es.clusterName=docker-cluster/g' $CONFIGPATH
+        fi
+      fi
+        LOG_INFO "docker run elasticsearch success..."
+      ;;
+    g)
+      grafanaexist=`docker inspect --format '{{.State.Running}}' grafana`
+      if [ "${grafanaexist}" != "true" ]; then
+        docker pull grafana/grafana
+        docker run   -d   -p 3000:3000   --name=grafana   -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource"   grafana/grafana
+        if [ $? -ne 0 ]; then
+          echo "grafana run failed"
+        else
+          LOG_INFO "grafana run success"
+        fi
+        if [ "$(uname)" == "Darwin" ]; then
+          sed -i  "" "s/system.grafanaEnable=false/system.grafanaEnable=true/g" ${CONFIGPATH}
+        elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+          sed -i 's/system.grafanaEnable=false/system.grafanaEnable=true/g' $CONFIGPATH
+        fi
+      fi
       ;;
     ?)
       LOG_INFO "unkonw argument\nusage: -m auto install mysql"
@@ -81,16 +116,3 @@ else
     LOG_INFO "data export run success"
     LOG_INFO "See the logging command: docker logs -f dataexport"
 fi
-
-v=`grep system.grafanaEnable ${CONFIGPATH} | cut -d'=' -f2`
-
-if [ ${v} == "true" ]; then
-    docker pull grafana/grafana
-    docker run   -d   -p 3000:3000   --name=grafana   -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource"   grafana/grafana
-    if [ $? -ne 0 ]; then
-      echo "grafana run failed"
-    else
-      LOG_INFO "grafana run success"
-    fi
-fi
-
