@@ -48,8 +48,8 @@ project(':WeBankBlockchain-Data-Export-service') {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
       exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    compile 'com.webank:data-export-sdk:1.7.2'
-//    implementation project(':WeBankBlockchain-Data-Export-sdk')
+//    compile 'com.webank:data-export-sdk:1.7.2'
+    implementation project(':WeBankBlockchain-Data-Export-sdk')
     implementation('com.ibeetl:beetl:2.9.3')
   }
 }
