@@ -27,11 +27,8 @@ public class ExportService {
 
     @PostConstruct
     public void start() {
-        //导出数据源配置
         ExportDataSource dataSource = ExportDataSource.builder()
-                //设置mysql源
                 .mysqlDataSources(serviceConfig.getMysqlDataSources())
-                //自动建表开启
                 .autoCreateTable(serviceConfig.isAutoCreateTable())
                 .sharding(serviceConfig.isSharding())
                 .shardingNumberPerDatasource(serviceConfig.getShardingNumberPerDatasource())
@@ -45,14 +42,10 @@ public class ExportService {
                         config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
                     }
                     DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
-                            //链节点连接信息
                             .nodeStr(serviceConfig.getNodeStr())
-                            //链连接证书位置
                             .certPath(serviceConfig.getCertPath())
-                            //群组id
                             .groupId(groupId)
                             .build(), config);
-                    //数据导出执行启动
                     ExportDataSDK.start(exportExecutor);
                 }
             } else if(serviceConfig.getRpcUrl() != null) {
@@ -64,10 +57,8 @@ public class ExportService {
                     DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                             .rpcUrl(serviceConfig.getRpcUrl())
                             .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
-                            //群组id
                             .groupId(groupId)
                             .build(), config);
-                    //数据导出执行启动
                     ExportDataSDK.start(exportExecutor);
                 }
             } else if(serviceConfig.getJdbcUrl() != null) {
@@ -75,11 +66,9 @@ public class ExportService {
                 DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, StashInfo.builder()
                         .jdbcUrl(serviceConfig.getJdbcUrl())
                         .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
-                        //群组id
                         .pass(serviceConfig.getPassword())
                         .user(serviceConfig.getUser())
                         .build(), config);
-                //数据导出执行启动
                 ExportDataSDK.start(exportExecutor);
             }
 
