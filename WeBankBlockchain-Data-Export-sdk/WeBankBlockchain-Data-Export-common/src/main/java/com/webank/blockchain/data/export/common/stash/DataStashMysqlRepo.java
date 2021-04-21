@@ -2,12 +2,10 @@ package com.webank.blockchain.data.export.common.stash;
 
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
-import cn.hutool.db.meta.MetaUtil;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * @author wesleywang

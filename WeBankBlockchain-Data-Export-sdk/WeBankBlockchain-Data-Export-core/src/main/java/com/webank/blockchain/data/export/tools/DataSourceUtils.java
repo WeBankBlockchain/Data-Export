@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
@@ -23,6 +24,10 @@ import org.apache.shardingsphere.sharding.api.config.rule.ShardingTableRuleConfi
 import org.apache.shardingsphere.sharding.api.config.strategy.sharding.StandardShardingStrategyConfiguration;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +69,24 @@ public class DataSourceUtils {
                     exportDataSource.getShardingNumberPerDatasource(),
                     exportDataSource.isAutoCreateTable(), blackTables);
         }
+    }
+
+    public static void writeSqlScriptToFile() {
+        DataExportContext currentContext = ExportConstant.getCurrentContext();
+        new Thread(() -> {
+            try {
+                File dir = new File(TableSQL.SQL_SCRIPT_DIR);
+                if (!dir.exists()) {
+                    dir.mkdir();
+                }
+                Files.write(Paths.get(TableSQL.SQL_SCRIPT_DIR + "/" + TableSQL.SQL_SCRIPT_NAME),
+                        currentContext.getSqlScript().getBytes());
+                log.info("data_export.sql file write success...");
+            } catch (IOException e) {
+                log.warn("data_export.sql file write failed ", e);
+            }
+            currentContext.setSqlScript(null);
+        }).start();
     }
 
     private static DataSource buildSingleDataSource(MysqlDataSource mysqlDataSource) {
@@ -115,7 +138,8 @@ public class DataSourceUtils {
             }
             // table rule
             ShardingTableRuleConfiguration orderTableRuleConfig = new
-                    ShardingTableRuleConfiguration(table, "ds${0..1}." + table + "${0..1}");
+                    ShardingTableRuleConfiguration(table, "ds${0.." + mysqlDataSources.size() + "}."
+                    + table + "${0.."+ shardingNumberPerDatasource +"}");
             // database rule
             orderTableRuleConfig.setDatabaseShardingStrategy(
                     new StandardShardingStrategyConfiguration("block_height", table + "_dbShardingAlgorithm"));

@@ -38,7 +38,7 @@ import java.util.List;
  */
 @Slf4j
 @AllArgsConstructor
-public class BlockTaskPoolRepository implements RollbackInterface{
+public class BlockTaskPoolRepository implements RollbackInterface {
 
     private DaoTemplate blockTaskPoolDao;
 
@@ -58,7 +58,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
         return BeanUtils.toBean(entity, BlockTaskPool.class);
     }
 
-    public  BlockTaskPool findByBlockHeight(long blockHeight) {
+    public BlockTaskPool findByBlockHeight(long blockHeight) {
         Entity entity = null;
         try {
             entity = blockTaskPoolDao.get("block_height", blockHeight);
@@ -150,7 +150,7 @@ public class BlockTaskPoolRepository implements RollbackInterface{
     }
 
     public List<BlockTaskPool> findBySyncStatusModByBlockHeightLimit(int shardingCount, int shardingItem,
-            short syncStatus, int limit) {
+                                                                     short syncStatus, int limit) {
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(

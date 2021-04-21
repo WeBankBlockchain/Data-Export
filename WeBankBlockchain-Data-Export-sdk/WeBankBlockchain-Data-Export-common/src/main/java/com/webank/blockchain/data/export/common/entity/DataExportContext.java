@@ -41,4 +41,9 @@ public class DataExportContext {
 
     private Map<String, ContractInfo> contractInfoMap;
 
+    public String sqlScript = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+            TableSQL.BLOCK_DETAIL_INFO, TableSQL.BLOCK_RAW_DATA, TableSQL.BLOCK_TASK_POOL,
+            TableSQL.BLOCK_TX_DETAIL_INFO, TableSQL.DEPLOYED_ACCOUNT_INFO,
+            TableSQL.TX_RECEIPT_RAW_DATA, TableSQL.TX_RAW_DATA, TableSQL.CONTRACT_INFO);
+
 }

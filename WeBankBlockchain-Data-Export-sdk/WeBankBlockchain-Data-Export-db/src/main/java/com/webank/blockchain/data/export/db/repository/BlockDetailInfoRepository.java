@@ -25,7 +25,6 @@ import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
             return null;
         }
         Entity entity = entityList.get(0);
-        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+        return BeanUtils.toBean(entity, BlockDetailInfo.class);
     }
 
     /**
@@ -139,7 +138,7 @@ public class BlockDetailInfoRepository implements RollbackInterface {
         } catch (SQLException e) {
             log.error(" BlockDetailInfoRepository findByBlockHeight failed ", e);
         }
-        return BeanUtils.toBean(entity,BlockDetailInfo.class);
+        return BeanUtils.toBean(entity, BlockDetailInfo.class);
     }
 
 

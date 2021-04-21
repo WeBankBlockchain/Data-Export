@@ -13,12 +13,8 @@
  */
 package com.webank.blockchain.data.export.db.repository;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.db.entity.BlockRawData;
-import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.db.entity.ContractInfo;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;

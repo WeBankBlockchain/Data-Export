@@ -3,4 +3,8 @@ clean {
     delete "${projectDir}/dist"
 }
 
+dependencies {
+    implementation project(':WeBankBlockchain-Data-Export-common')
+    implementation project(':WeBankBlockchain-Data-Export-parser')
+}
 

@@ -1,8 +1,30 @@
 package com.webank.blockchain.data.export.task;
 
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.db.DaoTemplate;
-import cn.hutool.db.Db;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_INFO_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DATA_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.tables;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.elasticsearch.client.transport.TransportClient;
+
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
@@ -34,40 +56,19 @@ import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.db.service.ESStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
 import com.webank.blockchain.data.export.tools.DataSourceUtils;
+
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.transport.TransportClient;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.tables;
 
 /**
  * @author wesleywang
  * @Description:
  * @date 2021/1/6
  */
+@SuppressWarnings("deprecation")
 @Data
-@Slf4j
 public class DataPersistenceManager {
 
     public static final ThreadLocal<DataPersistenceManager> dataPersistenceManager = new ThreadLocal<>();
@@ -123,12 +124,12 @@ public class DataPersistenceManager {
         context.setDataSource(
                 DataSourceUtils.buildDataSource(
                         context.getExportDataSource(), DataType.getTables(context.getConfig().getDataTypeBlackList())));
+        DataSourceUtils.writeSqlScriptToFile();
         buildRepository();
         buildDao();
         buildESStore();
     }
 
-    @SuppressWarnings("deprecation")
     public void buildESStore() {
         if (context.getEsConfig() != null && context.getEsConfig().isEnable()) {
             TransportClient esClient = ESHandleDao.create(context);

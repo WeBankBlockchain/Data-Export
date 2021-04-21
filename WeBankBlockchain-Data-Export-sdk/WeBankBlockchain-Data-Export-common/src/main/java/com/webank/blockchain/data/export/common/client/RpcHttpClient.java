@@ -24,7 +24,7 @@ import java.net.URL;
  */
 @Slf4j
 @AllArgsConstructor
-public class RpcHttpClient implements ChainClient{
+public class RpcHttpClient implements ChainClient {
 
     private JsonRpcHttpClient client;
 

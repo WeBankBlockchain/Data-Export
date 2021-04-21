@@ -23,7 +23,6 @@ import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
-import org.fisco.bcos.sdk.crypto.signature.ECDSASignature;
 
 import java.math.BigInteger;
 import java.security.SignatureException;

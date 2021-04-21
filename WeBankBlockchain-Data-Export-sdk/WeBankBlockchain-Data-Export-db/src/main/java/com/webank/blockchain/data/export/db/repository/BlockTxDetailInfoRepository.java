@@ -18,7 +18,6 @@ import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
-import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
 import com.webank.blockchain.data.export.db.tools.BeanUtils;
 import lombok.AllArgsConstructor;

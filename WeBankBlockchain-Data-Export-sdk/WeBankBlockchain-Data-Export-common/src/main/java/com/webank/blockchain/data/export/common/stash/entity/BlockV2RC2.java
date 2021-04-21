@@ -17,8 +17,6 @@ import cn.hutool.core.util.HexUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.webank.blockchain.data.export.common.entity.DataExportContext;
-import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.stash.rlp.ByteUtil;
 import com.webank.blockchain.data.export.common.stash.rlp.RLP;
@@ -28,8 +26,6 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 import java.util.ArrayList;

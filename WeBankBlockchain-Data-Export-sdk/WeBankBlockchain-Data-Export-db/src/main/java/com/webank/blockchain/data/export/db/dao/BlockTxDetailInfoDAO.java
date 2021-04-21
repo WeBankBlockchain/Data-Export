@@ -38,7 +38,7 @@ import java.util.List;
  *
  */
 @AllArgsConstructor
-public class BlockTxDetailInfoDAO implements SaveInterface<BlockInfoBO>{
+public class BlockTxDetailInfoDAO implements SaveInterface<BlockInfoBO> {
 
     /** @Fields blockTxDetailInfoRepository : block transaction detail info repository */
     private BlockTxDetailInfoRepository blockTxDetailInfoRepository;

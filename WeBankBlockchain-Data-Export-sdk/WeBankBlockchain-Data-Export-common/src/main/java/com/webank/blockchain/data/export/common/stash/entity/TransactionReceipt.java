@@ -14,15 +14,12 @@
 package com.webank.blockchain.data.export.common.stash.entity;
 
 import com.webank.blockchain.data.export.common.stash.rlp.ByteUtil;
-import com.webank.blockchain.data.export.common.stash.rlp.DecodeResult;
 import com.webank.blockchain.data.export.common.stash.rlp.RLP;
 import com.webank.blockchain.data.export.common.stash.rlp.RLPElement;
 import com.webank.blockchain.data.export.common.stash.rlp.RLPList;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.ArrayUtils;
 import org.fisco.bcos.sdk.abi.datatypes.Address;
 import org.fisco.bcos.sdk.utils.Numeric;
 
@@ -66,7 +63,7 @@ public class TransactionReceipt {
         if(Numeric.toHexString(logs).equals("0xc0")) {
             return list;
         }
-        RLPList result = (RLPList ) RLP.decode2(logs).get(0);
+        RLPList result = (RLPList) RLP.decode2(logs).get(0);
         for (RLPElement rlpElement :  result) {
             RLPList rlpElements = (RLPList) rlpElement;
             Log log = new Log(rlpElements);

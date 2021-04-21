@@ -13,13 +13,13 @@
  */
 package com.webank.blockchain.data.export.db.dao;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.db.entity.BlockDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
+
+import cn.hutool.core.bean.BeanUtil;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * BlockDetailInfoDAO
@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
  * @data Dec 12, 2018 2:45:13 PM
  *
  */
-@Slf4j
 @AllArgsConstructor
 public class BlockDetailInfoDAO implements SaveInterface<BlockInfoBO> {
 

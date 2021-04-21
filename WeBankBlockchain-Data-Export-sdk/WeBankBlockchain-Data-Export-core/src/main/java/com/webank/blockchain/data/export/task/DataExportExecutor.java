@@ -28,6 +28,7 @@ public class DataExportExecutor {
 
     private ExportExecutor executor;
 
+    @SuppressWarnings("rawtypes")
     private Future future;
 
     private CrawlRunner crawlRunner;

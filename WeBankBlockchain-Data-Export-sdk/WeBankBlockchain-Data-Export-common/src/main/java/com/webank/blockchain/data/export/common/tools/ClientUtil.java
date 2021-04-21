@@ -39,7 +39,7 @@ public class ClientUtil {
         return new BcosSDK(option);
     }
 
-    public static void setPeers(ConfigProperty configProperty,ChainInfo chainInfo) {
+    public static void setPeers(ConfigProperty configProperty, ChainInfo chainInfo) {
         String[] nodes = StringUtils.split(chainInfo.getNodeStr(), ";");
         List<String> peers = Arrays.asList(nodes);
         Map<String, Object> network = Maps.newHashMapWithExpectedSize(1);

@@ -12,7 +12,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
-public class ChainInfo extends BlockDataSource{
+public class ChainInfo extends BlockDataSource {
 
     private String nodeStr;
     private int groupId;

@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 public class SolSqlTypeMappingUtils {
     public static String fromSolBasicTypeToSqlType(String solBasicType) {
         if (StringUtils.contains(solBasicType, "[") && StringUtils.contains(solBasicType, "]")) {
-            return "varchar(3072)";
+            return "text";
         }
         switch (solBasicType) {
             case "address":

@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2020/10/26
  */
 @Data
-public class MysqlStoreService implements DataStoreService{
+public class MysqlStoreService implements DataStoreService {
 
     private List<SaveInterface<BlockInfoBO>> saveInterfaceList;
 

@@ -15,10 +15,8 @@
  */
 package com.webank.blockchain.data.export.task;
 
-import java.io.IOException;
-import java.math.BigInteger;
-
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -26,13 +24,13 @@ import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.service.BlockCheckService;
 import com.webank.blockchain.data.export.service.BlockIndexService;
 import com.webank.blockchain.data.export.service.BlockPrepareService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.simple.job.SimpleJob;
-
-import com.webank.blockchain.data.export.common.constants.BlockConstants;
-
-import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+
+import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * PrepareTaskJob

@@ -15,7 +15,6 @@ package com.webank.blockchain.data.export.db.repository;
 
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Entity;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.DeployedAccountInfo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

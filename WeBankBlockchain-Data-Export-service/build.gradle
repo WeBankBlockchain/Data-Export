@@ -1,0 +1,25 @@
+bootJar {
+	destinationDir file('dist')
+    archiveName "Data-Export-" + version + '.jar'
+    doLast {
+        copy {
+            from file('tools/')
+            into 'dist/'
+        }
+		copy {
+			from configurations.runtime
+			into 'dist/lib'
+		}
+		copy {
+            from file('src/main/resources/application.properties')
+            into 'dist/config/'
+        }
+	}
+}
+
+clean {
+    println "delete ${projectDir}/dist"
+    delete "${projectDir}/dist"
+}
+
+

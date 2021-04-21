@@ -30,7 +30,7 @@ import java.sql.SQLException;
  */
 @Slf4j
 @AllArgsConstructor
-public class TxReceiptRawDataRepository implements RollbackInterface{
+public class TxReceiptRawDataRepository implements RollbackInterface {
 
     private DaoTemplate txReceiptRawDataDao;
 

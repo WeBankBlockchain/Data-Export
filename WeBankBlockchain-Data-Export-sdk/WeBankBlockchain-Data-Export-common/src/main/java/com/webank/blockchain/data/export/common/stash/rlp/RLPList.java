@@ -15,7 +15,6 @@ package com.webank.blockchain.data.export.common.stash.rlp;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.codec.binary.Hex;
 import org.fisco.bcos.sdk.utils.Numeric;
 
 import java.util.ArrayList;

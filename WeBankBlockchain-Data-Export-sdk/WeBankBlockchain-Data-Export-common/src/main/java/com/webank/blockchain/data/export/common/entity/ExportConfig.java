@@ -1,6 +1,5 @@
 package com.webank.blockchain.data.export.common.entity;
 
-import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.enums.DataType;
 import lombok.Data;
 
@@ -30,7 +29,7 @@ public class ExportConfig {
     private Map<String,List<String>> generatedOff = new HashMap<>();
 
     /**
-     * ex: Map<contractName, Map<methodName or eventName, List<javaNameParamName>>>
+     * ex: Map<contractName, Map<methodName or eventName, List<solidityParamName>>>
      */
     private Map<String, Map<String,List<String>>> ignoreParam = new HashMap<>();
 
