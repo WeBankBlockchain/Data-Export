@@ -10,7 +10,7 @@ plugins {
 allprojects {
   repositories {
     maven {
-        url "http://maven.aliyun.com/nexus/content/groups/public/"
+       url "http://maven.aliyun.com/nexus/content/groups/public/"
     }
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url "https://dl.bintray.com/ethereum/maven/" }
@@ -20,20 +20,18 @@ allprojects {
 }
 
 subprojects{
-    version = "1.7.2-SNAPSHOT"
+    version = "1.7.2"
     group = 'com.webank'
-
 }
 
 
 project(':WeBankBlockchain-Data-Export-service') {
     apply plugin: "java"
-
     apply plugin: "org.springframework.boot"
-  apply plugin: "io.spring.dependency-management"
-  springBoot {
-    buildInfo()
-  }
+    apply plugin: "io.spring.dependency-management"
+    springBoot {
+     buildInfo()
+    }
 
   javadoc {
     def defaultEncoding = 'UTF-8'
@@ -50,7 +48,8 @@ project(':WeBankBlockchain-Data-Export-service') {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
       exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    compile 'com.webank:data-export-sdk:1.7.2-SNAPSHOT'
+    compile 'com.webank:data-export-sdk:1.7.2'
+//    implementation project(':WeBankBlockchain-Data-Export-sdk')
     implementation('com.ibeetl:beetl:2.9.3')
   }
 }

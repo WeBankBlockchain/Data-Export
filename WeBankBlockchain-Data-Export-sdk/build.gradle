@@ -9,7 +9,7 @@ apply plugin: 'signing'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 group = 'com.webank'
-version = "1.7.2-SNAPSHOT"
+version = "1.7.2"
 
 allprojects {
     repositories {
@@ -89,11 +89,11 @@ sourceSets {
 //    }
 }
 
-signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
+//signing {
+//    required { gradle.taskGraph.hasTask("uploadArchives") }
+//    sign configurations.archives
+//}
+//
 //uploadArchives {
 //    repositories {
 //        mavenDeployer {
