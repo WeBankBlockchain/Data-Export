@@ -110,8 +110,8 @@ do
   esac
 done
 
-docker pull fiscodev/dataexport:1.7.2
-docker run -d -p 5200:5200  -v "$BASE_DIR"/config/:/config -v "$BASE_DIR"/log/:/log --name dataexport fiscodev/dataexport:1.7.2
+docker pull fiscoorg/dataexport:1.7.2
+docker run -d -p 5200:5200  -v "$BASE_DIR"/config/:/config -v "$BASE_DIR"/log/:/log --name dataexport fiscoorg/dataexport:1.7.2
 if [ $? -ne 0 ]; then
     echo "data export run failed"
 else
