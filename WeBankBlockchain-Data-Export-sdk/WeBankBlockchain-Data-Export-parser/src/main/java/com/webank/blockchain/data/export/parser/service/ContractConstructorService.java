@@ -57,7 +57,7 @@ public class ContractConstructorService {
                     && key.length() > BinConstant.META_DATA_HASH_LENGTH) {
                 String hashLengthStr = code.substring(code.length() - 4);
                 if ("0029".equals(hashLengthStr)){
-                    code = code.substring(2, code.length() - 68);
+                    code = code.substring(2, code.length() - 86);
                 }
                 if ("0037".equals(hashLengthStr)){
                     code = code.substring(2, code.length() - 114);
