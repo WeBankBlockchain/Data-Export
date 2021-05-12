@@ -60,6 +60,8 @@ import java.util.Optional;
 @Slf4j
 public class MethodCrawlerHandler {
 
+    public static String DEPLOY_TO = "0x0000000000000000000000000000000000000000";
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static BlockMethodInfo crawl(Block block, Map<String, String> txHashContractAddressMapping) throws IOException {
         BlockMethodInfo blockMethodInfo = new BlockMethodInfo();
@@ -73,12 +75,16 @@ public class MethodCrawlerHandler {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
             Optional<TransactionReceipt> opt = ExportConstant.getCurrentContext().getClient()
-                            .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
+                    .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
             String contractAddress = "";
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
                 TxRawDataBO txRawDataBO = getTxRawDataBO(block, transaction, receipt);
-                contractAddress = txRawDataBO.getTo();
+                if(DEPLOY_TO.equals(txRawDataBO.getTo())){
+                    contractAddress = receipt.getContractAddress();
+                }else {
+                    contractAddress = txRawDataBO.getTo();
+                }
                 TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block, receipt, contractAddress);
                 txRawDataBOList.add(txRawDataBO);
                 txReceiptRawDataBOList.add(txReceiptRawDataBO);
