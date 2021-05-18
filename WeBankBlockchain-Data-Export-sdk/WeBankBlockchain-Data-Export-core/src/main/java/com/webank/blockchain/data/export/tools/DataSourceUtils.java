@@ -178,11 +178,11 @@ public class DataSourceUtils {
                 ContractDetail contractDetail = contractDetailMap.getValue();
                 if (CollectionUtil.isNotEmpty(contractDetail.getEventMetaInfos())) {
                     contractDetail.getEventMetaInfos().forEach(eventMetaInfo ->
-                            tables.add(TableSQL.getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName())));
+                            tables.add(TableSQL.getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName() + "_event")));
                 }
                 if (CollectionUtil.isNotEmpty(contractDetail.getMethodMetaInfos())) {
                     contractDetail.getMethodMetaInfos().forEach(methodMetaInfo ->
-                            tables.add(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName())));
+                            tables.add(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName() + "_method")));
                 }
             }
         }
@@ -255,7 +255,7 @@ public class DataSourceUtils {
                     String tableSql = TableSQL.createMethodTableSql(methodMetaInfo);
                     try {
                         if (!tables.contains(TableSQL.getTableName(methodMetaInfo.getContractName(),
-                                methodMetaInfo.getMethodName()))) {
+                                methodMetaInfo.getMethodName() + "_method"))) {
                             db.execute(tableSql);
                         }
                     } catch (SQLException e) {
@@ -268,7 +268,7 @@ public class DataSourceUtils {
                     String tableSql = TableSQL.createEventTableSql(eventMetaInfo);
                     try {
                         if (!tables.contains(TableSQL.getTableName(eventMetaInfo.getContractName(),
-                                eventMetaInfo.getEventName()))) {
+                                eventMetaInfo.getEventName() + "_event"))) {
                             db.execute(tableSql);
                         }
                     } catch (SQLException e) {
@@ -293,7 +293,7 @@ public class DataSourceUtils {
                     try {
                         for (int i = 0; i < shardingNumberPerDatasource; i++) {
                             String tableName = TableSQL.getTableName(methodMetaInfo.getContractName(),
-                                    methodMetaInfo.getMethodName());
+                                    methodMetaInfo.getMethodName() + "_method");
                             if (!tables.contains(tableName + i)) {
                                 db.execute(tableSql.replaceFirst(tableName, tableName + i));
                             }
@@ -309,7 +309,7 @@ public class DataSourceUtils {
                     try {
                         for (int i = 0; i < shardingNumberPerDatasource; i++) {
                             String tableName = TableSQL.getTableName(eventMetaInfo.getContractName(),
-                                    eventMetaInfo.getEventName());
+                                    eventMetaInfo.getEventName() + "_event");
                             if (!tables.contains(tableName + i)) {
                                 db.execute(tableSql.replaceFirst(tableName, tableName + i));
                             }

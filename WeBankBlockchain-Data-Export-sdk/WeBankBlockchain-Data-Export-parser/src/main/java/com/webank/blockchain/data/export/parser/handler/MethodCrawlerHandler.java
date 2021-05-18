@@ -138,7 +138,7 @@ public class MethodCrawlerHandler {
             entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
             entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
-            methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()));
+            methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName() + "_method"));
             TransactionResponse response;
             if (!CollectionUtil.isEmpty(methodMetaInfo.getOutputList())) {
                 response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getMethodName(), receipt);
