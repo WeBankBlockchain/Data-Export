@@ -14,9 +14,6 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
-import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
-import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
@@ -24,7 +21,6 @@ import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
-import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -38,7 +34,6 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wesleywang
@@ -62,10 +57,6 @@ public class ESHandleDao {
     public static final String TX_RECEIPT_RAW_DATA = "txreceiptrawdata";
 
     public static final String BLOCK_TX_DETAIL = "blocktxdetailinfo";
-
-    public static final String METHOD = "method";
-
-    public static final String EVENT = "event";
 
     @SneakyThrows
     public static TransportClient create(DataExportContext context) {
@@ -153,14 +144,14 @@ public class ESHandleDao {
         if (!blackTables.contains(DataType.EVENT_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getEventInfoList())) {
             for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
                 ESService.createDocument(client,
-                        eventBO.getTable().toLowerCase() + EVENT,
+                        eventBO.getTable().toLowerCase(),
                         "_doc", eventBO.getEntity().get("tx_hash").toString(), eventBO);
             }
         }
         if (!blackTables.contains(DataType.METHOD_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getMethodInfoList())) {
             for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
                 ESService.createDocument(client,
-                        methodBO.getTable().toLowerCase() + METHOD,
+                        methodBO.getTable().toLowerCase(),
                         "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
             }
         }
