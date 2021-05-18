@@ -31,6 +31,7 @@ import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
 import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,8 @@ public class MethodParser {
             contractGenOffs = genOffMap.get(contractName);
         }
         List<MethodMetaInfo> lists = Lists.newArrayList();
+        Map<String,Integer> overloadingMethod = new HashMap<>();
+        Map<String, MethodMetaInfo> notOverMethodMap = new HashMap<>();
         for (ABIDefinition abiDefinition : abiDefinitions) {
             String abiType = abiDefinition.getType();
             if (abiType.equals(AbiTypeConstants.ABI_EVENT_TYPE) || abiDefinition.isConstant()) {
@@ -77,7 +80,19 @@ public class MethodParser {
             if (abiType.equals(AbiTypeConstants.ABI_CONSTRUCTOR_TYPE)) {
                 method.setMethodName("constructor");
             } else {
-                method.setMethodName(abiDefinition.getName());
+                if (overloadingMethod.containsKey(abiDefinition.getName())){
+                    int index = overloadingMethod.get(abiDefinition.getName()) + 1;
+                    if (index == 1){
+                        notOverMethodMap.get(abiDefinition.getName()).setMethodName(abiDefinition.getName() + "_0");
+                    }
+                    method.setMethodName(abiDefinition.getName() + "_" +index);
+                    overloadingMethod.put(abiDefinition.getName(), index);
+                }else {
+                    method.setMethodName(abiDefinition.getName());
+                    overloadingMethod.put(method.getMethodName(),0);
+                    notOverMethodMap.put(method.getMethodName(),method);
+                }
+                method.setOriginName(abiDefinition.getName());
             }
             method.setMethodId(abiDefinition.getMethodId(ExportConstant.getCurrentContext().getClient().getCryptoSuite())
                     + "_" + contractName);

@@ -125,7 +125,7 @@ public class MethodCrawlerHandler {
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         MethodBO methodBO = null;
         try {
-            List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getMethodName(), receipt,
+            List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getOriginName(), receipt,
                     ExportConstant.getCurrentContext().getClient());
             if(CollectionUtil.isEmpty(params)) {
                 return null;
@@ -141,7 +141,7 @@ public class MethodCrawlerHandler {
             methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName() + "_method"));
             TransactionResponse response;
             if (!CollectionUtil.isEmpty(methodMetaInfo.getOutputList())) {
-                response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getMethodName(), receipt);
+                response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getOriginName(), receipt);
                 List<Object> returns = response.getValuesList();
                 int i = 0;
                 for (FieldVO fieldVO : methodMetaInfo.getOutputList()) {
