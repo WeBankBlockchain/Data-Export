@@ -14,9 +14,6 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
-import com.webank.blockchain.data.export.common.bo.contract.EventMetaInfo;
-import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
@@ -24,7 +21,6 @@ import com.webank.blockchain.data.export.common.bo.data.EventBO;
 import com.webank.blockchain.data.export.common.bo.data.MethodBO;
 import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
-import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -38,7 +34,6 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wesleywang
@@ -62,10 +57,6 @@ public class ESHandleDao {
     public static final String TX_RECEIPT_RAW_DATA = "txreceiptrawdata";
 
     public static final String BLOCK_TX_DETAIL = "blocktxdetailinfo";
-
-    public static final String METHOD = "method";
-
-    public static final String EVENT = "event";
 
     @SneakyThrows
     public static TransportClient create(DataExportContext context) {
@@ -106,48 +97,25 @@ public class ESHandleDao {
         if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE) && !ESService.indexExists(client,CONTRACT_INFO)){
             ESService.createIndex(client,CONTRACT_INFO);
         }
-        if (CollectionUtil.isNotEmpty(context.getConfig().getContractInfoList())){
-            Map<String, ContractDetail> contractBinaryMap = ContractConstants.getCurrentContractMaps().getContractBinaryMap();
-            for(Map.Entry<String, ContractDetail> entry : contractBinaryMap.entrySet()) {
-                ContractDetail contractDetail = entry.getValue();
-                if (!blackTables.contains(DataType.METHOD_TABLE)) {
-                    for (MethodMetaInfo methodMetaInfo : contractDetail.getMethodMetaInfos()) {
-                        String index = (contractDetail.getContractInfoBO().getContractName() + methodMetaInfo.getMethodName() +
-                                METHOD).toLowerCase();
-                        if (!ESService.indexExists(client, index)) {
-                            ESService.createIndex(client, index);
-                        }
-                    }
-                }
-                if (!blackTables.contains(DataType.EVENT_TABLE)) {
-                    for (EventMetaInfo eventMetaInfo : contractDetail.getEventMetaInfos()) {
-                        String index = (contractDetail.getContractInfoBO().getContractName() + eventMetaInfo.getEventName() +
-                                EVENT).toLowerCase();
-                        if (!ESService.indexExists(client, index)) {
-                            ESService.createIndex(client, index);
-                        }
-                    }
-                }
-            }
-        }
-
         return client;
     }
 
     public static void saveBlockInfo(BlockInfoBO blockInfoBO) {
-        TransportClient client = ExportConstant.getCurrentContext().getEsClient();
+        DataExportContext context = ExportConstant.getCurrentContext();
+        TransportClient client = context.getEsClient();
+        List<DataType> blackTables = context.getConfig().getDataTypeBlackList();
 
-        if (blockInfoBO.getBlockDetailInfo() != null) {
+        if (!blackTables.contains(DataType.BLOCK_DETAIL_INFO_TABLE) && blockInfoBO.getBlockDetailInfo() != null) {
             ESService.createDocument(client,
                     BLOCK_DETAIL, "_doc", String.valueOf(blockInfoBO.getBlockDetailInfo().getBlockHeight()),
                     blockInfoBO.getBlockDetailInfo());
         }
-        if (blockInfoBO.getBlockRawDataBO() != null) {
+        if (!blackTables.contains(DataType.BLOCK_RAW_DATA_TABLE) && blockInfoBO.getBlockRawDataBO() != null) {
             ESService.createDocument(client,
                     BLOCK_RAW_DATA, "_doc", String.valueOf(blockInfoBO.getBlockRawDataBO().getBlockHeight()),
                     blockInfoBO.getBlockRawDataBO());
         }
-        if (CollectionUtil.isNotEmpty(blockInfoBO.getTxRawDataBOList())) {
+        if (!blackTables.contains(DataType.TX_RAW_DATA_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getTxRawDataBOList())) {
             for (TxRawDataBO txRawDataBO : blockInfoBO.getTxRawDataBOList()) {
                 ESService.createDocument(client,
                         TX_RAW_DATA, "_doc",
@@ -155,7 +123,7 @@ public class ESHandleDao {
             }
         }
 
-        if (CollectionUtil.isNotEmpty(blockInfoBO.getTxReceiptRawDataBOList())) {
+        if (!blackTables.contains(DataType.TX_RECEIPT_RAW_DATA_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getTxReceiptRawDataBOList())) {
             for (TxReceiptRawDataBO txReceiptRawDataBO : blockInfoBO.getTxReceiptRawDataBOList()) {
                 ESService.createDocument(client,
                         TX_RECEIPT_RAW_DATA, "_doc",
@@ -164,7 +132,7 @@ public class ESHandleDao {
             }
         }
 
-        if (CollectionUtil.isNotEmpty(blockInfoBO.getBlockTxDetailInfoList())) {
+        if (!blackTables.contains(DataType.BLOCK_TX_DETAIL_INFO_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getBlockTxDetailInfoList())) {
             for (BlockTxDetailInfoBO blockTxDetailInfoBO : blockInfoBO.getBlockTxDetailInfoList()) {
                 ESService.createDocument(client,
                         BLOCK_TX_DETAIL, "_doc",
@@ -173,17 +141,17 @@ public class ESHandleDao {
             }
         }
 
-        if (CollectionUtil.isNotEmpty(blockInfoBO.getEventInfoList())) {
+        if (!blackTables.contains(DataType.EVENT_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getEventInfoList())) {
             for (EventBO eventBO : blockInfoBO.getEventInfoList()) {
                 ESService.createDocument(client,
-                        eventBO.getTable().toLowerCase() + EVENT,
+                        eventBO.getTable().toLowerCase(),
                         "_doc", eventBO.getEntity().get("tx_hash").toString(), eventBO);
             }
         }
-        if (CollectionUtil.isNotEmpty(blockInfoBO.getMethodInfoList())) {
+        if (!blackTables.contains(DataType.METHOD_TABLE) && CollectionUtil.isNotEmpty(blockInfoBO.getMethodInfoList())) {
             for (MethodBO methodBO : blockInfoBO.getMethodInfoList()) {
                 ESService.createDocument(client,
-                        methodBO.getTable().toLowerCase() + METHOD,
+                        methodBO.getTable().toLowerCase(),
                         "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
             }
         }

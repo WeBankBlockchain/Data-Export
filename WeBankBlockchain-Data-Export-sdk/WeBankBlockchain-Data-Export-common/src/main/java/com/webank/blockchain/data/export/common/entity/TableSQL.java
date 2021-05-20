@@ -177,7 +177,7 @@ public class TableSQL {
         StringBuilder sql = new StringBuilder();
         DataExportContext currentContext = ExportConstant.getCurrentContext();
         sql.append("CREATE TABLE ")
-                .append("`").append(getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()))
+                .append("`").append(getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()  + "_method"))
                 .append("`")
                 .append(" (\n")
                 .append("  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
@@ -207,7 +207,7 @@ public class TableSQL {
         StringBuilder sql = new StringBuilder();
         DataExportContext currentContext = ExportConstant.getCurrentContext();
         sql.append("CREATE TABLE ").append("`").append(
-                getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName()))
+                getTableName(eventMetaInfo.getContractName(), eventMetaInfo.getEventName() + "_event"))
                 .append("`")
                 .append(" (\n")
                 .append("  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +

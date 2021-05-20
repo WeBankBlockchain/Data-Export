@@ -36,6 +36,8 @@ public class MethodMetaInfo {
     /** @Fields methodName : method name */
     private String methodName;
 
+    private String originName;
+
     private String type;
 
     /** @Fields contractName : contract name */

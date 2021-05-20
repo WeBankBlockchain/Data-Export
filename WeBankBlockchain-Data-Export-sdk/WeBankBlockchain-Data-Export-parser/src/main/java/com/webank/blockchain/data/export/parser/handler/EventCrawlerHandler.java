@@ -110,10 +110,10 @@ public class EventCrawlerHandler {
                 continue;
             }
             EventMetaInfo eventMetaInfo = eventMetaInfoMap.get(entry.getKey());
-            int i = 0;
             for (List<Object> params : entry.getValue()) {
                 EventBO eventBO = new EventBO();
                 Map<String, Object> entity = Maps.newHashMap();
+                int i = 0;
                 for (FieldVO fieldVO : eventMetaInfo.getList()) {
                     if (CollectionUtil.isNotEmpty(config.getIgnoreParam())
                             && config.getIgnoreParam().containsKey(eventMetaInfo.getContractName())){
@@ -136,7 +136,7 @@ public class EventCrawlerHandler {
                 entity.put("contract_address", tr.getContractAddress());
                 entity.put("block_height", Numeric.toBigInt(tr.getBlockNumber()).longValue());
                 eventBO.setEntity(entity);
-                eventBO.setTable(TableSQL.getTableName(contractName,eventMetaInfo.getEventName()));
+                eventBO.setTable(TableSQL.getTableName(contractName,eventMetaInfo.getEventName() + "_event"));
                 boList.add(eventBO);
             }
         }

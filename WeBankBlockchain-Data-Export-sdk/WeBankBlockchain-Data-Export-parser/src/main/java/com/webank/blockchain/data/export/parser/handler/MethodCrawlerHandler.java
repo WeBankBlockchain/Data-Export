@@ -60,6 +60,7 @@ import java.util.Optional;
 @Slf4j
 public class MethodCrawlerHandler {
 
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static BlockMethodInfo crawl(Block block, Map<String, String> txHashContractAddressMapping) throws IOException {
         BlockMethodInfo blockMethodInfo = new BlockMethodInfo();
@@ -73,12 +74,12 @@ public class MethodCrawlerHandler {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
             Optional<TransactionReceipt> opt = ExportConstant.getCurrentContext().getClient()
-                            .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
+                    .getTransactionReceipt(transaction.getHash()).getTransactionReceipt();
             String contractAddress = "";
             if (opt.isPresent()) {
                 TransactionReceipt receipt = opt.get();
                 TxRawDataBO txRawDataBO = getTxRawDataBO(block, transaction, receipt);
-                contractAddress = txRawDataBO.getTo();
+                contractAddress = receipt.getContractAddress();
                 TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block, receipt, contractAddress);
                 txRawDataBOList.add(txRawDataBO);
                 txReceiptRawDataBOList.add(txReceiptRawDataBO);
@@ -125,7 +126,7 @@ public class MethodCrawlerHandler {
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         MethodBO methodBO = null;
         try {
-            List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getMethodName(), receipt,
+            List<Object> params = MethodUtils.decodeMethodInput(abi, methodMetaInfo.getOriginName(), receipt,
                     ExportConstant.getCurrentContext().getClient());
             if(CollectionUtil.isEmpty(params)) {
                 return null;
@@ -138,10 +139,10 @@ public class MethodCrawlerHandler {
             entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
             entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
-            methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName()));
+            methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName() + "_method"));
             TransactionResponse response;
             if (!CollectionUtil.isEmpty(methodMetaInfo.getOutputList())) {
-                response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getMethodName(), receipt);
+                response = decoder.decodeReceiptWithValues(abi, methodMetaInfo.getOriginName(), receipt);
                 List<Object> returns = response.getValuesList();
                 int i = 0;
                 for (FieldVO fieldVO : methodMetaInfo.getOutputList()) {

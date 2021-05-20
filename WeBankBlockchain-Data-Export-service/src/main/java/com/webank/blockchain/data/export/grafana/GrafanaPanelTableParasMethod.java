@@ -48,7 +48,7 @@ public class GrafanaPanelTableParasMethod implements AtomicParas<MethodMetaInfo>
         map.put("list", list);
 
         String className = info.getContractName() + StringUtils.capitalize(info.getMethodName());
-        String tableName = getTableName(info.getContractName(),info.getMethodName());
+        String tableName = getTableName(info.getContractName(),info.getMethodName() + "_method");
         map.put("table_name", tableName);
         map.put("title", className);
         return map;

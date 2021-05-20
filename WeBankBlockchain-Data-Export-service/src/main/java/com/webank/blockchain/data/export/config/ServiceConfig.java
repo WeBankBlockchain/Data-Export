@@ -1,9 +1,12 @@
 package com.webank.blockchain.data.export.config;
 
+import cn.hutool.core.io.FileUtil;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
+import com.webank.solc.plugin.compiler.CompileSolToJava;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.resource.ClasspathResourceLoader;
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +31,7 @@ import java.util.Map;
 @Configuration
 @ConfigurationProperties("system")
 @Data
+@Slf4j
 public class ServiceConfig {
 
     private String nodeStr;
@@ -62,6 +67,8 @@ public class ServiceConfig {
     private String abiPath;
 
     private String binaryPath;
+
+    private String solPath;
 
     @Value("${system.db.shardingNumberPerDatasource}")
     private int shardingNumberPerDatasource;
@@ -123,6 +130,26 @@ public class ServiceConfig {
 
     @PostConstruct
     private void init() {
+        if(solPath != null) {
+            CompileSolToJava compiler = new CompileSolToJava();
+            File outputBaseDir = new File("./config/solidity");
+            File abiOutputDir = new File(outputBaseDir, "abi");
+            File binOutputDir = new File(outputBaseDir, "bin/ecc");
+            File smbinOutputDir = new File(outputBaseDir, "bin/sm");
+            File solDir = new File(solPath);
+            try {
+                compiler.compileSolToJava("*",null,
+                        solDir, abiOutputDir,binOutputDir,smbinOutputDir,null);
+            } catch (Exception e) {
+                log.error("CompileSolToJava failed !!! ", e);
+            }
+            this.abiPath = "./config/solidity/abi";
+            if (this.cryptoTypeConfig == 0) {
+                this.binaryPath = "./config/solidity/bin/ecc";
+            } else {
+                this.binaryPath = "./config/solidity/bin/sm";
+            }
+        }
         mysqlDataSources = PropertiesUtils.getMysqlConfigs();
         contractInfos = PropertiesUtils.getContractInfos();
         generatedOff_SDK = PropertiesUtils.getGeneratedOff();
