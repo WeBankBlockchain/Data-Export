@@ -48,7 +48,7 @@ public class GrafanaPanelTableParasEvent implements AtomicParas<EventMetaInfo> {
         map.put("list", list);
 
         String className = info.getContractName() + StringUtils.capitalize(info.getEventName());
-        String tableName = getTableName(info.getContractName(),info.getEventName());
+        String tableName = getTableName(info.getContractName(),info.getEventName() + "_event");
         map.put("table_name", tableName);
         map.put("title", className);
         return map;

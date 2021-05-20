@@ -20,7 +20,7 @@ allprojects {
 }
 
 subprojects{
-    version = "1.7.2"
+    version = "1.7.3"
     group = 'com.webank'
 }
 
@@ -32,6 +32,7 @@ project(':WeBankBlockchain-Data-Export-service') {
     springBoot {
      buildInfo()
     }
+    def solcVersion = rootProject.hasProperty('solcVersion') ? solcVersion : "0.4.25.1"
 
   javadoc {
     def defaultEncoding = 'UTF-8'
@@ -49,8 +50,12 @@ project(':WeBankBlockchain-Data-Export-service') {
       exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 //    compile 'com.webank:data-export-sdk:1.7.2'
+    implementation ('com.webank:solc-gradle-plugin:1.0.0-SNAPSHOT'){
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
     implementation project(':WeBankBlockchain-Data-Export-sdk')
     implementation('com.ibeetl:beetl:2.9.3')
+    implementation "org.fisco-bcos:solcJ:${solcVersion}"
   }
 }
 

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 LANG=zh_CN.UTF-8
 
+CONFIGPATH="./config/application.properties"
+solcVersion=`awk -F '=' '$1~/system.solcVersion/{print $2;exit}' ${CONFIGPATH}`
+
 cd ../WeBankBlockchain-Data-Export-service
 
 function LOG_INFO()
@@ -31,7 +34,7 @@ do
   esac
 done
 
-$GRADLE_EXEC clean bootJar
+$GRADLE_EXEC clean bootJar -PsolcVersion=$solcVersion
 echo "gradle build finish..."
 
 cp dist/Data-Export*.jar ../tools

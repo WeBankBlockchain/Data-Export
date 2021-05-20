@@ -15,12 +15,16 @@
  */
 package com.webank.blockchain.data.export.parser.service;
 
+import cn.hutool.core.util.HexUtil;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.BinConstant;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.fisco.bcos.sdk.utils.Hex;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -31,15 +35,16 @@ import java.util.Map;
  * @data 2018-12-19 18:16:59
  *
  */
+@Slf4j
 public class ContractConstructorService {
 
     /**
      * get constuctor name by transaction input code.
      *
-     * @param input input of tx
+     * @param code
      * @return key:contract binary, value:contract name
      */
-    public static Map.Entry<String, ContractDetail> getConstructorNameByCode(String input) {
+    public static Map.Entry<String, ContractDetail> getConstructorNameByCode(String code) {
         ContractMapsInfo contractMapsInfo = ContractConstants.getCurrentContractMaps();
         if (contractMapsInfo == null) {
             return null;
@@ -47,13 +52,23 @@ public class ContractConstructorService {
         Map<String, ContractDetail> binaryMap = contractMapsInfo.getContractBinaryMap();
         for (Map.Entry<String, ContractDetail> entry : binaryMap.entrySet()) {
             String key = entry.getKey();
-            if (input.length() > BinConstant.META_DATA_HASH_LENGTH
+
+            if (code.length() > BinConstant.META_DATA_HASH_LENGTH
                     && key.length() > BinConstant.META_DATA_HASH_LENGTH) {
-                input = input.substring(2, input.length() - 1 - BinConstant.META_DATA_HASH_LENGTH);
+                String hashLengthStr = code.substring(code.length() - 4);
+                if ("0029".equals(hashLengthStr)){
+                    code = code.substring(2, code.length() - 86);
+                }
+                if ("0037".equals(hashLengthStr)){
+                    code = code.substring(2, code.length() - 114);
+                }
+                if (code.contains("a264697066735822")){
+                    code = code.substring(2, code.indexOf("a264697066735822"));
+                }
             } else {
                 continue;
             }
-            if (StringUtils.containsIgnoreCase(key, input)) {
+            if (StringUtils.containsIgnoreCase(key, code)) {
                 return entry;
             }
         }
