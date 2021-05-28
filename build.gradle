@@ -50,7 +50,7 @@ project(':WeBankBlockchain-Data-Export-service') {
       exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
 //    compile 'com.webank:data-export-sdk:1.7.2'
-    implementation ('com.webank:solc-gradle-plugin:1.0.0-SNAPSHOT'){
+    implementation ('com.webank:solc-gradle-plugin:1.0.0'){
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
     implementation project(':WeBankBlockchain-Data-Export-sdk')
