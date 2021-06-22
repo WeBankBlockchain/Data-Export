@@ -60,6 +60,16 @@ public class ExportConstant {
 
     public static final String CONTRACT_INFO_TABLE = "contract_info";
 
+    public static final String TX_RAW_BROWSER_DAO = "tx_browser_raw_data_dao";
+
+    public static final String TX_RAW_BROWSER_TABLE = "tx_browser_raw_data";
+
+    public static final String BLOCK_BROWSER_RAW_TABLE = "block_browser_raw_data";
+
+    public static final String BLOCK_BROWSER_RAW_DATA_DAO = "block_browser_raw_data_dao";
+
+    public static final String BLOCK_BROWSER_RAW_DATA_TABLE = "block_browser_raw_data";
+
     public static final List<String> tables = Lists.newArrayList(
             BLOCK_DETAIL_INFO_TABLE,
             BLOCK_TASK_POOL_TABLE,
@@ -68,5 +78,8 @@ public class ExportConstant {
             DEPLOYED_ACCOUNT_INFO_TABLE,
             TX_RAW_DATA_TABLE,
             TX_RECEIPT_RAW_DATA_TABLE,
-            CONTRACT_INFO_TABLE);
+            CONTRACT_INFO_TABLE,
+            TX_RAW_BROWSER_TABLE,
+            BLOCK_BROWSER_RAW_TABLE,
+            BLOCK_BROWSER_RAW_DATA_DAO);
 }

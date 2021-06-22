@@ -45,4 +45,8 @@ public class BlockInfoBO {
 
     private List<MethodBO> methodInfoList;
 
+    private List<TxBrowserRawDataBO> txBrowserRawDataBOList;
+
+    private BlockBrowserRawDataBO blockBrowserRawDataBO;
+
 }

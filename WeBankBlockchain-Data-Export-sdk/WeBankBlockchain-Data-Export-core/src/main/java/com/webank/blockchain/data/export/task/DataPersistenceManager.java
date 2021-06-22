@@ -1,28 +1,12 @@
 package com.webank.blockchain.data.export.task;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.tables;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.webank.blockchain.data.export.db.dao.*;
+import com.webank.blockchain.data.export.db.repository.*;
 import org.elasticsearch.client.transport.TransportClient;
 
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
@@ -33,25 +17,6 @@ import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.DataType;
-import com.webank.blockchain.data.export.db.dao.BlockDetailInfoDAO;
-import com.webank.blockchain.data.export.db.dao.BlockRawDataDAO;
-import com.webank.blockchain.data.export.db.dao.BlockTxDetailInfoDAO;
-import com.webank.blockchain.data.export.db.dao.ContractInfoDAO;
-import com.webank.blockchain.data.export.db.dao.DeployedAccountInfoDAO;
-import com.webank.blockchain.data.export.db.dao.ESHandleDao;
-import com.webank.blockchain.data.export.db.dao.MethodAndEventDao;
-import com.webank.blockchain.data.export.db.dao.SaveInterface;
-import com.webank.blockchain.data.export.db.dao.TxRawDataDAO;
-import com.webank.blockchain.data.export.db.dao.TxReceiptRawDataDAO;
-import com.webank.blockchain.data.export.db.repository.BlockDetailInfoRepository;
-import com.webank.blockchain.data.export.db.repository.BlockRawDataRepository;
-import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
-import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
-import com.webank.blockchain.data.export.db.repository.ContractInfoRepository;
-import com.webank.blockchain.data.export.db.repository.DeployedAccountInfoRepository;
-import com.webank.blockchain.data.export.db.repository.RollbackInterface;
-import com.webank.blockchain.data.export.db.repository.TxRawDataRepository;
-import com.webank.blockchain.data.export.db.repository.TxReceiptRawDataRepository;
 import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.db.service.ESStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
@@ -61,6 +26,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.db.DaoTemplate;
 import cn.hutool.db.Db;
 import lombok.Data;
+
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.*;
 
 /**
  * @author wesleywang
@@ -81,6 +48,8 @@ public class DataPersistenceManager {
     private TxReceiptRawDataRepository txReceiptRawDataRepository;
     private DeployedAccountInfoRepository deployedAccountInfoRepository;
     private ContractInfoRepository contractInfoRepository;
+    private TxBrowserRawDataRepository txBrowserRawDataRepository;
+    private BlockBrowserRawDataRepository blockBrowserRawDataRepository;
 
     private List<DataStoreService> dataStoreServiceList = new ArrayList<>();
     private List<RollbackInterface> rollbackOneInterfaceList = new ArrayList<>();
@@ -171,6 +140,16 @@ public class DataPersistenceManager {
         if (contractInfoRepository != null) {
             mysqlStoreService.setContractInfoDAO(new ContractInfoDAO(contractInfoRepository));
         }
+
+        if (txBrowserRawDataRepository != null) {
+            TxBrowserRawDataDAO txBrowserRawDataDAO = new TxBrowserRawDataDAO(txBrowserRawDataRepository);
+            saveInterfaceList.add(txBrowserRawDataDAO);
+        }
+
+        if (blockBrowserRawDataRepository != null) {
+            BlockBrowserRawDataDAO blockBrowserRawDataDao = new BlockBrowserRawDataDAO(blockBrowserRawDataRepository);
+            saveInterfaceList.add(blockBrowserRawDataDao);
+        }
         MethodAndEventDao methodAndEventDao = new MethodAndEventDao();
         saveInterfaceList.add(methodAndEventDao);
     }
@@ -217,6 +196,17 @@ public class DataPersistenceManager {
         if (!blackTables.contains(DataType.CONTRACT_INFO_TABLE)) {
             contractInfoRepository = new ContractInfoRepository(
                     daoTemplateMap.get(CONTRACT_INFO_DAO), tablePrefix + CONTRACT_INFO_TABLE + tablePostfix);
+        }
+
+        if (!blackTables.contains(DataType.TX_RAW_BROWSER_DATA)) {
+            txBrowserRawDataRepository = new TxBrowserRawDataRepository(
+                    daoTemplateMap.get(TX_RAW_BROWSER_DAO), tablePrefix + TX_RAW_BROWSER_TABLE + tablePostfix);
+        }
+
+        if (!blackTables.contains(DataType.BLOCK_BROWSER_RAW_DATA)) {
+            blockBrowserRawDataRepository = new BlockBrowserRawDataRepository(daoTemplateMap.get(
+                    BLOCK_BROWSER_RAW_DATA_DAO), tablePrefix + BLOCK_BROWSER_RAW_DATA_TABLE + tablePostfix);
+            rollbackOneInterfaceList.add(blockBrowserRawDataRepository);
         }
 
     }

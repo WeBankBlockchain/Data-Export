@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.parser.handler;
 
+import com.webank.blockchain.data.export.common.bo.data.BlockBrowserRawDataBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO.Status;
 import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
@@ -69,5 +70,15 @@ public class BlockCrawlerHandler {
         blockRawDataBO.setTransactionList(JacksonUtils.toJson(block.getTransactions()));
         blockRawDataBO.setBlockObject(JacksonUtils.toJson(block));
         return blockRawDataBO;
+    }
+
+    public static BlockBrowserRawDataBO handleBlockBrowserRawData(Block block) {
+        BlockBrowserRawDataBO blockBrowserRawDataBO = new BlockBrowserRawDataBO();
+        blockBrowserRawDataBO.setBlockHeight(block.getNumber().longValue());
+        blockBrowserRawDataBO.setBlockHash(block.getHash());
+        blockBrowserRawDataBO.setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()));
+        blockBrowserRawDataBO.setSealer(block.getSealer());
+        blockBrowserRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));
+        return blockBrowserRawDataBO;
     }
 }

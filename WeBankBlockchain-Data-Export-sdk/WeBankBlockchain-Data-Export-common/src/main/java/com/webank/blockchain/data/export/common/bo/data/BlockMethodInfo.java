@@ -41,4 +41,5 @@ public class BlockMethodInfo {
 
     private Map<String, String> txHashContractNameMapping;
 
+    private List<TxBrowserRawDataBO> txBrowserRawDataBOList;
 }

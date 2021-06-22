@@ -165,6 +165,35 @@ public class TableSQL {
                     "  KEY `block_timestamp` (`block_time_stamp`)\n" +
                     ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
 
+
+    public static final String TX_RAW_BROWSER_DATA = "CREATE TABLE `tx_browser_raw_data` (\n" +
+            "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
+            "  `block_height` bigint(20) DEFAULT NULL,\n" +
+            "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
+            "  `contract_address` varchar(255) DEFAULT NULL,\n" +
+            "  `from` varchar(255) DEFAULT NULL,\n" +
+            "  `to` varchar(255) DEFAULT NULL,\n" +
+            "  `tx_hash` varchar(255) DEFAULT NULL,\n" +
+            "  `tx_index` varchar(255) DEFAULT NULL,\n" +
+            "  PRIMARY KEY (`pk_id`),\n" +
+            "  KEY `block_hash` (`block_hash`),\n" +
+            "  KEY `block_timestamp` (`block_time_stamp`)\n" +
+            ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+
+    public static final String BLOCK_BROWSER_RAW_DATA = " CREATE TABLE `block_browser_raw_data` (\n" +
+            "  `pk_id` bigint(20) NOT NULL AUTO_INCREMENT,\n" +
+            "  `block_hash` varchar(128) DEFAULT NULL,\n" +
+            "  `block_height` bigint(20) DEFAULT NULL,\n" +
+            "  `block_time_stamp` datetime(6) DEFAULT NULL,\n" +
+            "  `sealer` varchar(255) DEFAULT NULL,\n" +
+            "  `sealer_list` longtext,\n" +
+            "  PRIMARY KEY (`pk_id`),\n" +
+            "  UNIQUE KEY `UK_block_height` (`block_height`),\n" +
+            "  KEY `block_hash` (`block_hash`),\n" +
+            "  KEY `block_timestamp` (`block_time_stamp`)\n" +
+            ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;";
+
     public static String getTableName(String contractName,String name){
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         String tablePrefix = config.getTablePrefix();
@@ -236,6 +265,8 @@ public class TableSQL {
         tableSqlMap.put("tx_receipt_raw_data", TX_RECEIPT_RAW_DATA);
         tableSqlMap.put("tx_raw_data", TX_RAW_DATA);
         tableSqlMap.put("contract_info",CONTRACT_INFO);
+        tableSqlMap.put("tx_browser_raw_data",TX_RAW_BROWSER_DATA);
+        tableSqlMap.put("block_browser_raw_data",BLOCK_BROWSER_RAW_DATA);
     }
 
 }

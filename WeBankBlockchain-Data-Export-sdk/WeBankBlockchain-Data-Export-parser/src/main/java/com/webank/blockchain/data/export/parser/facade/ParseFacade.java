@@ -84,6 +84,14 @@ public class ParseFacade {
             blockInfo.setMethodInfoList(blockMethodInfo.getMethodInfoList());
         }
 
+        if (!blackList.contains(DataType.TX_RAW_BROWSER_DATA)){
+            blockInfo.setTxBrowserRawDataBOList(blockMethodInfo.getTxBrowserRawDataBOList());
+        }
+
+        if (!blackList.contains(DataType.BLOCK_BROWSER_RAW_DATA)){
+            blockInfo.setBlockBrowserRawDataBO(BlockCrawlerHandler.handleBlockBrowserRawData(block));
+        }
+
         log.debug("Block {} , event crawler handle useTime {} ", block.getNumber(),
                 st.stop().elapsed(TimeUnit.MILLISECONDS));
         return blockInfo;

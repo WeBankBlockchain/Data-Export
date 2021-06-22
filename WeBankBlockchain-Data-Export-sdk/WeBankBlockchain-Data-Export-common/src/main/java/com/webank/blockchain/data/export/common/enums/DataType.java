@@ -27,8 +27,9 @@ public enum DataType {
     DEPLOYED_ACCOUNT_INFO_TABLE("deployed_account_info"),
     CONTRACT_INFO_TABLE("contract_info"),
     EVENT_TABLE("event"),
+    TX_RAW_BROWSER_DATA("tx_browser_raw_data"),
+    BLOCK_BROWSER_RAW_DATA("block_browser_raw_data"),
     METHOD_TABLE("method");
-
 
     private String tableName;
 

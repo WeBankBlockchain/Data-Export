@@ -18,11 +18,7 @@ import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.bo.contract.FieldVO;
 import com.webank.blockchain.data.export.common.bo.contract.MethodMetaInfo;
-import com.webank.blockchain.data.export.common.bo.data.BlockMethodInfo;
-import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
-import com.webank.blockchain.data.export.common.bo.data.MethodBO;
-import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
-import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
+import com.webank.blockchain.data.export.common.bo.data.*;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -67,6 +63,7 @@ public class MethodCrawlerHandler {
         List<BlockTxDetailInfoBO> blockTxDetailInfoList = new ArrayList<>();
         List<TxRawDataBO> txRawDataBOList = new ArrayList<>();
         List<TxReceiptRawDataBO> txReceiptRawDataBOList = new ArrayList<>();
+        List<TxBrowserRawDataBO> txBrowserRawDataBOList = new ArrayList<>();
         List<MethodBO> methodInfoList = new ArrayList();
         List<TransactionResult> transactionResults = block.getTransactions();
         Map<String, String> txHashContractNameMapping = new HashMap<>();
@@ -81,8 +78,10 @@ public class MethodCrawlerHandler {
                 TxRawDataBO txRawDataBO = getTxRawDataBO(block, transaction, receipt);
                 contractAddress = receipt.getContractAddress();
                 TxReceiptRawDataBO txReceiptRawDataBO = getTxReceiptRawDataBO(block, receipt, contractAddress);
+                TxBrowserRawDataBO txRawBrowserDataBO = getTxRawBrowserDataBO(block, receipt, contractAddress);
                 txRawDataBOList.add(txRawDataBO);
                 txReceiptRawDataBOList.add(txReceiptRawDataBO);
+                txBrowserRawDataBOList.add(txRawBrowserDataBO);
             }
             Optional<String> contractName = TransactionService.getContractNameByTransaction(transaction, txHashContractAddressMapping);
             if (!contractName.isPresent()){
@@ -115,7 +114,8 @@ public class MethodCrawlerHandler {
                 .setMethodInfoList(methodInfoList)
                 .setTxHashContractNameMapping(txHashContractNameMapping)
                 .setTxRawDataBOList(txRawDataBOList)
-                .setTxReceiptRawDataBOList(txReceiptRawDataBOList);
+                .setTxReceiptRawDataBOList(txReceiptRawDataBOList)
+                .setTxBrowserRawDataBOList(txBrowserRawDataBOList);
         return blockMethodInfo;
 
     }
@@ -237,6 +237,20 @@ public class MethodCrawlerHandler {
                 .setTxProof(JacksonUtils.toJson(receipt.getTxProof()))
                 .setReceiptProof(JacksonUtils.toJson(receipt.getReceiptProof()));
         return txReceiptRawDataBO;
+    }
+
+
+    public static TxBrowserRawDataBO getTxRawBrowserDataBO(Block block, TransactionReceipt receipt, String contractAddress) {
+        TxBrowserRawDataBO txRawBrowserDataBO = new TxBrowserRawDataBO();
+        txRawBrowserDataBO.setBlockHash(receipt.getBlockHash())
+                .setBlockHeight(Numeric.decodeQuantity((receipt.getBlockNumber())).longValue())
+                .setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()))
+                .setTxHash(receipt.getTransactionHash())
+                .setContractAddress(contractAddress)
+                .setFrom(receipt.getFrom())
+                .setTo(receipt.getTo())
+                .setTxIndex(receipt.getTransactionIndex());
+        return txRawBrowserDataBO;
     }
 
 }

@@ -14,13 +14,7 @@
 package com.webank.blockchain.data.export.db.dao;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.bo.data.BlockTxDetailInfoBO;
-import com.webank.blockchain.data.export.common.bo.data.ContractInfoBO;
-import com.webank.blockchain.data.export.common.bo.data.EventBO;
-import com.webank.blockchain.data.export.common.bo.data.MethodBO;
-import com.webank.blockchain.data.export.common.bo.data.TxRawDataBO;
-import com.webank.blockchain.data.export.common.bo.data.TxReceiptRawDataBO;
+import com.webank.blockchain.data.export.common.bo.data.*;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
@@ -57,6 +51,10 @@ public class ESHandleDao {
     public static final String TX_RECEIPT_RAW_DATA = "txreceiptrawdata";
 
     public static final String BLOCK_TX_DETAIL = "blocktxdetailinfo";
+
+    public static final String TX_BROWSER_RAW_DATA = "txbrowserrawdata";
+
+    public static final String BLOCK_BROWSER_RAW_DATA = "blockbrowserrawdata";
 
     @SneakyThrows
     public static TransportClient create(DataExportContext context) {
@@ -154,6 +152,20 @@ public class ESHandleDao {
                         methodBO.getTable().toLowerCase(),
                         "_doc", methodBO.getEntity().get("tx_hash").toString(), methodBO);
             }
+        }
+
+        if (!blackTables.contains(DataType.TX_RAW_BROWSER_DATA) && CollectionUtil.isNotEmpty(blockInfoBO.getTxBrowserRawDataBOList())) {
+            for (TxBrowserRawDataBO txBrowserRawDataBO : blockInfoBO.getTxBrowserRawDataBOList()) {
+                ESService.createDocument(client,
+                        TX_BROWSER_RAW_DATA, "_doc",
+                        txBrowserRawDataBO.getTxHash(), txBrowserRawDataBO);
+            }
+        }
+
+        if (!blackTables.contains(DataType.BLOCK_BROWSER_RAW_DATA) && blockInfoBO.getBlockBrowserRawDataBO() != null) {
+            ESService.createDocument(client,
+                    BLOCK_BROWSER_RAW_DATA, "_doc", String.valueOf(blockInfoBO.getBlockBrowserRawDataBO().getBlockHeight()),
+                    blockInfoBO.getBlockBrowserRawDataBO());
         }
     }
 
