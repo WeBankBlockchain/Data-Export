@@ -16,6 +16,8 @@ package com.webank.blockchain.data.export.utils;
 import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
+import com.webank.blockchain.data.export.common.enums.DataType;
+import com.webank.blockchain.data.export.common.enums.IgnoreBasicDataParam;
 import com.webank.blockchain.data.export.config.ServiceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -241,5 +243,166 @@ public class PropertiesUtils {
         return map;
     }
 
+    public List<DataType> getDataTypeBlackList() {
+        String dataTypeBlackList = getProperty("system", "dataTypeBlackList");
+        if (dataTypeBlackList == null) {
+            return null;
+        }
+        String[] strings = dataTypeBlackList.split(",");
+        List<DataType> dataTypes = new ArrayList<>();
+        for (String dataType : strings) {
+            DataType type = DataType.getDataType(dataType);
+            if (!type.equals(DataType.NULL)){
+                dataTypes.add(type);
+            }
+        }
+        return dataTypes;
+    }
+
+
+    public Map<String, List<String>> getIgnoreBasicDataTableParam() {
+        String ignoreBasicDataTableParams = getProperty("system", "ignoreBasicDataTableParams");
+        if (ignoreBasicDataTableParams == null) {
+            return null;
+        }
+        Map<String, List<String>> map = new HashMap<>();
+        String[] strings = ignoreBasicDataTableParams.split("\\|");
+        for (String str : strings) {
+            String[] attributes = str.split("\\.");
+            if (attributes.length != 2){
+                log.error("Incorrect system.ignoreBasicDataTableParams size ! Wrong field : " + str);
+                System.exit(1);
+            }
+            String tableName = attributes[0];
+            String[] paramStrs = attributes[1].split(",");
+            List<String> params = getParams(tableName,paramStrs);
+            if (tableName.equals("block_raw_data")){
+                map.put(IgnoreBasicDataParam.IgnoreBasicDataTable.BLOCK_RAW_DATA_TABLE.name(),params);
+            }
+            if (tableName.equals("tx_raw_data")){
+                map.put(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RAW_DATA_TABLE.name(),params);
+            }
+            if (tableName.equals("tx_receipt_raw_data")){
+                map.put(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RECEIPT_RAW_DATA_TABLE.name(),params);
+            }
+        }
+        return map;
+    }
+
+
+    private List<String> getParams(String tableName, String[] paramStrs) {
+        List<String> params = new ArrayList<>();
+        if (tableName.equals("block_raw_data")) {
+            for (String param : paramStrs) {
+                if (param.equals("db_hash")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.DB_HASH.name());
+                }
+                if (param.equals("extra_data")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.EXTRA_DATA.name());
+                }
+                if (param.equals("gas_limit")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.GAS_LIMIT.name());
+                }
+                if (param.equals("gas_used")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.GAS_USED.name());
+                }
+                if (param.equals("logs_bloom")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.LOGS_BLOOM.name());
+                }
+                if (param.equals("parent_hash")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.PARENT_HASH.name());
+                }
+                if (param.equals("receipts_root")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.RECEIPTS_ROOT.name());
+                }
+                if (param.equals("sealer")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.SEALER.name());
+                }
+                if (param.equals("sealer_list")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.SEALER_LIST.name());
+                }
+                if (param.equals("signature_list")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.SIGNATURE_LIST.name());
+                }
+                if (param.equals("state_root")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.STATE_ROOT.name());
+                }
+                if (param.equals("transaction_list")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.TRANSACTION_LIST.name());
+                }
+                if (param.equals("transactions_root")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.TRANSACTIONS_ROOT.name());
+                }
+                if (param.equals("sealer")) {
+                    params.add(IgnoreBasicDataParam.BlockRawDataParams.SEALER.name());
+                }
+            }
+        }
+
+        if (tableName.equals("tx_raw_data")) {
+            for (String param : paramStrs) {
+                if (param.equals("from")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.FROM.name());
+                }
+                if (param.equals("gas")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.GAS.name());
+                }
+                if (param.equals("gas_price")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.GAS_PRICE.name());
+                }
+                if (param.equals("input")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.INPUT.name());
+                }
+                if (param.equals("nonce")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.NONCE.name());
+                }
+                if (param.equals("to")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.TO.name());
+                }
+                if (param.equals("value")) {
+                    params.add(IgnoreBasicDataParam.TxRawDataParams.VALUE.name());
+                }
+            }
+        }
+
+        if (tableName.equals("tx_receipt_raw_data")) {
+            for (String param : paramStrs) {
+                if (param.equals("gas_used")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.GAS_USED.name());
+                }
+                if (param.equals("input")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.INPUT.name());
+                }
+                if (param.equals("logs")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS.name());
+                }
+                if (param.equals("logs_bloom")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS_BLOOM.name());
+                }
+                if (param.equals("message")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.MESSAGE.name());
+                }
+                if (param.equals("output")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.OUTPUT.name());
+                }
+                if (param.equals("receipt_proof")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.RECEIPT_PROOF.name());
+                }
+                if (param.equals("root")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.ROOT.name());
+                }
+                if (param.equals("tx_proof")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.TX_PROOF.name());
+                }
+                if (param.equals("from")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.FROM.name());
+                }
+                if (param.equals("to")) {
+                    params.add(IgnoreBasicDataParam.TxReceiptRawDataParams.TO.name());
+                }
+            }
+        }
+        return params;
+    }
 
 }

@@ -36,6 +36,15 @@ public enum DataType {
         return ListUtil.toList(NULL);
     }
 
+    public static DataType getDataType(String tableName){
+        for(DataType dataType : DataType.values()){
+            if (dataType.tableName.equals(tableName)){
+                return dataType;
+            }
+        }
+        return NULL;
+    }
+
     public static List<String> getTables(List<DataType> dataTypes){
         if (CollectionUtil.isEmpty(dataTypes)) {
             return Collections.emptyList();
