@@ -213,7 +213,7 @@ public class MethodCrawlerHandler {
                 .setBlockHeight(Numeric.decodeQuantity((receipt.getBlockNumber())).longValue())
                 .setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()))
                 .setTxHash(receipt.getTransactionHash());
-        if (!ignoreBasicDataTableParam.containsKey(TX_RAW_DATA_TABLE)) {
+        if (!ignoreBasicDataTableParam.containsKey(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RAW_DATA_TABLE.name())) {
             txRawDataBO.setTxIndex(transaction.getTransactionIndex())
                     .setFrom(transaction.getFrom())
                     .setGas(transaction.getGas())
@@ -223,26 +223,26 @@ public class MethodCrawlerHandler {
                     .setTo(transaction.getTo())
                     .setValue(transaction.getValue());
         } else {
-            List<String> params = ignoreBasicDataTableParam.get(TX_RAW_DATA_TABLE);
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.FROM.getName())) {
+            List<String> params = ignoreBasicDataTableParam.get(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RAW_DATA_TABLE.name());
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.FROM.name())) {
                 txRawDataBO.setFrom(transaction.getFrom());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.GAS.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.GAS.name())) {
                 txRawDataBO.setGas(transaction.getGas());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.GAS_PRICE.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.GAS_PRICE.name())) {
                 txRawDataBO.setGasPrice(transaction.getGasPrice());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.INPUT.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.INPUT.name())) {
                 txRawDataBO.setInput(transaction.getInput());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.NONCE.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.NONCE.name())) {
                 txRawDataBO.setNonce(transaction.getNonce());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.TO.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.TO.name())) {
                 txRawDataBO.setTo(transaction.getTo());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.VALUE.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxRawDataParams.VALUE.name())) {
                 txRawDataBO.setValue(transaction.getValue());
             }
         }
@@ -259,7 +259,7 @@ public class MethodCrawlerHandler {
                 .setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()))
                 .setTxHash(receipt.getTransactionHash())
                 .setContractAddress(contractAddress);
-        if (!ignoreBasicDataTableParam.containsKey(TX_RECEIPT_RAW_DATA_TABLE)) {
+        if (!ignoreBasicDataTableParam.containsKey(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RECEIPT_RAW_DATA_TABLE.name())) {
             txReceiptRawDataBO.setFrom(receipt.getFrom())
                     .setGasUsed(receipt.getGasUsed())
                     .setInput(receipt.getInput())
@@ -273,41 +273,41 @@ public class MethodCrawlerHandler {
                     .setTxProof(JacksonUtils.toJson(receipt.getTxProof()))
                     .setReceiptProof(JacksonUtils.toJson(receipt.getReceiptProof()));
         }else {
-            List<String> params = ignoreBasicDataTableParam.get(TX_RECEIPT_RAW_DATA_TABLE);
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.FROM.getName())) {
+            List<String> params = ignoreBasicDataTableParam.get(IgnoreBasicDataParam.IgnoreBasicDataTable.TX_RECEIPT_RAW_DATA_TABLE.name());
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.FROM.name())) {
                 txReceiptRawDataBO.setFrom(receipt.getFrom());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.GAS_USED.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.GAS_USED.name())) {
                 txReceiptRawDataBO.setGasUsed(receipt.getGasUsed());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS.name())) {
                 txReceiptRawDataBO.setLogs(JacksonUtils.toJson(receipt.getLogs()));
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.INPUT.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.INPUT.name())) {
                 txReceiptRawDataBO.setInput(receipt.getInput());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.MESSAGE.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.MESSAGE.name())) {
                 txReceiptRawDataBO.setMessage(receipt.getMessage());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.OUTPUT.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.OUTPUT.name())) {
                 txReceiptRawDataBO.setOutput(receipt.getOutput());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS_BLOOM.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.LOGS_BLOOM.name())) {
                 txReceiptRawDataBO.setLogsBloom(JacksonUtils.toJson(receipt.getLogsBloom()));
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.ROOT.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.ROOT.name())) {
                 txReceiptRawDataBO.setMessage(receipt.getRoot());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TO.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TO.name())) {
                 txReceiptRawDataBO.setTo(receipt.getTo());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TX_INDEX.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TX_INDEX.name())) {
                 txReceiptRawDataBO.setTxIndex(receipt.getTransactionIndex());
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TX_PROOF.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.TX_PROOF.name())) {
                 txReceiptRawDataBO.setTxProof(JacksonUtils.toJson(receipt.getTxProof()));
             }
-            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.RECEIPT_PROOF.getName())) {
+            if (!params.contains(IgnoreBasicDataParam.TxReceiptRawDataParams.RECEIPT_PROOF.name())) {
                 txReceiptRawDataBO.setReceiptProof(JacksonUtils.toJson(receipt.getReceiptProof()));
             }
         }

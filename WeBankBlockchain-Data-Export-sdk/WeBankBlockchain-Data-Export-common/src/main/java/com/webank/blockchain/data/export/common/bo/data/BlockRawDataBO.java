@@ -31,5 +31,4 @@ public class BlockRawDataBO {
     private String gasUsed;
     private String signatureList;
     private String transactionList;
-    protected Date depotUpdatetime;
 }

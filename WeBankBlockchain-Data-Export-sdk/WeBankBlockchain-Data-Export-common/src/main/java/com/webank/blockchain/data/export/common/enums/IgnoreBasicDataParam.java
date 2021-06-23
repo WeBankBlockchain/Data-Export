@@ -14,70 +14,62 @@ public class IgnoreBasicDataParam {
 
     @Getter
     public enum IgnoreBasicDataTable {
-        BLOCK_RAW_DATA_TABLE("block_raw_data"),
-        TX_RAW_DATA_TABLE("tx_raw_data"),
-        TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data");
+        BLOCK_RAW_DATA_TABLE,
+        TX_RAW_DATA_TABLE,
+        TX_RECEIPT_RAW_DATA_TABLE;
 
-        private String name;
-
-
-        IgnoreBasicDataTable(String name) { }
+        IgnoreBasicDataTable() { }
     }
 
     @Getter
     public enum BlockRawDataParams {
-        DB_HASH("db_hash"),
-        EXTRA_DATA("extra_data"),
-        GAS_LIMIT("gas_limit"),
-        GAS_USED("gas_used"),
-        LOGS_BLOOM("logs_bloom"),
-        PARENT_HASH("parent_hash"),
-        RECEIPTS_ROOT("receipts_root"),
-        SEALER("sealer"),
-        SEALER_LIST("sealer_list"),
-        SIGNATURE_LIST("signature_list"),
-        STATE_ROOT("state_root"),
-        TRANSACTION_LIST("transaction_list"),
-        TRANSACTIONS_ROOT("transactions_root");
+        DB_HASH,
+        EXTRA_DATA,
+        GAS_LIMIT,
+        GAS_USED,
+        LOGS_BLOOM,
+        PARENT_HASH,
+        RECEIPTS_ROOT,
+        SEALER,
+        SEALER_LIST,
+        SIGNATURE_LIST,
+        STATE_ROOT,
+        TRANSACTION_LIST,
+        TRANSACTIONS_ROOT;
 
-        private String name;
-
-        BlockRawDataParams(String name) { }
+        BlockRawDataParams() { }
     }
 
     @Getter
     public enum TxReceiptRawDataParams {
-        FROM("from"),
-        GAS_USED("gasUsed"),
-        LOGS("logs"),
-        INPUT("input"),
-        MESSAGE("message"),
-        OUTPUT("output"),
-        LOGS_BLOOM("logsBloom"),
-        ROOT("root"),
-        TO("to"),
-        TX_INDEX("txIndex"),
-        TX_PROOF("txProof"),
-        RECEIPT_PROOF("receiptProof");
+        FROM,
+        GAS_USED,
+        LOGS,
+        INPUT,
+        MESSAGE,
+        OUTPUT,
+        LOGS_BLOOM,
+        ROOT,
+        TO,
+        TX_INDEX,
+        TX_PROOF,
+        RECEIPT_PROOF;
 
-        private String name;
-
-        TxReceiptRawDataParams(String name) { }
+        TxReceiptRawDataParams() { }
     }
 
     @Getter
     public enum TxRawDataParams {
-        FROM("from"),
-        GAS("gas"),
-        GAS_PRICE("gasPrice"),
-        INPUT("input"),
-        NONCE("nonce"),
-        VALUE("value"),
-        TO("to");
+        FROM,
+        GAS,
+        GAS_PRICE,
+        INPUT,
+        NONCE,
+        VALUE,
+        TO;
 
-        private String name;
 
-        TxRawDataParams(String name) { }
+        TxRawDataParams() { }
     }
 
 }
