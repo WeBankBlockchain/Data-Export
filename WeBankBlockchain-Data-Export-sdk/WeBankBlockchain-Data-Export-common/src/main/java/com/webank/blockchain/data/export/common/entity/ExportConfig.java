@@ -34,6 +34,11 @@ public class ExportConfig {
     private Map<String, Map<String,List<String>>> ignoreParam = new HashMap<>();
 
     /**
+     * ex: Map<contractName, Map<methodName or eventName, List<solidityParamName>>>
+     */
+    private Map<String, List<String>> ignoreBasicDataTableParam = new HashMap<>();
+
+    /**
      * ex: Map<contractName, Map<methodName or eventName, Map<solidityParamName,paramType>>>
      */
     private Map<String, Map<String,Map<String,String>>> paramSQLType = new HashMap<>();
