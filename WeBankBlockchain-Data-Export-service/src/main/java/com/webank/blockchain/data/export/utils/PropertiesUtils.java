@@ -244,7 +244,7 @@ public class PropertiesUtils {
     }
 
     public List<DataType> getDataTypeBlackList() {
-        String dataTypeBlackList = getProperty("system", "dataTypeBlackList");
+        String dataTypeBlackList = getProperty("system", "dataTypeBlackLists");
         if (dataTypeBlackList == null) {
             return null;
         }
