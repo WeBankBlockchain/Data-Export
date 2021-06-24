@@ -262,10 +262,10 @@ public class PropertiesUtils {
 
     public Map<String, List<String>> getIgnoreBasicDataTableParam() {
         String ignoreBasicDataTableParams = getProperty("system", "ignoreBasicDataTableParams");
-        if (ignoreBasicDataTableParams == null) {
-            return null;
-        }
         Map<String, List<String>> map = new HashMap<>();
+        if (ignoreBasicDataTableParams == null) {
+            return map;
+        }
         String[] strings = ignoreBasicDataTableParams.split("\\|");
         for (String str : strings) {
             String[] attributes = str.split("\\.");
