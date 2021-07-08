@@ -16,9 +16,15 @@ package com.webank.blockchain.data.export.parser.handler;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO.Status;
 import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
+import com.webank.blockchain.data.export.common.entity.ExportConfig;
+import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.enums.IgnoreBasicDataParam;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * BlockCrawlerHandler is responsible for crawling block info.
@@ -36,7 +42,6 @@ public class BlockCrawlerHandler {
      * transaction's count in current block, block hash and block timestamp.
      * 
      * @param block
-     * @param blockHeight
      * @return boolean
      */
     public static BlockDetailInfoBO handleBlockDetail(Block block) {
@@ -50,24 +55,68 @@ public class BlockCrawlerHandler {
     }
 
     public static BlockRawDataBO handleBlockRawData(Block block) {
+        ExportConfig config = ExportConstant.getCurrentContext().getConfig();
+        Map<String, List<String>> ignoreBasicDataTableParam = config.getIgnoreBasicDataTableParam();
         BlockRawDataBO blockRawDataBO = new BlockRawDataBO();
         blockRawDataBO.setBlockHeight(block.getNumber().longValue());
         blockRawDataBO.setBlockHash(block.getHash());
         blockRawDataBO.setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()));
-        blockRawDataBO.setDbHash(block.getDbHash());
-        blockRawDataBO.setExtraData(JacksonUtils.toJson(block.getExtraData()));
-        blockRawDataBO.setGasLimit(block.getGasLimit());
-        blockRawDataBO.setGasUsed(block.getGasUsed());
-        blockRawDataBO.setLogsBloom(block.getLogsBloom());
-        blockRawDataBO.setParentHash(block.getParentHash());
-        blockRawDataBO.setReceiptsRoot(block.getReceiptsRoot());
-        blockRawDataBO.setSealer(block.getSealer());
-        blockRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));
-        blockRawDataBO.setSignatureList(JacksonUtils.toJson(block.getSignatureList()));
-        blockRawDataBO.setStateRoot(block.getStateRoot());
-        blockRawDataBO.setTransactionsRoot(block.getTransactionsRoot());
-        blockRawDataBO.setTransactionList(JacksonUtils.toJson(block.getTransactions()));
-        blockRawDataBO.setBlockObject(JacksonUtils.toJson(block));
+        if (!ignoreBasicDataTableParam.containsKey(IgnoreBasicDataParam.IgnoreBasicDataTable.BLOCK_RAW_DATA_TABLE.name())) {
+            blockRawDataBO.setDbHash(block.getDbHash());
+            blockRawDataBO.setExtraData(JacksonUtils.toJson(block.getExtraData()));
+            blockRawDataBO.setGasLimit(block.getGasLimit());
+            blockRawDataBO.setGasUsed(block.getGasUsed());
+            blockRawDataBO.setLogsBloom(block.getLogsBloom());
+            blockRawDataBO.setParentHash(block.getParentHash());
+            blockRawDataBO.setReceiptsRoot(block.getReceiptsRoot());
+            blockRawDataBO.setSealer(block.getSealer());
+            blockRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));
+            blockRawDataBO.setSignatureList(JacksonUtils.toJson(block.getSignatureList()));
+            blockRawDataBO.setStateRoot(block.getStateRoot());
+            blockRawDataBO.setTransactionsRoot(block.getTransactionsRoot());
+            blockRawDataBO.setTransactionList(JacksonUtils.toJson(block.getTransactions()));
+        }else {
+            List<String> params = ignoreBasicDataTableParam.get(IgnoreBasicDataParam.IgnoreBasicDataTable.BLOCK_RAW_DATA_TABLE.name());
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.DB_HASH.name())) {
+                blockRawDataBO.setDbHash(block.getDbHash());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.EXTRA_DATA.name())) {
+                blockRawDataBO.setExtraData(JacksonUtils.toJson(block.getExtraData()));
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.GAS_LIMIT.name())) {
+                blockRawDataBO.setGasLimit(block.getGasLimit());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.GAS_USED.name())) {
+                blockRawDataBO.setGasUsed(block.getGasUsed());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.LOGS_BLOOM.name())) {
+                blockRawDataBO.setLogsBloom(block.getLogsBloom());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.PARENT_HASH.name())) {
+                blockRawDataBO.setParentHash(block.getParentHash());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.RECEIPTS_ROOT.name())) {
+                blockRawDataBO.setReceiptsRoot(block.getReceiptsRoot());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.SEALER.name())) {
+                blockRawDataBO.setSealer(block.getSealer());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.SEALER_LIST.name())) {
+                blockRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.SEALER_LIST.name())) {
+                blockRawDataBO.setSignatureList(JacksonUtils.toJson(block.getSignatureList()));
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.STATE_ROOT.name())) {
+                blockRawDataBO.setStateRoot(block.getStateRoot());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.TRANSACTIONS_ROOT.name())) {
+                blockRawDataBO.setTransactionsRoot(block.getTransactionsRoot());
+            }
+            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.TRANSACTION_LIST.name())) {
+                blockRawDataBO.setTransactionList(JacksonUtils.toJson(block.getTransactions()));
+            }
+        }
         return blockRawDataBO;
     }
 }
