@@ -97,6 +97,8 @@ public class ExportService {
         config.setGeneratedOff(serviceConfig.getGeneratedOff_SDK());
         config.setIgnoreParam(serviceConfig.getIgnoreParam_SDK());
         config.setMultiLiving(serviceConfig.isMultiLiving());
+        config.setDataTypeBlackList(serviceConfig.getDataTypeBlackList());
+        config.setIgnoreBasicDataTableParam(serviceConfig.getIgnoreBasicDataTableParam());
         return config;
     }
 

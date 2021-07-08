@@ -56,10 +56,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class EventCrawlerHandler {
 
-
     @SuppressWarnings({ "rawtypes", "unused" })
     public static List<EventBO> crawl(Block block, Map<String, String> txHashContractNameMapping) throws IOException {
         List<TransactionResult> transactionResults = block.getTransactions();
+        List<EventBO> boList = new ArrayList<>();
         for (TransactionResult result : transactionResults) {
             TransactionObject to = (TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
@@ -81,10 +81,10 @@ public class EventCrawlerHandler {
                 if (abi == null) {
                     continue;
                 }
-                return parserEvent(contractAbiMap, contractName.get(), abi, tr,block);
+                boList.addAll(parserEvent(contractAbiMap, contractName.get(), abi, tr,block));
             }
         }
-        return ListUtil.empty();
+        return boList;
     }
 
     private static List<EventBO> parserEvent(Map<String, ContractInfo> contractAbiMap, String contractName, String abi,

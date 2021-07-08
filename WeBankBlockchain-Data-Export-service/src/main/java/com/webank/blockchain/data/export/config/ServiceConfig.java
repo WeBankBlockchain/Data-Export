@@ -1,9 +1,9 @@
 package com.webank.blockchain.data.export.config;
 
-import cn.hutool.core.io.FileUtil;
 import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ESDataSource;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
+import com.webank.blockchain.data.export.common.enums.DataType;
 import com.webank.solc.plugin.compiler.CompileSolToJava;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +113,10 @@ public class ServiceConfig {
      */
     private Map<String, Map<String,Map<String,String>>> paramSQLType_SDK;
 
+    private Map<String,List<String>> ignoreBasicDataTableParam;
+
+    private List<DataType> dataTypeBlackList;
+
     private ESDataSource esDataSource;
 
     private boolean grafanaEnable;
@@ -155,6 +159,9 @@ public class ServiceConfig {
         generatedOff_SDK = PropertiesUtils.getGeneratedOff();
         ignoreParam_SDK = PropertiesUtils.getIgnoreParam();
         paramSQLType_SDK = PropertiesUtils.getparamSQLType();
+        ignoreBasicDataTableParam = PropertiesUtils.getIgnoreBasicDataTableParam();
+        dataTypeBlackList = PropertiesUtils.getDataTypeBlackList();
+
         if (esEnabled) {
             esDataSource = new ESDataSource();
             esDataSource.setClusterName(clusterName);
