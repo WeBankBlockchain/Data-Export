@@ -89,7 +89,7 @@ public class BlockTaskPoolRepository implements RollbackInterface {
         List<Entity> entityList = null;
         try {
             entityList = blockTaskPoolDao.findBySql(
-                    "where block_height >= ? or block_height <= ?", startNumber,endNumber);
+                    "where block_height >= ? and block_height <= ?", startNumber,endNumber);
         } catch (SQLException e) {
             log.error(" BlockTaskPoolRepository findByBlockHeightRange failed ", e);
         }
