@@ -79,6 +79,7 @@ public class BlockDepotService {
         try {
             BlockInfoBO blockInfo = BlockCrawlService.parse(b);
             BlockStoreService.store(blockInfo);
+            BlockListenerService.onBlock(blockInfo);
             DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                     .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
                     b.getNumber().longValue());
