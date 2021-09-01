@@ -50,7 +50,7 @@ public class DataExportService {
         context.setExportDataSource(dataSource);
         context.setEsConfig(dataSource.getEsDataSource());
         context.setAutoCreateTable(dataSource.isAutoCreateTable());
-        context.setBlockListeners(config.getListeners());
+        context.setTopicRegistry(config.getTopicRegistry());
         return context;
     }
 }

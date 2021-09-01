@@ -1,7 +1,7 @@
 package com.webank.blockchain.data.export.common.entity;
 
 import com.webank.blockchain.data.export.common.client.ChainClient;
-import com.webank.blockchain.data.export.common.listener.BlockListeners;
+import com.webank.blockchain.data.export.common.subscribe.TopicRegistry;
 import lombok.Data;
 import org.elasticsearch.client.transport.TransportClient;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
@@ -42,7 +42,7 @@ public class DataExportContext {
 
     private Map<String, ContractInfo> contractInfoMap;
 
-    private BlockListeners blockListeners;
+    private TopicRegistry topicRegistry;
 
     public String sqlScript = String.format("%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
             TableSQL.BLOCK_DETAIL_INFO, TableSQL.BLOCK_RAW_DATA, TableSQL.BLOCK_TASK_POOL,
