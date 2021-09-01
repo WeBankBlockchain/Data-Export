@@ -1,7 +1,7 @@
 package com.webank.blockchain.data.export.common.entity;
 
 import com.webank.blockchain.data.export.common.enums.DataType;
-import com.webank.blockchain.data.export.common.listener.BlockListeners;
+import com.webank.blockchain.data.export.common.subscribe.TopicRegistry;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -61,5 +61,5 @@ public class ExportConfig {
     private String dataFlowJobCron = "0/"+ frequency + " * * * * ?";
     private String dataFlowJobItemParameters = "0=A,1=B,2=C,3=D,4=E,5=F,6=G,7=H";
     private int dataFlowJobShardingTotalCount = 8;
-    private BlockListeners listeners = new BlockListeners();
+    private TopicRegistry topicRegistry = new TopicRegistry();
 }
