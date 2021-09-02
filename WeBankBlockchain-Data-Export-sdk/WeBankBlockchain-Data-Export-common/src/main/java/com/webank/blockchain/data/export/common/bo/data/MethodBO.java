@@ -29,4 +29,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
 public class MethodBO extends CommonBO{
+
+    private String toAddress;
+
 }
