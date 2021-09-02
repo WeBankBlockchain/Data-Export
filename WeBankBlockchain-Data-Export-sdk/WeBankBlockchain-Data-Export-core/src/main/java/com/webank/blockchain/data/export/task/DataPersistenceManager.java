@@ -42,21 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.tables;
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.*;
 
 /**
  * @author wesleywang
@@ -212,7 +198,9 @@ public class DataPersistenceManager {
             contractInfoRepository = new ContractInfoRepository(
                     daoTemplateMap.get(CONTRACT_INFO_DAO), tablePrefix + CONTRACT_INFO_TABLE + tablePostfix);
         }
-
+        if (!blackTables.contains(DataType.BLOCK_TASK_POOL_TABLE)) {
+            blockTaskPoolRepository = new BlockTaskPoolRepository(daoTemplateMap.get(BLOCK_TASK_POOL_DAO), tablePrefix + BLOCK_TASK_POOL_TABLE + tablePostfix);
+        }
     }
 
     public Map<String, DaoTemplate> buildDaoMap(DataExportContext context) {
