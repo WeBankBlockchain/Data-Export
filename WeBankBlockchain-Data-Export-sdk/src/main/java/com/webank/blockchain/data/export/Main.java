@@ -2,13 +2,23 @@ package com.webank.blockchain.data.export;
 
 import com.webank.blockchain.data.export.common.entity.*;
 import com.webank.blockchain.data.export.plugin.DataGovTransactionHandler;
+import com.webank.blockchain.data.export.plugin.enums.ContractEnum;
+import com.webank.blockchain.data.export.plugin.handler.EventHandlerInterface;
+import com.webank.blockchain.data.export.plugin.handler.proposal.ProposalCreateHandler;
+import com.webank.blockchain.data.export.plugin.utils.ABIHelper;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
 import org.apache.curator.shaded.com.google.common.collect.Lists;
+import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.crypto.CryptoSuite;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.*;
 
 /**
  * @author aaronchu
@@ -52,9 +62,27 @@ public class Main {
 //                .setContractName("AccountController");
  //       contractInfoList.add(accountContractInfo);
 //
+        CryptoSuite cryptoSuite = new CryptoSuite(0);
+        String proposalAbiStr = "[{\"constant\":true,\"inputs\":[{\"name\":\"proposalType\",\"type\":\"uint8\"},{\"name\":\"resourceId\",\"type\":\"bytes32\"}],\"name\":\"findProposalByTypeAndResourceId\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"governor\",\"type\":\"address\"},{\"name\":\"proposalType\",\"type\":\"uint8\"},{\"name\":\"resourceId\",\"type\":\"bytes32\"}],\"name\":\"createProposal\",\"outputs\":[{\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"getProposalAddress\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"proposalMapping\",\"type\":\"address\"}],\"name\":\"setProposalMapping\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_accountController\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"getProposalStatus\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[],\"name\":\"_proposalMapping\",\"outputs\":[{\"name\":\"\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"revokeProposal\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"getProposalInfo\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"},{\"name\":\"\",\"type\":\"bytes32\"},{\"name\":\"\",\"type\":\"address[]\"},{\"name\":\"\",\"type\":\"address[]\"},{\"name\":\"\",\"type\":\"address\"},{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"name\":\"src\",\"type\":\"address\"}],\"name\":\"auth\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"name\":\"proposalId\",\"type\":\"uint256\"},{\"name\":\"agree\",\"type\":\"bool\"}],\"name\":\"voteThenExecute\",\"outputs\":[{\"name\":\"\",\"type\":\"uint8\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"name\":\"accountController\",\"type\":\"address\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"governor\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"proposer\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"proposalId\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"proposalType\",\"type\":\"uint8\"},{\"indexed\":false,\"name\":\"resource\",\"type\":\"bytes32\"}],\"name\":\"CreateProposal\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"voter\",\"type\":\"address\"},{\"indexed\":true,\"name\":\"proposalId\",\"type\":\"uint256\"},{\"indexed\":false,\"name\":\"agree\",\"type\":\"bool\"}],\"name\":\"Vote\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"name\":\"revoker\",\"type\":\"address\"},{\"indexed\":false,\"name\":\"proposalId\",\"type\":\"uint256\"}],\"name\":\"RevokeProposal\",\"type\":\"event\"}]";
+
+        ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(cryptoSuite);
+        Map<String, Map<String, EventHandlerInterface>> handlers = new HashMap<>();
         Set<String> contracts = new HashSet<>();
         contracts.add("0xb351793ee67de58b1beeaf08771092926f0ea5b2");
-        exportConfig.getTopicRegistry().getTxReceiptTopic().addSubscriber(new DataGovTransactionHandler(contracts, null));
+
+        Map<String, EventHandlerInterface> proposalEvents = new HashMap<>();
+        ContractABIDefinition proposalAbi = abiDefinitionFactory.loadABI(proposalAbiStr);
+        for (ABIDefinition event: proposalAbi.getEventTopicToEvents().values()){
+            if(event.getName().equals("CreateProposal")){
+                String topic = ABIHelper.resolveEventTopic(cryptoSuite, event);
+                proposalEvents.put(topic,  new ProposalCreateHandler(proposalAbi,cryptoSuite));
+            }
+
+        }
+        handlers.put("0x88dd24e93a8dc33c3f5c71102a2ad96b96173e21",proposalEvents);
+
+        exportConfig.getTopicRegistry().getTxReceiptTopic().addSubscriber(
+                new DataGovTransactionHandler(contracts, handlers));
         DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                 .nodeStr("49.234.126.59:20200")
                 .certPath("config") // chain certificate path config
@@ -63,4 +91,6 @@ public class Main {
         Thread.sleep(60 *1000L);
 //        ExportDataSDK.stop(exportExecutor);
     }
+
+
 }
