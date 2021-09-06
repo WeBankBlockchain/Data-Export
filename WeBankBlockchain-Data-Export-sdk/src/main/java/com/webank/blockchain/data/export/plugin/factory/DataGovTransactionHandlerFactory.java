@@ -10,7 +10,7 @@ import com.webank.blockchain.data.export.plugin.DataGovTransactionHandler;
 public class DataGovTransactionHandlerFactory {
 
     public static DataGovTransactionHandler create(Object sysConfig){
-
+        return null;
     }
 
 }

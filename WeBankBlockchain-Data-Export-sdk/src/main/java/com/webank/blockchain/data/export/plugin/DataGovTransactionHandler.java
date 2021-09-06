@@ -27,27 +27,27 @@ import java.util.*;
  */
 @Slf4j
 public class DataGovTransactionHandler implements SubscriberInterface<TxReceiptRawDataBO> {
-    //合约地址与合约名的映射
-    private Map<String, ContractEnum> contractAddresses;
-    //合约名+事件主题 与 事件处理器 的映射（需要纳入合约名，避免不同合约事件定义相同的情况）
-    private Map<ContractEnum, Map<String, EventHandlerInterface>> eventHandlers;
 
-    public DataGovTransactionHandler(Map<String, ContractEnum> contractAddresses,  Map<ContractEnum, Map<String, EventHandlerInterface>> eventHandlers){
-        this.contractAddresses = contractAddresses;
+    //合约地址+事件主题 与 事件处理器 的映射
+    private Map<String, Map<String, EventHandlerInterface>> eventHandlers;
+    private Set<String> contracts;
+
+    public DataGovTransactionHandler(Set<String> contracts, Map<String, Map<String, EventHandlerInterface>> eventHandlers){
+        this.contracts = contracts;
         this.eventHandlers = eventHandlers;
     }
 
     @Override
     public boolean shouldProcess(TxReceiptRawDataBO receipt, Object context) {
         //是否和数据治理相关的主题
-        if(!contractAddresses.containsKey(receipt.getTo())){
+        if(!contracts.contains(receipt.getTo())){
             return false;
         }
         //交易是否包含事件
         if(StringUtils.isBlank(receipt.getLogs())){
             return false;
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -56,14 +56,15 @@ public class DataGovTransactionHandler implements SubscriberInterface<TxReceiptR
         List<TransactionReceipt.Logs> logs = JacksonUtils.fromJsonList(receipt.getLogs(), TransactionReceipt.Logs.class);
         //2. 针对每个Log(事件)，选择对应的处理器
         for(TransactionReceipt.Logs log: logs){
-            ContractEnum contract = this.contractAddresses.get(log.getAddress());
+            String contract = log.getAddress();
             String eventTopic = log.getTopics().get(0);
             EventHandlerInterface eventHandler = fetchEventHandler(contract, eventTopic);
+            if(eventHandler == null) continue;
             eventHandler.handleEvent(log);
         }
     }
 
-    private EventHandlerInterface fetchEventHandler(ContractEnum contract, String topic){
+    private EventHandlerInterface fetchEventHandler(String contract, String topic){
         if(contract == null || topic == null ) return null;
         Map<String, EventHandlerInterface> eventHandlerInterfaceMap =  this.eventHandlers.getOrDefault(contract, Collections.EMPTY_MAP);
         return eventHandlerInterfaceMap.get(topic);
