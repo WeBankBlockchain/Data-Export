@@ -64,6 +64,7 @@ public class DecoderHelper {
         }
         //Decode to complex solidity object
         ABIObject decoded = template.decode(input);
+        //Convert solidity object to java object
         return (List)convertABIObjectToJavaObjects(decoded);
     }
 
@@ -79,7 +80,7 @@ public class DecoderHelper {
             Object fieldValue = getter.apply(abiObject);
             return fieldValue;
         }
-        List<Object> result = new ArrayList<>();
+        List<Object> fieldValue = new ArrayList<>();
         List<ABIObject> subAbiObjects;
         //LIST
         if(objectType == ABIObject.ObjectType.LIST){
@@ -92,12 +93,10 @@ public class DecoderHelper {
         else{
             throw new UnsupportedOperationException("Unsupported object type "+objectType);
         }
-        List<Object> fieldValue = new ArrayList<>();
         for(ABIObject subAbiObject: subAbiObjects){
             fieldValue.add(convertABIObjectToJavaObjects(subAbiObject));
         }
-        result.add(fieldValue);
-        return result;
+        return fieldValue;
     }
 
 
