@@ -52,7 +52,9 @@ public class ContractConstructorService {
         Map<String, ContractDetail> binaryMap = contractMapsInfo.getContractBinaryMap();
         for (Map.Entry<String, ContractDetail> entry : binaryMap.entrySet()) {
             String key = entry.getKey();
-
+            if(StringUtils.equalsIgnoreCase(key, code)){
+                return entry;
+            }
             if (code.length() > BinConstant.META_DATA_HASH_LENGTH
                     && key.length() > BinConstant.META_DATA_HASH_LENGTH) {
                 String hashLengthStr = code.substring(code.length() - 4);
