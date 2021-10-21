@@ -26,6 +26,7 @@ public enum DataType {
     TX_RECEIPT_RAW_DATA_TABLE("tx_receipt_raw_data"),
     DEPLOYED_ACCOUNT_INFO_TABLE("deployed_account_info"),
     CONTRACT_INFO_TABLE("contract_info"),
+    BLOCK_TASK_POOL_TABLE("block_task_pool"),
     EVENT_TABLE("event"),
     METHOD_TABLE("method");
 

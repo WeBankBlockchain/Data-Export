@@ -9,7 +9,7 @@ apply plugin: 'signing'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
 
 group = 'com.webank'
-version = "1.7.4"
+version = "1.7.5"
 
 allprojects {
     repositories {

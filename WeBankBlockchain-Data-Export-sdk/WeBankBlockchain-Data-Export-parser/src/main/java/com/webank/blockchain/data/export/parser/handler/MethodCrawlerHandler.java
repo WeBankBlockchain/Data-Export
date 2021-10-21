@@ -49,9 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
-
 
 /**
  * MethodCrawlerHandler
@@ -143,6 +140,7 @@ public class MethodCrawlerHandler {
             entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
             entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
+            methodBO.setToAddress(receipt.getTo());
             methodBO.setTable(TableSQL.getTableName(methodMetaInfo.getContractName(), methodMetaInfo.getMethodName() + "_method"));
             TransactionResponse response;
             if (!CollectionUtil.isEmpty(methodMetaInfo.getOutputList())) {

@@ -136,6 +136,7 @@ public class EventCrawlerHandler {
                 entity.put("contract_address", tr.getContractAddress());
                 entity.put("block_height", Numeric.toBigInt(tr.getBlockNumber()).longValue());
                 eventBO.setEntity(entity);
+                eventBO.setToAddress(tr.getTo());
                 eventBO.setTable(TableSQL.getTableName(contractName,eventMetaInfo.getEventName() + "_event"));
                 boList.add(eventBO);
             }

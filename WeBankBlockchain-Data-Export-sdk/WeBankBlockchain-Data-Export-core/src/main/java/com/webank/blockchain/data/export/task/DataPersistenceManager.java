@@ -1,30 +1,8 @@
 package com.webank.blockchain.data.export.task;
 
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TASK_POOL_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.BLOCK_TX_DETAIL_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.CONTRACT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.DEPLOYED_ACCOUNT_INFO_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DAO;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.TX_RECEIPT_RAW_DATA_TABLE;
-import static com.webank.blockchain.data.export.common.entity.ExportConstant.tables;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.elasticsearch.client.transport.TransportClient;
-
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.db.DaoTemplate;
+import cn.hutool.db.Db;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
@@ -56,11 +34,15 @@ import com.webank.blockchain.data.export.db.service.DataStoreService;
 import com.webank.blockchain.data.export.db.service.ESStoreService;
 import com.webank.blockchain.data.export.db.service.MysqlStoreService;
 import com.webank.blockchain.data.export.tools.DataSourceUtils;
-
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.db.DaoTemplate;
-import cn.hutool.db.Db;
 import lombok.Data;
+import org.elasticsearch.client.transport.TransportClient;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.webank.blockchain.data.export.common.entity.ExportConstant.*;
 
 /**
  * @author wesleywang
@@ -180,9 +162,7 @@ public class DataPersistenceManager {
 
         String tablePrefix = ExportConstant.getCurrentContext().getConfig().getTablePrefix();
         String tablePostfix = ExportConstant.getCurrentContext().getConfig().getTablePostfix();
-        blockTaskPoolRepository = new BlockTaskPoolRepository(
-                daoTemplateMap.get(BLOCK_TASK_POOL_DAO), tablePrefix + BLOCK_TASK_POOL_TABLE + tablePostfix);
-        rollbackOneInterfaceList.add(blockTaskPoolRepository);
+
         List<DataType> blackTables = context.getConfig().getDataTypeBlackList();
 
         if (!blackTables.contains(DataType.BLOCK_DETAIL_INFO_TABLE)) {
@@ -218,7 +198,9 @@ public class DataPersistenceManager {
             contractInfoRepository = new ContractInfoRepository(
                     daoTemplateMap.get(CONTRACT_INFO_DAO), tablePrefix + CONTRACT_INFO_TABLE + tablePostfix);
         }
-
+        if (!blackTables.contains(DataType.BLOCK_TASK_POOL_TABLE)) {
+            blockTaskPoolRepository = new BlockTaskPoolRepository(daoTemplateMap.get(BLOCK_TASK_POOL_DAO), tablePrefix + BLOCK_TASK_POOL_TABLE + tablePostfix);
+        }
     }
 
     public Map<String, DaoTemplate> buildDaoMap(DataExportContext context) {
