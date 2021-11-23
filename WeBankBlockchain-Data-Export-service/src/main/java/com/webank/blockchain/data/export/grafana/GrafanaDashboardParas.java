@@ -13,7 +13,6 @@
  */
 package com.webank.blockchain.data.export.grafana;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.config.ServiceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +36,6 @@ import static com.webank.blockchain.data.export.grafana.GrafanaConstant.GRAFANA_
 @Component
 public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
 
-
-
     @Autowired
     private ServiceConfig config;
 
@@ -46,13 +43,13 @@ public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
     public Map<String, Object> getMap(List<String> infoList) {
         final String prefix = config.getTablePrefix();
         final String suffix = config.getTablePostfix();
-        return ImmutableMap.of(
-                "panels", infoList,
-                "block_task_pool",  prefix + "block_task_pool" + suffix,
-                "block_detail_info", prefix + "block_detail_info" + suffix,
-                "block_tx_detail_info", prefix + "block_tx_detail_info" + suffix,
-                "deployed_account_info", prefix + "deployed_account_info" + suffix
-        );
+        final Map<String, Object> map = Maps.newConcurrentMap();
+        map.put("panels", infoList);
+        map.put("block_task_pool",  prefix + "block_task_pool" + suffix);
+        map.put("block_detail_info", prefix + "block_detail_info" + suffix);
+        map.put("block_tx_detail_info", prefix + "block_tx_detail_info" + suffix);
+        map.put("deployed_account_info", prefix + "deployed_account_info" + suffix);
+        return map;
     }
 
     @Override
@@ -65,5 +62,4 @@ public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
         return File.separator
                 + GENERATED_GRAFANA_DEFAULT_DASHBOARD_PATH;
     }
-
 }
