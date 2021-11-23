@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.grafana;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.config.ServiceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +44,15 @@ public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
 
     @Override
     public Map<String, Object> getMap(List<String> infoList) {
-        Map<String, Object> map = Maps.newLinkedHashMap();
-        map.put("panels", infoList);
-        map.put("block_task_pool", config.getTablePrefix() + "block_task_pool" + config.getTablePostfix());
-        map.put("block_detail_info", config.getTablePrefix() + "block_detail_info" + config.getTablePostfix());
-        map.put("block_tx_detail_info", config.getTablePrefix() + "block_tx_detail_info" + config.getTablePostfix());
-        map.put("deployed_account_info", config.getTablePrefix() + "deployed_account_info" + config.getTablePostfix());
-        return map;
+        final String prefix = config.getTablePrefix();
+        final String suffix = config.getTablePostfix();
+        return ImmutableMap.of(
+                "panels", infoList,
+                "block_task_pool",  prefix + "block_task_pool" + suffix,
+                "block_detail_info", prefix + "block_detail_info" + suffix,
+                "block_tx_detail_info", prefix + "block_tx_detail_info" + suffix,
+                "deployed_account_info", prefix + "deployed_account_info" + suffix
+        );
     }
 
     @Override
