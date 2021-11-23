@@ -31,7 +31,6 @@ public class GrafanaDashboardParasTest {
         MockitoAnnotations.initMocks(this);
         when(mockServiceConfig.getTablePrefix()).thenReturn(PREFIX);
         when(mockServiceConfig.getTablePostfix()).thenReturn(SUFFIX);
-
     }
 
     @Test
