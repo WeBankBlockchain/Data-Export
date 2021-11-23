@@ -56,6 +56,7 @@ project(':WeBankBlockchain-Data-Export-service') {
     implementation project(':WeBankBlockchain-Data-Export-sdk')
     implementation('com.ibeetl:beetl:2.9.3')
     implementation "org.fisco-bcos:solcJ:${solcVersion}"
+    testImplementation "junit:junit:4.13"
   }
 }
 
