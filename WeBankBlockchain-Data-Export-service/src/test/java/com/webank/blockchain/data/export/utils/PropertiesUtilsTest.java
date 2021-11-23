@@ -25,7 +25,7 @@ public class PropertiesUtilsTest {
     public void testGetProperty() {
         PropertiesUtils propertiesUtils = new PropertiesUtils();
         ReflectionTestUtils.setField(propertiesUtils, "environment", mockEnvironment);
-        final String env = propertiesUtils.getProperty("com", "webank", "blockchain");
+        String env = propertiesUtils.getProperty("com", "webank", "blockchain");
         assertEquals("expectedEnv", env);
     }
 }
