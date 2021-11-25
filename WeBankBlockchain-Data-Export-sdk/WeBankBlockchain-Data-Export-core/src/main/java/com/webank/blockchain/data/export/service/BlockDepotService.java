@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 /**
  * BlockSyncService
@@ -68,9 +67,13 @@ public class BlockDepotService {
             log.error("Failed to join futures: ", e);
         }
 
+        final List<Block> results = new ArrayList<>(futures.size());
+        for (CompletableFuture<Block> f : futures) {
+            results.add(f.join());
+        }
         DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository().saveAll(pools);
-        log.info("Successful fetch {} Blocks.", futures.size());
-        return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
+        log.info("Successful fetch {} Blocks.", results.size());
+        return results;
     }
 
     public static void processDataSequence(List<Block> data, long total) {
