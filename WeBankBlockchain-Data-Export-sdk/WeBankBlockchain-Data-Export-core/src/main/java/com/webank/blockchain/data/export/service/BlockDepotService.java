@@ -50,18 +50,18 @@ public class BlockDepotService {
     }
 
     public static List<Block> getTasks(List<BlockTaskPool> tasks) {
-        List<CompletableFuture<Block>> futures = new ArrayList<>(tasks.size());
-        List<BlockTaskPool> pools = new ArrayList<>();
+        final List<CompletableFuture<Block>> futures = new ArrayList<>(tasks.size());
+        final List<BlockTaskPool> pools = new ArrayList<>();
         for (BlockTaskPool task : tasks) {
             task.setSyncStatus((short) TxInfoStatusEnum.DOING.getStatus()).setDepotUpdatetime(new Date());
-            BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
-            CompletableFuture<Block> future = CompletableFuture.supplyAsync(
+            final BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
+            final CompletableFuture<Block> future = CompletableFuture.supplyAsync(
                     () -> BlockCrawlService.getBlock(bigBlockHeight));
             futures.add(future);
             pools.add(task);
         }
 
-        CompletableFuture<Void> futureAll = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        final CompletableFuture<Void> futureAll = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             futureAll.get();
         } catch (InterruptedException | ExecutionException e) {

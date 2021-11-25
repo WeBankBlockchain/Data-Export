@@ -210,7 +210,7 @@ public class CrawlRunner {
                     }
                 }
                 log.info("Begin to fetch at most {} tasks", context.getConfig().getCrawlBatchUnit());
-                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit());
+                final List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit());
                 for (Block b : taskList) {
                     BlockAsyncService.handleSingleBlock(b, currentChainHeight);
                 }
