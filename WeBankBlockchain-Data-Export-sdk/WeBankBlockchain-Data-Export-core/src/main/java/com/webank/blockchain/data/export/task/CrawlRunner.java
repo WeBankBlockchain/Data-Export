@@ -43,6 +43,8 @@ import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 import javax.sql.DataSource;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -71,6 +73,8 @@ public class CrawlRunner {
     private CrawlRunner(DataExportContext context) {
         this.context = context;
     }
+
+    private final ExecutorService fetchPool = Executors.newCachedThreadPool();
 
     public void export() throws ConfigException, MalformedURLException {
         checkConfig();
@@ -210,7 +214,7 @@ public class CrawlRunner {
                     }
                 }
                 log.info("Begin to fetch at most {} tasks", context.getConfig().getCrawlBatchUnit());
-                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit());
+                List<Block> taskList = BlockDepotService.fetchData(context.getConfig().getCrawlBatchUnit(), fetchPool);
                 for (Block b : taskList) {
                     BlockAsyncService.handleSingleBlock(b, currentChainHeight);
                 }

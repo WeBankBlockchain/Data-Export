@@ -10,10 +10,8 @@ import org.apache.shardingsphere.elasticjob.api.JobConfiguration;
 import org.apache.shardingsphere.elasticjob.lite.api.bootstrap.impl.ScheduleJobBootstrap;
 import org.apache.shardingsphere.elasticjob.reg.base.CoordinatorRegistryCenter;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author wesleywang
@@ -26,8 +24,6 @@ public class DataExportExecutor {
 
     private DataExportContext context;
 
-    private ExportExecutor executor;
-
     @SuppressWarnings("rawtypes")
     private Future future;
 
@@ -36,8 +32,6 @@ public class DataExportExecutor {
     public DataExportExecutor(DataExportContext context) {
         this.context = context;
     }
-
-    private static final ExecutorService pool = Executors.newCachedThreadPool();
 
     public void start() {
         log.info("DataExportExecutor is starting ！！！");
@@ -58,12 +52,8 @@ public class DataExportExecutor {
                     ).schedule();
             return;
         }
-        executor = new ExportExecutor();
         crawlRunner = CrawlRunner.create(context);
-        if (((ThreadPoolExecutor) pool).getActiveCount() >= 200) {
-            log.info("current Thread active number rather than 200 ！！！");
-        }
-        future = pool.submit(executor);
+        future = Executors.newSingleThreadExecutor().submit(this::crawlRunnerExport);
     }
 
     public void stop() {
@@ -72,18 +62,13 @@ public class DataExportExecutor {
         log.info("DataExportExecutor stop success ！！！");
     }
 
-    class ExportExecutor implements Runnable {
-
-        @Override
-        public void run() {
-            ExportConstant.setCurrentContext(context);
-            DataPersistenceManager.setCurrentManager(DataPersistenceManager.create(context));
-            try {
-                crawlRunner.export();
-            } catch (Exception e) {
-                log.error("DataExportExecutor boot failed ", e);
-            }
+    public void crawlRunnerExport() {
+        ExportConstant.setCurrentContext(context);
+        DataPersistenceManager.setCurrentManager(DataPersistenceManager.create(context));
+        try {
+            crawlRunner.export();
+        } catch (Exception e) {
+            log.error("DataExportExecutor boot failed ", e);
         }
     }
-
 }

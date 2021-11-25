@@ -28,6 +28,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * BlockSyncService
@@ -40,33 +44,34 @@ import java.util.List;
 @Slf4j
 public class BlockDepotService {
 
-    public static List<Block> fetchData(int count) {
+    public static List<Block> fetchData(int count, ExecutorService pool) {
         List<BlockTaskPool> tasks = DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                 .findBySyncStatusOrderByBlockHeightLimit((short) TxInfoStatusEnum.INIT.getStatus(), count);
-        return getTasks(tasks);
+        return getTasks(tasks, pool);
     }
 
-    public static List<Block> getTasks(List<BlockTaskPool> tasks) {
-        List<Block> result = new ArrayList<>();
+    public static List<Block> getTasks(List<BlockTaskPool> tasks, ExecutorService pool) {
+        List<CompletableFuture<Block>> results = new ArrayList<>(tasks.size());
         List<BlockTaskPool> pools = new ArrayList<>();
         for (BlockTaskPool task : tasks) {
             task.setSyncStatus((short) TxInfoStatusEnum.DOING.getStatus()).setDepotUpdatetime(new Date());
             BigInteger bigBlockHeight = new BigInteger(Long.toString(task.getBlockHeight()));
-            Block block;
-            try {
-                block = BlockCrawlService.getBlock(bigBlockHeight);
-                result.add(block);
-                pools.add(task);
-            } catch (IOException e) {
-                log.error("Block {},  exception occur in job processing: {}", task.getBlockHeight(), e.getMessage());
-                DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
-                        .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(),
-                        new Date(), task.getBlockHeight());
-            }
+            CompletableFuture<Block> future = CompletableFuture.supplyAsync(
+                    () -> BlockCrawlService.getBlock(bigBlockHeight));
+            results.add(future);
+            pools.add(task);
         }
+
+        CompletableFuture<Void> futureAll = CompletableFuture.allOf(results.toArray(new CompletableFuture[0]));
+        try {
+            futureAll.get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("Failed to join futures: ", e);
+        }
+
         DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository().saveAll(pools);
-        log.info("Successful fetch {} Blocks.", result.size());
-        return result;
+        log.info("Successful fetch {} Blocks.", results.size());
+        return results.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }
 
     public static void processDataSequence(List<Block> data, long total) {
