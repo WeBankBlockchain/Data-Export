@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -44,13 +43,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class BlockDepotService {
 
-    public static List<Block> fetchData(int count, ExecutorService pool) {
+    public static List<Block> fetchData(int count) {
         List<BlockTaskPool> tasks = DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                 .findBySyncStatusOrderByBlockHeightLimit((short) TxInfoStatusEnum.INIT.getStatus(), count);
-        return getTasks(tasks, pool);
+        return getTasks(tasks);
     }
 
-    public static List<Block> getTasks(List<BlockTaskPool> tasks, ExecutorService pool) {
+    public static List<Block> getTasks(List<BlockTaskPool> tasks) {
         List<CompletableFuture<Block>> results = new ArrayList<>(tasks.size());
         List<BlockTaskPool> pools = new ArrayList<>();
         for (BlockTaskPool task : tasks) {
