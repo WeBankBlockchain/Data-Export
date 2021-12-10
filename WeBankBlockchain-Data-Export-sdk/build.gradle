@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven'
     id 'java'
-    id 'org.ajoberstar.grgit' version '4.1.0'
+    // id 'org.ajoberstar.grgit' version '4.1.0'
 }
 apply plugin: 'signing'
 [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
@@ -141,6 +141,7 @@ jar {
 
     exclude "**/*.properties"
 
+/*
     manifest {
         try {
             def repo = grgit.open(currentDir: project.rootDir)
@@ -163,6 +164,7 @@ jar {
             logger.warn(' .git not exist, cannot found commit info, e: {}', e)
         }
     } from sourceSets.main.output
+*/
 
     doLast {
         copy {

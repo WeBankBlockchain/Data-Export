@@ -36,19 +36,19 @@ import static com.webank.blockchain.data.export.grafana.GrafanaConstant.GRAFANA_
 @Component
 public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
 
-
-
     @Autowired
     private ServiceConfig config;
 
     @Override
     public Map<String, Object> getMap(List<String> infoList) {
-        Map<String, Object> map = Maps.newLinkedHashMap();
+        final String prefix = config.getTablePrefix();
+        final String suffix = config.getTablePostfix();
+        final Map<String, Object> map = Maps.newConcurrentMap();
         map.put("panels", infoList);
-        map.put("block_task_pool", config.getTablePrefix() + "block_task_pool" + config.getTablePostfix());
-        map.put("block_detail_info", config.getTablePrefix() + "block_detail_info" + config.getTablePostfix());
-        map.put("block_tx_detail_info", config.getTablePrefix() + "block_tx_detail_info" + config.getTablePostfix());
-        map.put("deployed_account_info", config.getTablePrefix() + "deployed_account_info" + config.getTablePostfix());
+        map.put("block_task_pool",  prefix + "block_task_pool" + suffix);
+        map.put("block_detail_info", prefix + "block_detail_info" + suffix);
+        map.put("block_tx_detail_info", prefix + "block_tx_detail_info" + suffix);
+        map.put("deployed_account_info", prefix + "deployed_account_info" + suffix);
         return map;
     }
 
@@ -62,5 +62,4 @@ public class GrafanaDashboardParas implements GrafanaParas<List<String>> {
         return File.separator
                 + GENERATED_GRAFANA_DEFAULT_DASHBOARD_PATH;
     }
-
 }

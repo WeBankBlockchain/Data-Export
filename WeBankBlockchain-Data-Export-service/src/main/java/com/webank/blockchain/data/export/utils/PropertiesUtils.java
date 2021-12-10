@@ -60,11 +60,9 @@ public class PropertiesUtils {
      * @return property value
      */
     public  String getProperty(String... args) {
-        StringBuilder key = new StringBuilder(args[0]);
-        for (int i = 1 ; i < args.length; i++) {
-            key.append(".").append(args[i]);
-        }
-        return environment.getProperty(key.toString());
+        final String delimiter = ".";
+        final String key = String.join(delimiter, args);
+        return environment.getProperty(key);
     }
 
 
