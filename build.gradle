@@ -20,11 +20,11 @@ allprojects {
 }
 
 subprojects{
-    version = "1.7.5"
+    version = "1.7.6"
     group = 'com.webank'
 }
 
-def log4j_version="2.15.0"
+def log4j_version="2.16.0"
 List logger = [
         "org.apache.logging.log4j:log4j-api:$log4j_version",
         "org.apache.logging.log4j:log4j-core:$log4j_version",
