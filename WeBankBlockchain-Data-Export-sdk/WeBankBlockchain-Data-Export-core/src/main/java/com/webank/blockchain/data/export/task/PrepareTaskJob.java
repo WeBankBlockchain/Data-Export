@@ -16,21 +16,31 @@
 package com.webank.blockchain.data.export.task;
 
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
+import com.webank.blockchain.data.export.common.client.ChainClient;
+import com.webank.blockchain.data.export.common.client.ChannelClient;
+import com.webank.blockchain.data.export.common.client.RpcHttpClient;
+import com.webank.blockchain.data.export.common.client.StashClient;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
+import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.DataExportContext;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.entity.StashInfo;
 import com.webank.blockchain.data.export.parser.contract.ContractParser;
 import com.webank.blockchain.data.export.service.BlockCheckService;
 import com.webank.blockchain.data.export.service.BlockIndexService;
 import com.webank.blockchain.data.export.service.BlockPrepareService;
+import com.webank.blockchain.data.export.tools.DataSourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.simple.job.SimpleJob;
+import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 
 /**
  * PrepareTaskJob
@@ -38,7 +48,7 @@ import java.math.BigInteger;
  * @Description: PrepareTaskJob
  * @author maojiayu
  * @data Jan 11, 2019 10:03:29 AM
- * 
+ *
  */
 @Slf4j
 public class PrepareTaskJob implements SimpleJob {
@@ -52,17 +62,24 @@ public class PrepareTaskJob implements SimpleJob {
     public PrepareTaskJob(DataExportContext context) {
         this.context = context;
         this.dataPersistenceManager = DataPersistenceManager.create(context);
+        DataPersistenceManager.setCurrentManager(dataPersistenceManager);
+        ExportConstant.setCurrentContext(context);
+        try {
+            buildClient();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ConfigException e) {
+            e.printStackTrace();
+        }
+        mapsInfo = ContractParser.initContractMaps(context.getConfig().getContractInfoList());
+        ContractConstants.setCurrentContractMaps(mapsInfo);
+        dataPersistenceManager.buildDataStore();
         try{
             this.context.setDecoder(new TransactionDecoderService(context.getClient().getCryptoSuite()));
             dataPersistenceManager.saveContractInfo();
         }catch (Exception e) {
             log.error("save Contract Info, {}", e.getMessage());
         }
-        mapsInfo = ContractParser.initContractMaps(context.getConfig().getContractInfoList());
-        ExportConstant.setCurrentContext(context);
-        DataPersistenceManager.setCurrentManager(dataPersistenceManager);
-        ContractConstants.setCurrentContractMaps(mapsInfo);
-        dataPersistenceManager.buildDataStore();
     }
 
     public ContractMapsInfo getMapsInfo(){
@@ -103,6 +120,28 @@ public class PrepareTaskJob implements SimpleJob {
         } catch (IOException e) {
             log.error("Job {}, exception occur in job processing: {}", shardingContext.getTaskId(), e.getMessage());
         }
+    }
+
+    private void buildClient() throws MalformedURLException, ConfigException {
+        ChainClient chainClient;
+        ChainInfo chainInfo = context.getChainInfo();
+        StashInfo stashInfo = context.getStashInfo();
+        if (stashInfo != null) {
+            DataSource dataSource = DataSourceUtils.createDataSource(stashInfo.getJdbcUrl(),
+                    null,
+                    stashInfo.getUser(),
+                    stashInfo.getPass());
+            context.setStashDataSource(dataSource);
+            chainClient = new StashClient();
+            context.setClient(chainClient);
+            return;
+        }
+        if (chainInfo.getRpcUrl() != null) {
+            chainClient = new RpcHttpClient();
+        } else {
+            chainClient = new ChannelClient();
+        }
+        context.setClient(chainClient);
     }
 
 }
