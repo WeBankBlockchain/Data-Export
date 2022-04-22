@@ -16,17 +16,17 @@ package com.webank.blockchain.data.export.common.tools;
 import com.webank.blockchain.data.export.common.client.ChainClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.abi.ABICodecException;
-import org.fisco.bcos.sdk.abi.tools.ContractAbiUtil;
-import org.fisco.bcos.sdk.abi.wrapper.ABICodecObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObject;
-import org.fisco.bcos.sdk.abi.wrapper.ABIObjectFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.codec.abi.tools.ContractAbiUtil;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObject;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIObjectFactory;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -85,18 +85,18 @@ public class MethodUtils {
 
     @SuppressWarnings("static-access")
     public static List<Object> decodeMethodInput(String ABI, String methodName, TransactionReceipt tr, ChainClient client)
-            throws ABICodecException {
+            throws Exception {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(client.getCryptoSuite());
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods;
-        ABICodecObject abiCodecObject = new ABICodecObject();
+//        ABICodecObject abiCodecObject = new ABICodecObject();
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         if (StringUtils.equals(methodName, "constructor")) {
             String code = client.getCode(tr.getContractAddress());
             String lastCode = StringUtils.substring(code, code.length() - 32, code.length());
             String paramsInput = StringUtils.substringAfter(tr.getInput(), lastCode);
             // remove methodId of input
-            return abiCodecObject.decodeJavaObject(
+            return decodeJavaObject(
                     abiObjectFactory.createInputObject(contractABIDefinition.getConstructor()), paramsInput);
         } else {
             methods = contractABIDefinition.getFunctions().get(methodName);
@@ -104,14 +104,99 @@ public class MethodUtils {
         for (ABIDefinition abiDefinition : methods) {
             ABIObject outputABIObject = abiObjectFactory.createInputObject(abiDefinition);
             try {
-                return abiCodecObject.decodeJavaObject(outputABIObject, tr.getInput().substring(10));
+                return decodeJavaObject(outputABIObject, tr.getInput().substring(10));
             } catch (Exception e) {
                 log.warn(" exception in decodeMethodToObject : {}", e.getMessage());
             }
         }
         String errorMsg = " cannot decode in decodeMethodToObject with appropriate interface ABI";
         log.error(errorMsg);
-        throw new ABICodecException(errorMsg);
+        throw new Exception(errorMsg);
+    }
+
+    public static List<Object> decodeJavaObject(ABIObject template, String input) throws ClassNotFoundException {
+
+        input = Numeric.cleanHexPrefix(input);
+
+        ABIObject abiObject = template.decode(input.getBytes(),false);
+
+        // ABIObject -> java List<Object>
+        List<Object> result = decodeJavaObject(abiObject);
+
+        return result;
+    }
+
+    private static List<Object> decodeJavaObject(ABIObject template) throws UnsupportedOperationException {
+        List<Object> result = new ArrayList<Object>();
+        List<ABIObject> argObjects;
+        if (template.getType() == ABIObject.ObjectType.STRUCT) {
+            argObjects = template.getStructFields();
+        } else {
+            argObjects = template.getListValues();
+        }
+        for (int i = 0; i < argObjects.size(); ++i) {
+            ABIObject argObject = argObjects.get(i);
+            switch (argObject.getType()) {
+                case VALUE:
+                {
+                    switch (argObject.getValueType()) {
+                        case BOOL:
+                        {
+                            result.add(argObject.getBoolValue().getValue());
+                            break;
+                        }
+                        case UINT:
+                        case INT:
+                        {
+                            result.add(argObject.getNumericValue().getValue());
+                            break;
+                        }
+                        case ADDRESS:
+                        {
+                            result.add(argObject.getAddressValue().toString());
+                            break;
+                        }
+                        case BYTES:
+                        {
+                            result.add(new String(argObject.getBytesValue().getValue()));
+                            break;
+                        }
+                        case DBYTES:
+                        {
+                            result.add(
+                                    new String(
+                                            argObject.getDynamicBytesValue().getValue()));
+                            break;
+                        }
+                        case STRING:
+                        {
+                            result.add(argObject.getStringValue().toString());
+                            break;
+                        }
+                        default:
+                        {
+                            throw new UnsupportedOperationException(
+                                    " Unsupported valueType: " + argObject.getValueType());
+                        }
+                    }
+                    break;
+                }
+                case LIST:
+                case STRUCT:
+                {
+                    List<Object> node = decodeJavaObject(argObject);
+                    result.add(node);
+                    break;
+                }
+                default:
+                {
+                    throw new UnsupportedOperationException(
+                            " Unsupported objectType: " + argObject.getType());
+                }
+            }
+        }
+
+        return result;
     }
 
 }

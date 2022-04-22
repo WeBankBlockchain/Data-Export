@@ -15,11 +15,11 @@ package com.webank.blockchain.data.export.parser.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinitionFactory;
-import org.fisco.bcos.sdk.abi.wrapper.ContractABIDefinition;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
-import org.fisco.bcos.sdk.utils.ObjectMapperFactory;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinitionFactory;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ContractABIDefinition;
+import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.utils.ObjectMapperFactory;
 
 import java.io.IOException;
 import java.util.List;

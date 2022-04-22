@@ -25,7 +25,7 @@ import com.webank.blockchain.data.export.db.repository.BlockTaskPoolRepository;
 import com.webank.blockchain.data.export.task.DataPersistenceManager;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
 import java.math.BigInteger;

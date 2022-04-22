@@ -22,7 +22,7 @@ import com.webank.blockchain.data.export.common.constants.BinConstant;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.utils.Hex;
+import org.fisco.bcos.sdk.v3.utils.Hex;
 
 import java.math.BigInteger;
 import java.util.Map;

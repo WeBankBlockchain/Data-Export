@@ -38,7 +38,7 @@ public class ServiceConfig {
     private String groupId;
     private String certPath;
 
-    private List<Integer> groupIds;
+    private List<String> groupIds;
 
     private int cryptoTypeConfig;
     private String rpcUrl;
@@ -142,7 +142,7 @@ public class ServiceConfig {
             File smbinOutputDir = new File(outputBaseDir, "bin/sm");
             File solDir = new File(solPath);
             try {
-                compiler.compileSolToJava("*",null,
+                compiler.compileSolToJava(null,null,
                         solDir, abiOutputDir,binOutputDir,smbinOutputDir,null);
             } catch (Exception e) {
                 log.error("CompileSolToJava failed !!! ", e);
@@ -173,11 +173,11 @@ public class ServiceConfig {
         if (groupId != null && groupId.contains(",")) {
             String[] ids = groupId.split(",");
             for (String id : ids) {
-                groupIds.add(Integer.valueOf(id));
+                groupIds.add(id);
             }
         }else {
             if (StringUtils.isNotBlank(groupId)) {
-                groupIds.add(Integer.valueOf(groupId));
+                groupIds.add(groupId);
             }
         }
     }

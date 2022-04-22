@@ -14,14 +14,11 @@
 package com.webank.blockchain.data.export.service;
 
 import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
-import com.webank.blockchain.data.export.common.client.ChainClient;
-import com.webank.blockchain.data.export.common.client.StashClient;
-import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.TxInfoStatusEnum;
 import com.webank.blockchain.data.export.db.entity.BlockTaskPool;
 import com.webank.blockchain.data.export.task.DataPersistenceManager;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -82,26 +79,19 @@ public class BlockDepotService {
             BlockListenerService.onBlock(blockInfo);
             DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                     .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.DONE.getStatus(), new Date(),
-                    b.getNumber().longValue());
-            log.info("Block {} of {} sync block succeed.", b.getNumber().longValue(), total);
+                    b.getNumber());
+            log.info("Block {} of {} sync block succeed.", b.getNumber(), total);
         } catch (IOException e) {
-            log.error("block {}, exception occur in job processing: {}", b.getNumber().longValue(), e.getMessage());
+            log.error("block {}, exception occur in job processing: {}", b.getNumber(), e.getMessage());
             DataPersistenceManager.getCurrentManager().getBlockTaskPoolRepository()
                     .setSyncStatusByBlockHeight((short) TxInfoStatusEnum.ERROR.getStatus(), new Date(),
-                    b.getNumber().longValue());
+                    b.getNumber());
         }
-        clearCache(b.getNumber().longValue());
+//        clearCache(b.getNumber());
     }
 
     private static void clearCache(long blockNumber) {
-        ChainClient chainClient = ExportConstant.getCurrentContext().getClient();
-        if (!(chainClient instanceof StashClient)) {
-            return;
-        }
-        StashClient stashClient = (StashClient) chainClient;
-        stashClient.getBlockDataParser().getReceiptCache().remove(blockNumber);
-        stashClient.getBlockDataParser().getBlockCache().remove(blockNumber);
-        log.info("stash parser block cache clear success , block number is " + blockNumber);
+
     }
 
 }

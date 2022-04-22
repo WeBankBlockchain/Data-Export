@@ -18,7 +18,6 @@ import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.client.ChainClient;
 import com.webank.blockchain.data.export.common.client.ChannelClient;
 import com.webank.blockchain.data.export.common.client.RpcHttpClient;
-import com.webank.blockchain.data.export.common.client.StashClient;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
@@ -36,12 +35,10 @@ import com.webank.blockchain.data.export.service.BlockPrepareService;
 import com.webank.blockchain.data.export.tools.DataSourceUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 
 import javax.sql.DataSource;
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,7 +69,7 @@ public class CrawlRunner {
         this.context = context;
     }
 
-    public void export() throws ConfigException, MalformedURLException {
+    public void export() throws Exception {
         checkConfig();
         if (!runSwitch.get()){
             log.info("data export config check failed, task already stop");
@@ -86,20 +83,10 @@ public class CrawlRunner {
         handle();
     }
 
-    private void buildClient() throws MalformedURLException, ConfigException {
+    private void buildClient() throws Exception {
         ChainClient chainClient;
         ChainInfo chainInfo = context.getChainInfo();
-        StashInfo stashInfo = context.getStashInfo();
-        if (stashInfo != null) {
-            DataSource dataSource = DataSourceUtils.createDataSource(stashInfo.getJdbcUrl(),
-                    null,
-                    stashInfo.getUser(),
-                    stashInfo.getPass());
-            context.setStashDataSource(dataSource);
-            chainClient = new StashClient();
-            context.setClient(chainClient);
-            return;
-        }
+
         if (chainInfo.getRpcUrl() != null) {
             chainClient = new RpcHttpClient();
         } else {
@@ -174,7 +161,7 @@ public class CrawlRunner {
     public void handle() {
         try{
             ExportConstant.getCurrentContext().setDecoder(new TransactionDecoderService(
-                    ExportConstant.getCurrentContext().getClient().getCryptoSuite()));
+                    ExportConstant.getCurrentContext().getClient().getCryptoSuite(),false));
             DataPersistenceManager.getCurrentManager().saveContractInfo();
         }catch (Exception e) {
             log.error("save Contract Info, {}", e.getMessage());

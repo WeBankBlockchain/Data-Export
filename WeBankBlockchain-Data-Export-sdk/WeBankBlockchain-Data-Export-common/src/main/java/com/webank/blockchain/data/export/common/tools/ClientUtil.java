@@ -3,12 +3,11 @@ package com.webank.blockchain.data.export.common.tools;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.BcosSDK;
-import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.config.ConfigOption;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.config.model.ConfigProperty;
-import org.fisco.bcos.sdk.crypto.keypair.CryptoKeyPair;
+import org.fisco.bcos.sdk.v3.BcosSDK;
+import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.config.ConfigOption;
+import org.fisco.bcos.sdk.v3.config.exceptions.ConfigException;
+import org.fisco.bcos.sdk.v3.config.model.ConfigProperty;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,14 +20,10 @@ import java.util.Map;
  */
 public class ClientUtil {
 
-    public static CryptoKeyPair cryptoKeyPair(ChainInfo chainInfo) throws ConfigException {
-        Client client = getClient(chainInfo);
-        return client.getCryptoSuite().createKeyPair();
-    }
 
     public static Client getClient(ChainInfo chainInfo) throws ConfigException {
         BcosSDK sdk = getSDK(chainInfo);
-        return sdk.getClient(chainInfo.getGroupId());
+        return sdk.getClient(String.valueOf(chainInfo.getGroupId()));
     }
 
     public static BcosSDK getSDK(ChainInfo chainInfo) throws ConfigException {

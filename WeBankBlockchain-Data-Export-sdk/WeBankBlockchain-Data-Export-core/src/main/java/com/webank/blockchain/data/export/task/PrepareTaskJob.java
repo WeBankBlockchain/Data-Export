@@ -19,7 +19,6 @@ import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.client.ChainClient;
 import com.webank.blockchain.data.export.common.client.ChannelClient;
 import com.webank.blockchain.data.export.common.client.RpcHttpClient;
-import com.webank.blockchain.data.export.common.client.StashClient;
 import com.webank.blockchain.data.export.common.constants.BlockConstants;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
@@ -34,13 +33,11 @@ import com.webank.blockchain.data.export.tools.DataSourceUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.simple.job.SimpleJob;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderService;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderService;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 
 /**
  * PrepareTaskJob
@@ -66,16 +63,14 @@ public class PrepareTaskJob implements SimpleJob {
         ExportConstant.setCurrentContext(context);
         try {
             buildClient();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ConfigException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         mapsInfo = ContractParser.initContractMaps(context.getConfig().getContractInfoList());
         ContractConstants.setCurrentContractMaps(mapsInfo);
         dataPersistenceManager.buildDataStore();
         try{
-            this.context.setDecoder(new TransactionDecoderService(context.getClient().getCryptoSuite()));
+            this.context.setDecoder(new TransactionDecoderService(context.getClient().getCryptoSuite(),false));
             dataPersistenceManager.saveContractInfo();
         }catch (Exception e) {
             log.error("save Contract Info, {}", e.getMessage());
@@ -122,20 +117,9 @@ public class PrepareTaskJob implements SimpleJob {
         }
     }
 
-    private void buildClient() throws MalformedURLException, ConfigException {
+    private void buildClient() throws Exception {
         ChainClient chainClient;
         ChainInfo chainInfo = context.getChainInfo();
-        StashInfo stashInfo = context.getStashInfo();
-        if (stashInfo != null) {
-            DataSource dataSource = DataSourceUtils.createDataSource(stashInfo.getJdbcUrl(),
-                    null,
-                    stashInfo.getUser(),
-                    stashInfo.getPass());
-            context.setStashDataSource(dataSource);
-            chainClient = new StashClient();
-            context.setClient(chainClient);
-            return;
-        }
         if (chainInfo.getRpcUrl() != null) {
             chainClient = new RpcHttpClient();
         } else {

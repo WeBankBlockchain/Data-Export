@@ -13,7 +13,7 @@
  */
 package com.webank.blockchain.data.export.service;
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 /**
  * BlockAsyncService

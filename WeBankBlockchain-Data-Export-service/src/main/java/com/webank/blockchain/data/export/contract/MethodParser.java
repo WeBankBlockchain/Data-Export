@@ -26,8 +26,7 @@ import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
 import com.webank.blockchain.data.export.parser.tools.SolSqlTypeMappingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,11 +63,11 @@ public class MethodParser {
             if (contractGenOffs != null && contractGenOffs.contains(abiDefinition.getName())){
                 continue;
             }
-            List<NamedType> inputs = abiDefinition.getInputs();
+            List<ABIDefinition.NamedType> inputs = abiDefinition.getInputs();
             if (CollectionUtil.isEmpty(inputs) || StringUtils.isEmpty(inputs.get(0).getName())) {
                 continue;
             }
-            List<NamedType> outputs = abiDefinition.getOutputs();
+            List<ABIDefinition.NamedType> outputs = abiDefinition.getOutputs();
             MethodMetaInfo method = new MethodMetaInfo();
             method.setType("method").setContractName(contractName);
             log.debug("method name : {}", abiDefinition.getName());
@@ -84,7 +83,7 @@ public class MethodParser {
         return lists;
     }
 
-    public static List<FieldVO> getOutputList(List<NamedType> outputs, String methodName, String contractName, ServiceConfig config) {
+    public static List<FieldVO> getOutputList(List<ABIDefinition.NamedType> outputs, String methodName, String contractName, ServiceConfig config) {
         if (CollectionUtil.isEmpty(outputs)) {
             return new ArrayList<>();
         }
@@ -125,9 +124,9 @@ public class MethodParser {
         return list;
     }
 
-    public static List<FieldVO> getFieldList(List<NamedType> inputs, String methodName, String contractName, ServiceConfig config) {
+    public static List<FieldVO> getFieldList(List<ABIDefinition.NamedType> inputs, String methodName, String contractName, ServiceConfig config) {
         ArrayList<FieldVO> fieldList = Lists.newArrayList();
-        for (NamedType namedType : inputs) {
+        for (ABIDefinition.NamedType namedType : inputs) {
             if (CollectionUtil.isNotEmpty(config.getIgnoreParam_SDK())
                     && config.getIgnoreParam_SDK().containsKey(contractName)){
                 Map<String,List<String>> ignoreParamMap = config.getIgnoreParam_SDK().get(contractName);

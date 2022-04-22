@@ -13,7 +13,8 @@
  */
 package com.webank.blockchain.data.export.common.tools;
 
-import org.fisco.bcos.sdk.abi.datatypes.Address;
+
+import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
 
 import java.util.ArrayList;
 import java.util.List;

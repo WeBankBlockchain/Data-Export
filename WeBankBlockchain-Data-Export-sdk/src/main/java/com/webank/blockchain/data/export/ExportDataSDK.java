@@ -6,7 +6,6 @@ import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
 import com.webank.blockchain.data.export.common.entity.StashInfo;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 
 /**
  * @author wesleywang
@@ -19,7 +18,6 @@ public class ExportDataSDK {
      * @param dataSource dataSource config
      * @param chainInfo chain parameters
      * @return the executor
-     * @throws ConfigException
      */
     public static DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo) throws Exception {
         return DataExportService.create(dataSource,chainInfo, new ExportConfig());
@@ -31,7 +29,6 @@ public class ExportDataSDK {
      * @param chainInfo chain parameters
      * @param config custom export configuration
      * @return the executor
-     * @throws ConfigException
      */
     public static DataExportExecutor create(ExportDataSource dataSource, ChainInfo chainInfo, ExportConfig config) throws Exception {
         return DataExportService.create(dataSource,chainInfo,config);
@@ -42,7 +39,6 @@ public class ExportDataSDK {
      * @param dataSource dataSource config
      * @param stashInfo stash parameters
      * @return the executor
-     * @throws ConfigException
      */
     public static DataExportExecutor create(ExportDataSource dataSource, StashInfo stashInfo) throws Exception {
         return DataExportService.create(dataSource, stashInfo, new ExportConfig());
@@ -54,7 +50,6 @@ public class ExportDataSDK {
      * @param stashInfo stash parameters
      * @param config custom export configuration
      * @return the executor
-     * @throws ConfigException
      */
     public static DataExportExecutor create(ExportDataSource dataSource, StashInfo stashInfo, ExportConfig config) throws Exception {
         return DataExportService.create(dataSource,stashInfo,config);

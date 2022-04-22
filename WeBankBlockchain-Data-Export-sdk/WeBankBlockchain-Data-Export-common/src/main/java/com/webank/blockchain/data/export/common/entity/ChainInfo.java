@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 public class ChainInfo extends BlockDataSource {
 
     private String nodeStr;
-    private int groupId;
+    private String groupId;
     private String certPath;
     //0-ECDSA,1-SM
     private int cryptoTypeConfig;

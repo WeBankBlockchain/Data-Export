@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.apache.shardingsphere.elasticjob.api.ShardingContext;
 import org.apache.shardingsphere.elasticjob.dataflow.job.DataflowJob;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import com.webank.blockchain.data.export.common.bo.contract.ContractMapsInfo;
 import com.webank.blockchain.data.export.common.constants.ContractConstants;

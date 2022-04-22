@@ -18,7 +18,7 @@ import com.webank.blockchain.data.export.common.bo.data.BlockInfoBO;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.parser.facade.ParseFacade;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -51,7 +51,7 @@ public class BlockCrawlService {
         Stopwatch st1 = Stopwatch.createStarted();
         BlockInfoBO blockInfo = ParseFacade.parse(block);
         log.info("bcosCrawlerMap block:{} succeed, bcosCrawlerMap.handleReceipt useTime: {}",
-                block.getNumber().longValue(), st1.stop().elapsed(TimeUnit.MILLISECONDS));
+                block.getNumber(), st1.stop().elapsed(TimeUnit.MILLISECONDS));
         return blockInfo;
     }
 

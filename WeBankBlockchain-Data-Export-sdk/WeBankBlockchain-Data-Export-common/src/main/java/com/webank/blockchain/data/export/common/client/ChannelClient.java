@@ -4,12 +4,11 @@ import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.ClientUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.Client;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.client.Client;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 
 import java.math.BigInteger;
 
@@ -23,11 +22,11 @@ public class ChannelClient implements ChainClient {
 
     private Client client;
 
-    public ChannelClient() throws ConfigException {
+    public ChannelClient() throws Exception {
         ChainInfo chainInfo = ExportConstant.getCurrentContext().getChainInfo();
         try {
             client = ClientUtil.getClient(chainInfo);
-        } catch (ConfigException e) {
+        } catch (Exception e) {
             log.error("channel client build failed , reason : ", e);
             throw e;
         }
@@ -35,7 +34,7 @@ public class ChannelClient implements ChainClient {
 
     @Override
     public BcosBlock.Block getBlockByNumber(BigInteger blockNumber) {
-        return client.getBlockByNumber(blockNumber,true).getBlock();
+        return client.getBlockByNumber(blockNumber,false,false).getBlock();
     }
 
     @Override
@@ -55,11 +54,11 @@ public class ChannelClient implements ChainClient {
 
     @Override
     public BcosTransaction getTransactionByHash(String transactionHash) {
-        return client.getTransactionByHash(transactionHash);
+        return client.getTransaction(transactionHash,true);
     }
 
     @Override
     public BcosTransactionReceipt getTransactionReceipt(String hash) {
-        return client.getTransactionReceipt(hash);
+        return client.getTransactionReceipt(hash,true);
     }
 }

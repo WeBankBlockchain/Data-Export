@@ -1,10 +1,10 @@
 package com.webank.blockchain.data.export.common.client;
 
 
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransaction;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransaction;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 
 import java.math.BigInteger;
 

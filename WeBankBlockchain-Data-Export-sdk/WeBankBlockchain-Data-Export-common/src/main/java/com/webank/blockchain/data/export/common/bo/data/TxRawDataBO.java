@@ -32,4 +32,6 @@ public class TxRawDataBO {
     private String value;
     private String gasPrice;
 
+    private String chainId;
+
 }

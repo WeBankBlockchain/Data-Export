@@ -21,7 +21,7 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
 
 import java.io.IOException;
 import java.util.Map;
@@ -40,9 +40,9 @@ public class TransactionService {
 
 
 
-    public static String getContractAddressByTransaction(JsonTransactionResponse transaction,
+    public static String getContractAddressByTransaction(long blockNumber, JsonTransactionResponse transaction,
                                                   Map<String, String> txHashContractAddressMapping) {
-        log.debug("blocknumber: {} , to: {}, map: {}", transaction.getBlockNumber(), transaction.getTo(),
+        log.debug("blocknumber: {} , to: {}, map: {}", blockNumber, transaction.getTo(),
                 JacksonUtils.toJson(txHashContractAddressMapping));
         if (transaction.getTo() == null || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
             return txHashContractAddressMapping.get(transaction.getHash());
@@ -51,20 +51,20 @@ public class TransactionService {
         }
     }
 
-    public static Optional<String> getContractNameByTransaction(JsonTransactionResponse transaction,
+    public static Optional<String> getContractNameByTransaction(long blockNumber,JsonTransactionResponse transaction,
                                                          Map<String, String> txHashContractAddressMapping) throws IOException {
-        String contractAddress = getContractAddressByTransaction(transaction, txHashContractAddressMapping);
+        String contractAddress = getContractAddressByTransaction(blockNumber, transaction, txHashContractAddressMapping);
         if (StringUtils.isEmpty(contractAddress)) {
             log.warn(
                     "block:{} , unrecognized transaction, maybe the contract is not registered! See the DIR of contractPath.",
-                    transaction.getBlockNumber());
+                    blockNumber);
             return Optional.empty();
         }
         String input = ExportConstant.getCurrentContext().getClient().getCode(contractAddress);
         if (input == null) {
             log.warn(
                     "block:{} contract:{} code can't be find",
-                    transaction.getBlockNumber(),contractAddress);
+                    blockNumber,contractAddress);
             return Optional.empty();
         }
         log.debug("code: {}", JacksonUtils.toJson(input));
@@ -72,10 +72,10 @@ public class TransactionService {
         if (contractEntry == null) {
             log.warn(
                     "block:{} constructor code can't be find, maybe the contract is not registered! See the DIR of contractPath.",
-                    transaction.getBlockNumber());
+                    blockNumber);
             return Optional.empty();
         }
-        log.debug("Block{} contractAddress{} transactionInput: {}", transaction.getBlockNumber(), contractAddress,
+        log.debug("Block{} contractAddress{} transactionInput: {}", blockNumber, contractAddress,
                 transaction.getInput());
         return Optional.of(contractEntry.getValue().getContractInfoBO().getContractName());
     }

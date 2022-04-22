@@ -43,9 +43,6 @@ public class DataExportService {
         if (blockDataSource instanceof ChainInfo){
             context.setChainInfo((ChainInfo) blockDataSource);
         }
-        if (blockDataSource instanceof StashInfo){
-            context.setStashInfo((StashInfo) blockDataSource);
-        }
         context.setConfig(config);
         context.setExportDataSource(dataSource);
         context.setEsConfig(dataSource.getEsDataSource());

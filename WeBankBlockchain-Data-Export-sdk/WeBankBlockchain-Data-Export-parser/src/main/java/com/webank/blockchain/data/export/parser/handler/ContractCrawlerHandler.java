@@ -22,11 +22,12 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.parser.service.ContractConstructorService;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
+import org.fisco.bcos.sdk.v3.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,16 +50,17 @@ public class ContractCrawlerHandler {
         List<DeployedAccountInfoBO> deployedAccountInfoBOList = new ArrayList<>();
         Map<String, String> map = new HashMap<>();
         List<BcosBlock.TransactionResult> transactionResults = block.getTransactions();
+        if (transactionResults == null){
+            return new BlockContractInfoBO(map,deployedAccountInfoBOList);
+        }
         for (BcosBlock.TransactionResult result : transactionResults) {
             BcosBlock.TransactionObject to = (BcosBlock.TransactionObject) result;
             JsonTransactionResponse transaction = to.get();
             BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.getCurrentContext().getClient()
                     .getTransactionReceipt(transaction.getHash());
-            Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
-            if (opt.isPresent()) {
-                TransactionReceipt tr = opt.get();
-
-                handle(tr, DateUtils.hexStrToDate(block.getTimestamp())).ifPresent(e -> {
+            TransactionReceipt tr = bcosTransactionReceipt.getTransactionReceipt();
+            if (tr != null) {
+                handle(tr, new Date(block.getTimestamp())).ifPresent(e -> {
                     deployedAccountInfoBOList.add(e);
                     map.putIfAbsent(e.getTxHash(), e.getContractAddress());
                 });
@@ -74,7 +76,7 @@ public class ContractCrawlerHandler {
         if (optt.isPresent()) {
             JsonTransactionResponse transaction = optt.get();
             // get constructor function transaction by judging if transaction's param named to is null
-            if (transaction.getTo() == null || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
+            if (StringUtils.isEmpty(transaction.getTo()) || transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
                 String contractAddress = receipt.getContractAddress();
                 String input = ExportConstant.getCurrentContext().getClient().getCode(contractAddress);
                 if (input == null) {

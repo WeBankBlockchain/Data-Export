@@ -13,6 +13,7 @@
  */
 package com.webank.blockchain.data.export.parser.handler;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO;
 import com.webank.blockchain.data.export.common.bo.data.BlockDetailInfoBO.Status;
 import com.webank.blockchain.data.export.common.bo.data.BlockRawDataBO;
@@ -21,8 +22,9 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.enums.IgnoreBasicDataParam;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.common.tools.JacksonUtils;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -46,10 +48,12 @@ public class BlockCrawlerHandler {
      */
     public static BlockDetailInfoBO handleBlockDetail(Block block) {
         BlockDetailInfoBO blockDetailInfo = new BlockDetailInfoBO();
-        blockDetailInfo.setBlockHeight(block.getNumber().longValue());
-        blockDetailInfo.setTxCount(block.getTransactions().size());
+        blockDetailInfo.setBlockHeight(block.getNumber());
+        if (block.getTransactions() != null) {
+            blockDetailInfo.setTxCount(block.getTransactions().size());
+        }
         blockDetailInfo.setBlockHash(block.getHash());
-        blockDetailInfo.setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()));
+        blockDetailInfo.setBlockTimeStamp(new Date(block.getTimestamp()));
         blockDetailInfo.setStatus((short) Status.COMPLETED.ordinal());
         return blockDetailInfo;
     }
@@ -58,18 +62,19 @@ public class BlockCrawlerHandler {
         ExportConfig config = ExportConstant.getCurrentContext().getConfig();
         Map<String, List<String>> ignoreBasicDataTableParam = config.getIgnoreBasicDataTableParam();
         BlockRawDataBO blockRawDataBO = new BlockRawDataBO();
-        blockRawDataBO.setBlockHeight(block.getNumber().longValue());
+        blockRawDataBO.setBlockHeight(block.getNumber());
         blockRawDataBO.setBlockHash(block.getHash());
-        blockRawDataBO.setBlockTimeStamp(DateUtils.hexStrToDate(block.getTimestamp()));
+        blockRawDataBO.setBlockTimeStamp(new Date(block.getTimestamp()));
         if (!ignoreBasicDataTableParam.containsKey(IgnoreBasicDataParam.IgnoreBasicDataTable.BLOCK_RAW_DATA_TABLE.name())) {
-            blockRawDataBO.setDbHash(block.getDbHash());
+//            blockRawDataBO.setDbHash(block.getHash());
             blockRawDataBO.setExtraData(JacksonUtils.toJson(block.getExtraData()));
-            blockRawDataBO.setGasLimit(block.getGasLimit());
             blockRawDataBO.setGasUsed(block.getGasUsed());
             blockRawDataBO.setLogsBloom(block.getLogsBloom());
-            blockRawDataBO.setParentHash(block.getParentHash());
+            if(CollectionUtil.isNotEmpty(block.getParentInfo())) {
+                blockRawDataBO.setParentHash(block.getParentInfo().get(0).getBlockHash());
+            }
             blockRawDataBO.setReceiptsRoot(block.getReceiptsRoot());
-            blockRawDataBO.setSealer(block.getSealer());
+            blockRawDataBO.setSealer(String.valueOf(block.getSealer()));
             blockRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));
             blockRawDataBO.setSignatureList(JacksonUtils.toJson(block.getSignatureList()));
             blockRawDataBO.setStateRoot(block.getStateRoot());
@@ -77,15 +82,15 @@ public class BlockCrawlerHandler {
             blockRawDataBO.setTransactionList(JacksonUtils.toJson(block.getTransactions()));
         }else {
             List<String> params = ignoreBasicDataTableParam.get(IgnoreBasicDataParam.IgnoreBasicDataTable.BLOCK_RAW_DATA_TABLE.name());
-            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.DB_HASH.name())) {
-                blockRawDataBO.setDbHash(block.getDbHash());
-            }
+//            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.DB_HASH.name())) {
+//                blockRawDataBO.setDbHash(block.getDbHash());
+//            }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.EXTRA_DATA.name())) {
                 blockRawDataBO.setExtraData(JacksonUtils.toJson(block.getExtraData()));
             }
-            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.GAS_LIMIT.name())) {
-                blockRawDataBO.setGasLimit(block.getGasLimit());
-            }
+//            if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.GAS_LIMIT.name())) {
+//                blockRawDataBO.setGasLimit(block.getGasLimit());
+//            }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.GAS_USED.name())) {
                 blockRawDataBO.setGasUsed(block.getGasUsed());
             }
@@ -93,13 +98,15 @@ public class BlockCrawlerHandler {
                 blockRawDataBO.setLogsBloom(block.getLogsBloom());
             }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.PARENT_HASH.name())) {
-                blockRawDataBO.setParentHash(block.getParentHash());
+                if(CollectionUtil.isNotEmpty(block.getParentInfo())) {
+                    blockRawDataBO.setParentHash(block.getParentInfo().get(0).getBlockHash());
+                }
             }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.RECEIPTS_ROOT.name())) {
                 blockRawDataBO.setReceiptsRoot(block.getReceiptsRoot());
             }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.SEALER.name())) {
-                blockRawDataBO.setSealer(block.getSealer());
+                blockRawDataBO.setSealer(String.valueOf(block.getSealer()));
             }
             if (!params.contains(IgnoreBasicDataParam.BlockRawDataParams.SEALER_LIST.name())) {
                 blockRawDataBO.setSealerList(JacksonUtils.toJson(block.getSealerList()));

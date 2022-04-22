@@ -15,18 +15,19 @@ package com.webank.blockchain.data.export.common.tools;
 
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.abi.datatypes.Bytes;
-import org.fisco.bcos.sdk.abi.datatypes.BytesType;
-import org.fisco.bcos.sdk.abi.datatypes.DynamicBytes;
-import org.fisco.bcos.sdk.abi.datatypes.Int;
-import org.fisco.bcos.sdk.abi.datatypes.NumericType;
-import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
-import org.fisco.bcos.sdk.abi.datatypes.Type;
-import org.fisco.bcos.sdk.abi.datatypes.Uint;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Bytes32;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Int256;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Int8;
-import org.fisco.bcos.sdk.abi.datatypes.generated.Uint256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Bytes;
+import org.fisco.bcos.sdk.v3.codec.datatypes.BytesType;
+import org.fisco.bcos.sdk.v3.codec.datatypes.DynamicBytes;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Int;
+import org.fisco.bcos.sdk.v3.codec.datatypes.NumericType;
+import org.fisco.bcos.sdk.v3.codec.datatypes.StaticArray;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Type;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Uint;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Bytes32;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int256;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Int8;
+import org.fisco.bcos.sdk.v3.codec.datatypes.generated.Uint256;
+
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;

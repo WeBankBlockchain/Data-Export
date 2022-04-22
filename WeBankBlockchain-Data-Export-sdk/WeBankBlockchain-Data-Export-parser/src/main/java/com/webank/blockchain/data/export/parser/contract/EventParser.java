@@ -26,9 +26,8 @@ import com.webank.blockchain.data.export.parser.tools.ABIUtils;
 import com.webank.blockchain.data.export.parser.tools.SolJavaTypeMappingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition;
-import org.fisco.bcos.sdk.abi.wrapper.ABIDefinition.NamedType;
-import org.fisco.bcos.sdk.crypto.CryptoSuite;
+import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.v3.crypto.CryptoSuite;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,9 +68,9 @@ public class EventParser{
             ABIDefinition abi = entry.getValue().get(0);
             EventMetaInfo eventMetaInfo = new EventMetaInfo();
             eventMetaInfo.setEventName(eventName).setContractName(contractName);
-            List<NamedType> fields = abi.getInputs();
+            List<ABIDefinition.NamedType> fields = abi.getInputs();
             List<FieldVO> fieldList = Lists.newArrayListWithExpectedSize(fields.size());
-            for (NamedType namedType : fields) {
+            for (ABIDefinition.NamedType namedType : fields) {
                 if (namedType.isIndexed()) {
                     continue;
                 }

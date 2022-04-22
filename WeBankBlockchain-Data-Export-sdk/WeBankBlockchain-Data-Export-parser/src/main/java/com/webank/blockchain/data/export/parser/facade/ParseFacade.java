@@ -24,7 +24,7 @@ import com.webank.blockchain.data.export.parser.handler.ContractCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.EventCrawlerHandler;
 import com.webank.blockchain.data.export.parser.handler.MethodCrawlerHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
 import java.util.List;

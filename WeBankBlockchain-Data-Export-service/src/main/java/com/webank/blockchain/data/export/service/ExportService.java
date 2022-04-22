@@ -36,7 +36,7 @@ public class ExportService {
                 .build();
         try {
             if (serviceConfig.getNodeStr() != null) {
-                for(Integer groupId : serviceConfig.getGroupIds()) {
+                for(String groupId : serviceConfig.getGroupIds()) {
                     ExportConfig config = buildExportConfig();
                     if (serviceConfig.getGroupIds().size() > 1) {
                         config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());
@@ -49,7 +49,7 @@ public class ExportService {
                     ExportDataSDK.start(exportExecutor);
                 }
             } else if(serviceConfig.getRpcUrl() != null) {
-                for(Integer groupId : serviceConfig.getGroupIds()) {
+                for(String groupId : serviceConfig.getGroupIds()) {
                     ExportConfig config = buildExportConfig();
                     if (serviceConfig.getGroupIds().size() > 1) {
                         config.setTablePrefix("g" + groupId + "_" + config.getTablePrefix());

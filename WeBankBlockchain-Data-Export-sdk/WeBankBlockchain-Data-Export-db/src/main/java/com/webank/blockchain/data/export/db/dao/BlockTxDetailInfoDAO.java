@@ -20,9 +20,9 @@ import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.db.entity.BlockTxDetailInfo;
 import com.webank.blockchain.data.export.db.repository.BlockTxDetailInfoRepository;
 import lombok.AllArgsConstructor;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -56,7 +56,7 @@ public class BlockTxDetailInfoDAO implements SaveInterface<BlockInfoBO> {
     public void save(TransactionReceipt receipt, BigInteger blockTimeStamp, String contractName, String methodName)
             throws IOException {
         BlockTxDetailInfo blockTxDetailInfo = new BlockTxDetailInfo();
-        blockTxDetailInfo.setBlockHash(receipt.getBlockHash());
+//        blockTxDetailInfo.setBlockHash(receipt.getBlockHash());
         blockTxDetailInfo.setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue());
         blockTxDetailInfo.setContractName(contractName);
         blockTxDetailInfo.setMethodName(methodName.substring(contractName.length()));

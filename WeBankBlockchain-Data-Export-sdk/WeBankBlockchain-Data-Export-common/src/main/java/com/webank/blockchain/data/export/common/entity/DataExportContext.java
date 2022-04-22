@@ -4,7 +4,7 @@ import com.webank.blockchain.data.export.common.client.ChainClient;
 import com.webank.blockchain.data.export.common.subscribe.TopicRegistry;
 import lombok.Data;
 import org.elasticsearch.client.transport.TransportClient;
-import org.fisco.bcos.sdk.transaction.codec.decode.TransactionDecoderInterface;
+import org.fisco.bcos.sdk.v3.transaction.codec.decode.TransactionDecoderInterface;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -27,8 +27,6 @@ public class DataExportContext {
     private ESDataSource esConfig;
 
     private ChainInfo chainInfo;
-
-    private StashInfo stashInfo;
 
     private DataSource stashDataSource;
 

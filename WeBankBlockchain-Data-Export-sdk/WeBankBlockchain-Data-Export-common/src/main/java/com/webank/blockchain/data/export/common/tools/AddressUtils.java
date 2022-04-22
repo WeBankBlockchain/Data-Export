@@ -21,8 +21,8 @@ import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.math.ec.ECAlgorithms;
 import org.bouncycastle.math.ec.ECPoint;
 import org.bouncycastle.math.ec.custom.sec.SecP256K1Curve;
-import org.fisco.bcos.sdk.abi.datatypes.Address;
-import org.fisco.bcos.sdk.abi.datatypes.StaticArray;
+import org.fisco.bcos.sdk.v3.codec.datatypes.Address;
+import org.fisco.bcos.sdk.v3.codec.datatypes.StaticArray;
 
 import java.math.BigInteger;
 import java.security.SignatureException;

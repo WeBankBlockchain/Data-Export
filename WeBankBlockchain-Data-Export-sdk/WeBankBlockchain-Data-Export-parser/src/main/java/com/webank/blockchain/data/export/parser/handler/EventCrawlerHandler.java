@@ -14,7 +14,6 @@
 package com.webank.blockchain.data.export.parser.handler;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Maps;
 import com.webank.blockchain.data.export.common.bo.contract.ContractDetail;
@@ -26,20 +25,19 @@ import com.webank.blockchain.data.export.common.entity.ContractInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.entity.TableSQL;
-import com.webank.blockchain.data.export.common.tools.DateUtils;
 import com.webank.blockchain.data.export.parser.service.TransactionService;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.abi.ABICodecException;
-import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionObject;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.TransactionResult;
-import org.fisco.bcos.sdk.client.protocol.response.BcosTransactionReceipt;
-import org.fisco.bcos.sdk.model.TransactionReceipt;
-import org.fisco.bcos.sdk.utils.Numeric;
+import org.fisco.bcos.sdk.v3.client.protocol.model.JsonTransactionResponse;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.TransactionObject;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.TransactionResult;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosTransactionReceipt;
+import org.fisco.bcos.sdk.v3.model.TransactionReceipt;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,28 +58,29 @@ public class EventCrawlerHandler {
     public static List<EventBO> crawl(Block block, Map<String, String> txHashContractNameMapping) throws IOException {
         List<TransactionResult> transactionResults = block.getTransactions();
         List<EventBO> boList = new ArrayList<>();
-        for (TransactionResult result : transactionResults) {
-            TransactionObject to = (TransactionObject) result;
-            JsonTransactionResponse transaction = to.get();
-            BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.getCurrentContext().getClient()
-                    .getTransactionReceipt(transaction.getHash());
-            Optional<TransactionReceipt> opt = bcosTransactionReceipt.getTransactionReceipt();
-            if (opt.isPresent()) {
-                TransactionReceipt tr = opt.get();
-                if (transaction.getTo() != null && !transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
-                    tr.setContractAddress(transaction.getTo());
+        if(transactionResults != null) {
+            for (TransactionResult result : transactionResults) {
+                TransactionObject to = (TransactionObject) result;
+                JsonTransactionResponse transaction = to.get();
+                BcosTransactionReceipt bcosTransactionReceipt = ExportConstant.getCurrentContext().getClient()
+                        .getTransactionReceipt(transaction.getHash());
+                TransactionReceipt tr = bcosTransactionReceipt.getTransactionReceipt();
+                if (tr != null) {
+                    if (transaction.getTo() != null && !transaction.getTo().equals(ContractConstants.EMPTY_ADDRESS)) {
+                        tr.setContractAddress(transaction.getTo());
+                    }
+                    Optional<String> contractName = TransactionService.getContractNameByTransaction(block.getNumber(),
+                            transaction, txHashContractNameMapping);
+                    if (!contractName.isPresent()) {
+                        continue;
+                    }
+                    Map<String, ContractInfo> contractAbiMap = ExportConstant.getCurrentContext().getContractInfoMap();
+                    String abi = contractAbiMap.get(contractName.get()).getAbi();
+                    if (abi == null) {
+                        continue;
+                    }
+                    boList.addAll(parserEvent(contractAbiMap, contractName.get(), abi, tr, block));
                 }
-                Optional<String> contractName = TransactionService.getContractNameByTransaction(
-                        transaction, txHashContractNameMapping);
-                if (!contractName.isPresent()) {
-                    continue;
-                }
-                Map<String, ContractInfo> contractAbiMap = ExportConstant.getCurrentContext().getContractInfoMap();
-                String abi = contractAbiMap.get(contractName.get()).getAbi();
-                if (abi == null) {
-                    continue;
-                }
-                boList.addAll(parserEvent(contractAbiMap, contractName.get(), abi, tr,block));
             }
         }
         return boList;
@@ -100,8 +99,8 @@ public class EventCrawlerHandler {
         Map<String, List<List<Object>>> events = null;
         try {
             events = ExportConstant.getCurrentContext().getDecoder()
-                    .decodeEvents(abi, tr.getLogs());
-        } catch (ABICodecException e) {
+                    .decodeEvents(abi, tr.getLogEntries());
+        } catch (Exception e) {
             log.error("decoder.decodeEvents failed", e);
         }
         for (Map.Entry<String,List<List<Object>>> entry : events.entrySet()) {
@@ -131,7 +130,7 @@ public class EventCrawlerHandler {
                     }
                     entity.put(fieldVO.getSqlName(), params.get(i++));
                 }
-                entity.put("block_time_stamp", DateUtils.hexStrToDate(block.getTimestamp()));
+                entity.put("block_time_stamp", new Date(block.getTimestamp()));
                 entity.put("tx_hash",tr.getTransactionHash());
                 entity.put("contract_address", tr.getContractAddress());
                 entity.put("block_height", Numeric.toBigInt(tr.getBlockNumber()).longValue());

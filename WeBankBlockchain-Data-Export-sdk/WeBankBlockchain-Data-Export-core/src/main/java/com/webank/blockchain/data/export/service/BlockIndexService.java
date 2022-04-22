@@ -20,7 +20,7 @@ import com.webank.blockchain.data.export.common.entity.ExportConfig;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
 import com.webank.blockchain.data.export.common.tools.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.fisco.bcos.sdk.client.protocol.response.BcosBlock.Block;
+import org.fisco.bcos.sdk.v3.client.protocol.response.BcosBlock.Block;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -69,8 +69,8 @@ public class BlockIndexService {
         BigInteger blockNumber = context.getClient().getBlockNumber();
         Block endBlock = getBlock(blockNumber);
 
-        Date beginDate = DateUtils.hexStrToDate(beginBlock.getTimestamp());
-        Date endDate = DateUtils.hexStrToDate(endBlock.getTimestamp());
+        Date beginDate = new Date(beginBlock.getTimestamp());
+        Date endDate = new Date(endBlock.getTimestamp());
 
         if (beginDate.getTime() > startDate.getTime()) {
             return 0;
@@ -94,7 +94,7 @@ public class BlockIndexService {
     private static long searchBlockIndex(long begin, long end, Date startDate) throws IOException {
         long index = (begin + end) / 2;
         Block indexBlock = getBlock(new BigInteger(Long.toString(index)));
-        Date indexDate = DateUtils.hexStrToDate(indexBlock.getTimestamp());
+        Date indexDate = new Date(indexBlock.getTimestamp());
         if (indexDate.getTime() == startDate.getTime()) {
             return index;
         } else if (indexDate.getTime() > startDate.getTime()) {

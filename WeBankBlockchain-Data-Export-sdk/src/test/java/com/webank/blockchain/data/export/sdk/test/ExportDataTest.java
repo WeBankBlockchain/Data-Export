@@ -5,7 +5,6 @@ import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.ExportDataSource;
 import com.webank.blockchain.data.export.common.entity.MysqlDataSource;
 import com.webank.blockchain.data.export.task.DataExportExecutor;
-import org.fisco.bcos.sdk.config.exceptions.ConfigException;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class ExportDataTest {
         DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                 .nodeStr("[ip]:[port]")
                 .certPath("config")
-                .groupId(1).build());
+                .groupId("1").build());
         ExportDataSDK.start(exportExecutor);
         Thread.sleep(60 *1000L);
         ExportDataSDK.stop(exportExecutor);
@@ -65,7 +64,7 @@ public class ExportDataTest {
         DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                 .nodeStr("[ip]:[port]")
                 .certPath("config")
-                .groupId(1).build());
+                .groupId("1").build());
         ExportDataSDK.start(exportExecutor);
         Thread.sleep(60 *1000L);
         ExportDataSDK.stop(exportExecutor);
