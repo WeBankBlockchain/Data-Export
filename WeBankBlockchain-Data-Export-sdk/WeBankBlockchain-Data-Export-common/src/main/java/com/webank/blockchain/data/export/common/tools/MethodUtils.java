@@ -118,7 +118,7 @@ public class MethodUtils {
 
         input = Numeric.cleanHexPrefix(input);
 
-        ABIObject abiObject = template.decode(input.getBytes(),false);
+        ABIObject abiObject = template.decode(Numeric.hexStringToByteArray(input),false);
 
         // ABIObject -> java List<Object>
         List<Object> result = decodeJavaObject(abiObject);

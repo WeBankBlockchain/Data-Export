@@ -28,6 +28,7 @@ import com.webank.blockchain.data.export.parser.tools.SolSqlTypeMappingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.fisco.bcos.sdk.v3.codec.wrapper.ABIDefinition;
+import org.fisco.bcos.sdk.v3.utils.Numeric;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +94,7 @@ public class MethodParser {
                 }
                 method.setOriginName(abiDefinition.getName());
             }
-            method.setMethodId(abiDefinition.getMethodId(ExportConstant.getCurrentContext().getClient().getCryptoSuite())
+            method.setMethodId(Numeric.toHexString(abiDefinition.getMethodId(ExportConstant.getCurrentContext().getClient().getCryptoSuite())).substring(0, 10)
                     + "_" + contractName);
             method.setFieldsList(getFieldList(inputs,method.getMethodName(),contractName))
                     .setOutputList(getOutputList(outputs,method.getMethodName(),contractName));
