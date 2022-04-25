@@ -89,7 +89,6 @@ public class MethodUtils {
         ABIDefinitionFactory abiDefinitionFactory = new ABIDefinitionFactory(client.getCryptoSuite());
         ContractABIDefinition contractABIDefinition = abiDefinitionFactory.loadABI(ABI);
         List<ABIDefinition> methods;
-//        ABICodecObject abiCodecObject = new ABICodecObject();
         ABIObjectFactory abiObjectFactory = new ABIObjectFactory();
         if (StringUtils.equals(methodName, "constructor")) {
             String code = client.getCode(tr.getContractAddress());
