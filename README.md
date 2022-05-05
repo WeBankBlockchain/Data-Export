@@ -55,8 +55,8 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 
 
 ## 文档
-- [**中文**](https://data-doc.readthedocs.io/zh_CN/latest/docs/WeBankBlockchain-Data-Export/index.html)
-- [**快速安装**](https://data-doc.readthedocs.io/zh_CN/latest/docs/WeBankBlockchain-Data-Export/install.html)
+- [**中文**](https://data-doc.readthedocs.io/zh_CN/dev/docs/WeBankBlockchain-Data-Export/index.html)
+- [**快速安装**](https://data-doc.readthedocs.io/zh_CN/dev/docs/WeBankBlockchain-Data-Export/install.html)
 
 
 ## 贡献代码
