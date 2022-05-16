@@ -45,6 +45,7 @@ public class ClientUtil {
     public static void setCertPath(ConfigProperty configProperty, ChainInfo chainInfo) {
         Map<String, Object> cryptoMaterial = Maps.newHashMapWithExpectedSize(1);
         cryptoMaterial.put("certPath", chainInfo.getCertPath());
+        cryptoMaterial.put("useSMCrypto", chainInfo.getCryptoTypeConfig() == 1? "true" : "false");
         configProperty.setCryptoMaterial(cryptoMaterial);
     }
 }
