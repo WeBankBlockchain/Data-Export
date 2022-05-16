@@ -43,6 +43,7 @@ public class ExportService {
                     }
                     DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
                             .nodeStr(serviceConfig.getNodeStr())
+                            .cryptoTypeConfig(serviceConfig.getCryptoTypeConfig())
                             .certPath(serviceConfig.getCertPath())
                             .groupId(groupId)
                             .build(), config);
