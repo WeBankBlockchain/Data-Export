@@ -138,7 +138,7 @@ public class MethodCrawlerHandler {
             entity.put("block_time_stamp", new Date(block.getTimestamp()));
             entity.put("tx_hash", receipt.getTransactionHash());
             entity.put("contract_address", contractAddress);
-            entity.put("block_height", Numeric.toBigInt(receipt.getBlockNumber()).longValue());
+            entity.put("block_height", Long.parseLong(receipt.getBlockNumber()));
             entity.put("method_status", receipt.getStatus());
             methodBO.setEntity(entity);
             methodBO.setToAddress(receipt.getTo());
