@@ -95,7 +95,7 @@ public class ContractCrawlerHandler {
                 }
                 DeployedAccountInfoBO deployedAccountInfoBO = new DeployedAccountInfoBO();
                 deployedAccountInfoBO.setBlockTimeStamp(blockTimeStamp)
-                        .setBlockHeight(Numeric.toBigInt(receipt.getBlockNumber()).longValue())
+                        .setBlockHeight(Long.parseLong(receipt.getBlockNumber()))
                         .setContractAddress(receipt.getContractAddress())
                         .setContractName(contractInfoBO.getContractName())
                         .setAbiHash(contractInfoBO.getAbiHash())
