@@ -23,7 +23,7 @@ WeBankBlockchain-Data-Export可以导出区块链上的基础数据，如当前�
 
 - 支持Channel通道方式导出数据
 
-- 支持服务和docker方式部署
+- 支持服务部署
 
 - 支持多数据源，支持分库分表
 
