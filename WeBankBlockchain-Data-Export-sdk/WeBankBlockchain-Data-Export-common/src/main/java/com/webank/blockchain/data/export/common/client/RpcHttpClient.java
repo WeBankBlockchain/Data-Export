@@ -17,6 +17,7 @@ import org.fisco.bcos.sdk.model.TransactionReceipt;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 
 /**
  * @author wesleywang
@@ -36,7 +37,7 @@ public class RpcHttpClient implements ChainClient {
     public RpcHttpClient() throws MalformedURLException {
         ChainInfo chainInfo = ExportConstant.getCurrentContext().getChainInfo();
         try {
-            client = new JsonRpcHttpClient(new URL(chainInfo.getRpcUrl()));
+            client = new JsonRpcHttpClient(JacksonUtils.objectMapper,new URL(chainInfo.getRpcUrl()), new HashMap<>());
         } catch (MalformedURLException e) {
             log.error("rpcHttp client build failed , reason : ", e);
             throw e;

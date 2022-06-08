@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @Slf4j
 public class JacksonUtils {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    public static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
