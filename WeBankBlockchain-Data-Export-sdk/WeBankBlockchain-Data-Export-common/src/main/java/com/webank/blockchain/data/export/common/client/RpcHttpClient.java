@@ -4,6 +4,7 @@ import cn.hutool.core.util.HexUtil;
 import com.googlecode.jsonrpc4j.JsonRpcHttpClient;
 import com.webank.blockchain.data.export.common.entity.ChainInfo;
 import com.webank.blockchain.data.export.common.entity.ExportConstant;
+import com.webank.blockchain.data.export.common.tools.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fisco.bcos.sdk.client.protocol.model.JsonTransactionResponse;
