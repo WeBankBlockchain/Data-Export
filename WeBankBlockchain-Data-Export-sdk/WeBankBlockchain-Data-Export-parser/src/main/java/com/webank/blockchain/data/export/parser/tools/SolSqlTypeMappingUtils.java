@@ -29,6 +29,8 @@ public class SolSqlTypeMappingUtils {
             return "text";
         }
         switch (solBasicType) {
+            case "tuple":
+                return "text";
             case "address":
                 return "varchar(256)";
             case "string":
