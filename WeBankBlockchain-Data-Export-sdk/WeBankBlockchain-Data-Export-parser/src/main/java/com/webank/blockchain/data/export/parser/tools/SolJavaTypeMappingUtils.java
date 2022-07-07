@@ -30,6 +30,7 @@ public class SolJavaTypeMappingUtils {
             return "String";
         }
         switch (solBasicType) {
+            case "tuple":
             case "address":
             case "string":
             case "bytes1":

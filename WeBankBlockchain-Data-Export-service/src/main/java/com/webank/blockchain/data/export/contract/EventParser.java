@@ -54,7 +54,7 @@ public class EventParser{
             contractGenOffs = genOffMap.get(contractName);
         }
         for (Map.Entry<String, List<ABIDefinition>> entry : eventsAbis.entrySet()) {
-            String eventName = StringUtils.capitalize(entry.getKey());
+            String eventName = entry.getKey();
             if (contractGenOffs != null && contractGenOffs.contains(eventName)){
                 continue;
             }

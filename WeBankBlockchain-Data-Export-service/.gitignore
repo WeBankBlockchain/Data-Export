@@ -2,6 +2,8 @@
 log/
 src/main/resources
 src/test/resources
+WeBankBlockchain-Data-Export-sdk/gradle.properties
+WeBankBlockchain-Data-Export-sdk/secring.gpg
 
 ### mac ###
 .DS_Store

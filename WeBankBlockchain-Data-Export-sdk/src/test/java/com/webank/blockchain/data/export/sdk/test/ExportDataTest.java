@@ -52,9 +52,9 @@ public class ExportDataTest {
     @Test
     public void singleTest() throws Exception {
         MysqlDataSource mysqlDataSourc = MysqlDataSource.builder()
-                .jdbcUrl("jdbc:mysql://[ip]:[port]/[database]")
-                .pass("password")
-                .user("username")
+                .jdbcUrl("jdbc:mysql://127.0.0.1:3306/data_export")
+                .pass("123456")
+                .user("root")
                 .build();
         List<MysqlDataSource> mysqlDataSourceList = new ArrayList<>();
         mysqlDataSourceList.add(mysqlDataSourc);
@@ -63,7 +63,7 @@ public class ExportDataTest {
                 .autoCreateTable(true)
                 .build();
         DataExportExecutor exportExecutor = ExportDataSDK.create(dataSource, ChainInfo.builder()
-                .nodeStr("[ip]:[port]")
+                .nodeStr("127.0.0.1:20200")
                 .certPath("config")
                 .groupId(1).build());
         ExportDataSDK.start(exportExecutor);
