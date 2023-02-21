@@ -20,7 +20,7 @@ allprojects {
 }
 
 subprojects{
-    version = "1.7.8"
+    version = "1.7.9"
     group = 'com.webank'
 }
 
@@ -52,11 +52,9 @@ project(':WeBankBlockchain-Data-Export-service') {
     compile 'org.springframework.boot:spring-boot-starter-data-jpa'
     compileOnly 'org.projectlombok:lombok:1.18.10'
     annotationProcessor 'org.projectlombok:lombok:1.18.10'
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
       exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-//    compile 'com.webank:data-export-sdk:1.7.2'
     implementation ('com.webank:solc-gradle-plugin:1.0.0'){
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
@@ -73,4 +71,3 @@ configurations {
         resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
     }
 }
-
