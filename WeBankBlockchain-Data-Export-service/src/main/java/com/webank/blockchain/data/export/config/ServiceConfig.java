@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.resource.ClasspathResourceLoader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -121,9 +120,6 @@ public class ServiceConfig {
 
     private boolean grafanaEnable;
 
-    @Autowired
-    private com.webank.blockchain.data.export.utils.PropertiesUtils PropertiesUtils;
-
     @Bean
     public GroupTemplate getGroupTemplateInstance() throws IOException {
         ClasspathResourceLoader resourceLoader = new ClasspathResourceLoader("");
@@ -154,13 +150,6 @@ public class ServiceConfig {
                 this.binaryPath = "./config/solidity/bin/sm";
             }
         }
-        mysqlDataSources = PropertiesUtils.getMysqlConfigs();
-        contractInfos = PropertiesUtils.getContractInfos();
-        generatedOff_SDK = PropertiesUtils.getGeneratedOff();
-        ignoreParam_SDK = PropertiesUtils.getIgnoreParam();
-        paramSQLType_SDK = PropertiesUtils.getparamSQLType();
-        ignoreBasicDataTableParam = PropertiesUtils.getIgnoreBasicDataTableParam();
-        dataTypeBlackList = PropertiesUtils.getDataTypeBlackList();
 
         if (esEnabled) {
             esDataSource = new ESDataSource();

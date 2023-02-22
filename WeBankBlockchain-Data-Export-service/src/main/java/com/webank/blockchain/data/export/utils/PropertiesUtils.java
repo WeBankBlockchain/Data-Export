@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -52,6 +53,17 @@ public class PropertiesUtils {
 
     @Autowired
     private ServiceConfig config;
+
+    @PostConstruct
+    private void init() {
+        config.setMysqlDataSources(getMysqlConfigs());
+        config.setContractInfos(getContractInfos());
+        config.setGeneratedOff_SDK(getGeneratedOff());
+        config.setIgnoreParam_SDK(getIgnoreParam());
+        config.setParamSQLType_SDK(getparamSQLType());
+        config.setIgnoreBasicDataTableParam(getIgnoreBasicDataTableParam());
+        config.setDataTypeBlackList(getDataTypeBlackList());
+    }
 
 
     /**
